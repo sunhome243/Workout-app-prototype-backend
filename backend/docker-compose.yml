@@ -8,7 +8,7 @@ services:
       - POSTGRES_PASSWORD=itismepassword
       - POSTGRES_DB=prototype
     ports:
-      - "5433:5432" 
+      - "5432:5432" 
     volumes:
       - db_data:/var/lib/postgresql/data
 
@@ -17,28 +17,36 @@ services:
     ports:
       - "8020:8020"
     environment:
-      - DATABASE_URL=postgresql://postgres:itismepassword@db:5432/prototype
+      - DATABASE_URL=postgresql://postgres:itismepassword@db:5433/prototype
+    depends_on:
+      - db
 
   workout-service:
     build: ./workout-service
     ports:
       - "8010:8010"
     environment:
-      - DATABASE_URL=postgresql://postgres:itismepassword@db:5432/prototype
+      - DATABASE_URL=postgresql://postgres:itismepassword@db:5433/prototype
+    depends_on:
+      - db
 
   ai-service:
     build: ./ai-service
     ports:
       - "8040:8040"
     environment:
-      - DATABASE_URL=postgresql://postgres:itismepassword@db:5432/prototype  
+      - DATABASE_URL=postgresql://postgres:itismepassword@db:5433/prototype
+    depends_on:
+      - db
 
   homework-service:
     build: ./homework-service
     ports:
       - "8003:8003"
     environment:
-      - DATABASE_URL=postgresql://postgres:itismepassword@db:5432/prototype 
+      - DATABASE_URL=postgresql://postgres:itismepassword@db:5433/prototype
+    depends_on:
+      - db
 
 volumes:
-  db_data: 
+  db_data:

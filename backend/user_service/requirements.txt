@@ -6,5 +6,5 @@ pydantic
 pytest
 requests
 pyJWT
-uuid
 typing
+bcrypt
