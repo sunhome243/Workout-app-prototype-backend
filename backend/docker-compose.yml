@@ -55,7 +55,7 @@ services:
       - POSTGRES_PASSWORD=itismepassword
       - POSTGRES_DB=user-db-test
     ports:
-      - "5433:5433" 
+      - "5455:5455" 
     volumes:
       - db_data_test:/var/lib/postgresql/data
 
