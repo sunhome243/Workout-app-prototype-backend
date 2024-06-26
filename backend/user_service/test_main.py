@@ -9,7 +9,7 @@ from models import MemberDB
 import os
 
 # Database URL for testing, obtained from environment variable or defaulting to local
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:itismepassword@localhost:5433/testing") 
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:itismepassword@localhost:5432/testing") 
 
 
 # --- Test Setup and Teardown ---
