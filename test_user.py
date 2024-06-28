@@ -6,7 +6,7 @@ from backend.user_service.database import Base, get_db
 from backend.user_service import main, cruds, models
 
 # Override database URL for testing
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:itismepassword@localhost:5455/user-db-test"
+SQLALCHEMY_DATABASE_URL = "postgresql+psycopg2://postgres:Happy0702!@34.22.87.1/user_db_test"
 
 # Create an engine and a SessionLocal class with a temporary database
 engine = create_engine(SQLALCHEMY_DATABASE_URL)

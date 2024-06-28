@@ -1,23 +1,13 @@
 version: "3.12"
 
 services:
-  db:
-    image: postgres:14-alpine
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=itismepassword
-      - POSTGRES_DB=user-db
-    ports:
-      - "5432:5432" 
-    volumes:
-      - db_data:/var/lib/postgresql/data
 
   user-service:
     build: ./user-service
     ports:
       - "8020:8020"
-    environment:
-      - DATABASE_URL=postgresql://postgres:itismepassword@db:5432/user-db
+    # environment:
+    #   - DATABASE_URL=postgresql://postgres:itismepassword@db:5432/user-db
     depends_on:
       - db
 
@@ -25,8 +15,8 @@ services:
     build: ./workout-service
     ports:
       - "8010:8010"
-    environment:
-      - DATABASE_URL=postgresql://postgres:itismepassword@db:5432/user-db
+    # environment:
+    #   - DATABASE_URL=postgresql://postgres:itismepassword@db:5432/user-db
     depends_on:
       - db
 
@@ -34,8 +24,8 @@ services:
     build: ./ai-service
     ports:
       - "8040:8040"
-    environment:
-      - DATABASE_URL=postgresql://postgres:itismepassword@db:5432/user-db
+    # environment:
+    #   - DATABASE_URL=postgresql://postgres:itismepassword@db:5432/user-db
     depends_on:
       - db
 
@@ -43,22 +33,7 @@ services:
     build: ./homework-service
     ports:
       - "8003:8003"
-    environment:
-      - DATABASE_URL=postgresql://postgres:itismepassword@db:5432/user-db
+    # environment:
+    #   - DATABASE_URL=postgresql://postgres:itismepassword@db:5432/user-db
     depends_on:
       - db
-  
-  test-db:
-    image: postgres:14-alpine
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=itismepassword
-      - POSTGRES_DB=user-db-test
-    ports:
-      - "5455:5455" 
-    volumes:
-      - db_data_test:/var/lib/postgresql/data
-
-volumes:
-  db_data:
-  db_data_test:
