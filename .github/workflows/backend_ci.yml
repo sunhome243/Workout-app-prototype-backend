@@ -57,7 +57,7 @@ jobs:
       uses: docker/setup-buildx-action@v3.3.0
     - name: Build Docker image
       run: |
-        docker build -t myapp:latest .
+        docker build -f dockerfile_test -t myapp:latest .
     - name: Run tests inside Docker
       run: |
         docker run --network host -e DATABASE_URL=${DATABASE_URL} myapp:latest pytest
