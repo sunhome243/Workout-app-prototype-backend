@@ -31,7 +31,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      SQLALCHEMY_DATABASE_URL: ${{ secrets.SQLALCHEMY_DATABASE_URL }}
+      SQLALCHEMY_DATABASE_URL: ${{ secrets.SQLALCHEMY_DATABASE_URL}}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python 3.10
@@ -50,7 +50,7 @@ jobs:
   build-and-test-docker:
     runs-on: ubuntu-latest
     env:
-      SQLALCHEMY_DATABASE_URL: ${{ secrets.SQLALCHEMY_DATABASE_URL }}
+      SQLALCHEMY_DATABASE_URL: ${{ secrets.SQLALCHEMY_DATABASE_URL}}
     steps:
       - uses: actions/checkout@v4
       - name: Build and push Docker images
