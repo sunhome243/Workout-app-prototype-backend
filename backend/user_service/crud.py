@@ -38,12 +38,12 @@ def update_user(db: Session, user_id: int, user_update: schemas.UserUpdate):
             salt = bcrypt.gensalt()
             after_hashed_password = bcrypt.hashpw(user_update.password.encode('utf-8'), salt)
             db_user.hashed_password = after_hashed_password
-        if user_update.exercise_duration:
-            db_user.exercise_duration = user_update.exercise_duration
-        if user_update.exercise_frequency:
-            db_user.exercise_frequency = user_update.exercise_frequency
-        if user_update.exercise_goal:
-            db_user.exercise_goal = user_update.exercise_goal
+        if user_update.workout_duration:
+            db_user.workout_duration = user_update.workout_duration
+        if user_update.workout_frequency:
+            db_user.workout_frequency = user_update.workout_frequency
+        if user_update.workout_goal:
+            db_user.workout_goal = user_update.workout_goal
 
     db.commit()
     db.refresh(db_user)

@@ -56,7 +56,6 @@ def test_create_user(client: TestClient, testing_session: Session):
     user_data = {
         "email": "test@example.com",
         "password": "password",
-        "usertype": "MEM"
     }
     response = client.post("/users/", json=user_data)
 
@@ -72,18 +71,10 @@ def test_create_user(client: TestClient, testing_session: Session):
     user_data3 = {
         "email": "test@example.com",
         "password": "password",
-        "usertype": "TRN"
     }
     response3 = client.post("/users/", json=user_data3)
     assert response3.status_code == 400
     
-    user_data4 = {
-        "email": "test2@example.com",
-        "password": "password",
-        "usertype": "TRM"
-    }
-    response4 = client.post("/users/", json=user_data4)
-    assert response4.status_code == 422
     
     
 def test_get_user(client: TestClient, testing_session: Session):
@@ -92,7 +83,6 @@ def test_get_user(client: TestClient, testing_session: Session):
         "email": "test@example.com",
         "password": "password",
         "height": 190.1,
-        "usertype": "MEM"
     }
     response = client.post("/users/", json=user_data)
     assert response.status_code == 200
@@ -108,12 +98,10 @@ def test_get_users(client: TestClient, testing_session: Session):
     user_data1 = {
         "email": "test1@example.com",
         "password": "password1",
-        "usertype": "MEM"
     }
     user_data2 = {
         "email": "test2@example.com",
         "password": "password2",
-        "usertype": "TRN"
     }
     client.post("/users/", json=user_data1)
     client.post("/users/", json=user_data2)
@@ -129,7 +117,6 @@ def test_update_user(client: TestClient, testing_session: Session):
     user_data = {
         "email": "test@example.com",
         "password": "password",
-        "usertype": "MEM",
     }
     response = client.post("/users/", json=user_data)
     assert response.status_code == 200
