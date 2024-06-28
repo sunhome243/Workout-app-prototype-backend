@@ -142,7 +142,6 @@ def test_update_user(client: TestClient, testing_session: Session):
         "age": 25,
         "height": 170.0,
         "weight": 65.0,
-        "exercise_level": 7,
     }
     
     # Perform update operation
@@ -155,6 +154,6 @@ def test_update_user(client: TestClient, testing_session: Session):
     assert db_user.age == user_update_data['age']
     assert db_user.height == user_update_data['height']
     assert db_user.weight == user_update_data['weight']
-    assert db_user.exercise_level == user_update_data['exercise_level']
+
     
     

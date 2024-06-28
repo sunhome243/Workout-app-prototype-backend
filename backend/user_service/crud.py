@@ -44,8 +44,6 @@ def update_user(db: Session, user_id: int, user_update: schemas.UserUpdate):
             db_user.exercise_frequency = user_update.exercise_frequency
         if user_update.exercise_goal:
             db_user.exercise_goal = user_update.exercise_goal
-        if user_update.exercise_level:
-            db_user.exercise_level = user_update.exercise_level
 
     db.commit()
     db.refresh(db_user)

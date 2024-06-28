@@ -14,5 +14,4 @@ class User(Base):
     exercise_duration = Column(Integer, nullable=True)
     exercise_frequency = Column(Integer, nullable=True)
     exercise_goal = Column(Integer, nullable=True)
-    exercise_level = Column(Integer, nullable=True)
     usertype = Column(String, nullable=False)

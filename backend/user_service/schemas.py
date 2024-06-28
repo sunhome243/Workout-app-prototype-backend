@@ -31,7 +31,6 @@ class User(UserBase):
     exercise_duration: Optional[int] = Field(default=None)
     exercise_frequency: Optional[int] = Field(default=None)
     exercise_goal: Optional[int] = Field(default=None)
-    exercise_level: Optional[int] = Field(default=None)
     
 
     class ConfigDict(ConfigDict):
@@ -47,7 +46,6 @@ class UserUpdate(UserBase):
     exercise_duration: Optional[int] = Field(default=1)
     exercise_frequency: Optional[int] = Field(default=1)
     exercise_goal: Optional[int] = Field(default=1)
-    exercise_level: Optional[int] = Field(default=1)
     
     @field_validator('age', 'height', 'weight', 'usertype')
     def check_required_fields(cls, v):
