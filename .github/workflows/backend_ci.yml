@@ -47,19 +47,19 @@ jobs:
       run: |
         pytest
 
-jobs:
-  build-and-test-docker:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Build and push Docker images
-      uses: docker/build-push-action@v6.2.0
-      with:
-        context: .  # Dockerfile이 위치한 디렉토리
-        file: dockerfile_test  # 사용할 Dockerfile 이름
-        tags: myapp:latest
-    - name: Docker Setup Buildx
-      uses: docker/setup-buildx-action@v3.3.0
-    - name: Run tests inside Docker
-      run: |
-        docker run --network host -e DATABASE_URL=${DATABASE_URL} myapp:latest pytest
+  jobs:
+    build-and-test-docker:
+      runs-on: ubuntu-latest
+      steps:
+      - uses: actions/checkout@v4
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v6.2.0
+        with:
+          context: .  
+          file: dockerfile_test 
+          tags: myapp:latest
+      - name: Docker Setup Buildx
+        uses: docker/setup-buildx-action@v3.3.0
+      - name: Run tests inside Docker
+        run: |
+          docker run --network host -e DATABASE_URL=${DATABASE_URL} myapp:latest pytest
