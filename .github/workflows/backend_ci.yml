@@ -57,9 +57,9 @@ jobs:
           context: .  
           file: dockerfile_test 
           tags: myapp:latest
-      - name: Test with pytest
-      env:
-        SQLALCHEMY_DATABASE_URL: ${{ secrets.SQLALCHEMY_DATABASE_URL }}
+      - name: add env
+        env:
+          SQLALCHEMY_DATABASE_URL: ${{ secrets.SQLALCHEMY_DATABASE_URL }}
       - name: Docker Setup Buildx
         uses: docker/setup-buildx-action@v3.3.0
       - name: Run tests inside Docker
