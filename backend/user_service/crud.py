@@ -25,3 +25,30 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.commit()
     db.refresh(db_user)
     return db_user
+
+def update_user(db: Session, user_id: int, user_update: schemas.UserUpdate):
+    db_user = db.query(models.User).filter(models.User.user_id == user_id).first()
+    if db_user:
+        #Required field
+        db_user.age = user_update.age
+        db_user.height = user_update.height
+        db_user.weight = user_update.weight
+        # Optional Update
+        if user_update.password:
+            salt = bcrypt.gensalt()
+            after_hashed_password = bcrypt.hashpw(user_update.password.encode('utf-8'), salt)
+            db_user.hashed_password = after_hashed_password
+        if user_update.exercise_duration:
+            db_user.exercise_duration = user_update.exercise_duration
+        if user_update.exercise_frequency:
+            db_user.exercise_frequency = user_update.exercise_frequency
+        if user_update.exercise_goal:
+            db_user.exercise_goal = user_update.exercise_goal
+        if user_update.exercise_level:
+            db_user.exercise_level = user_update.exercise_level
+
+    db.commit()
+    db.refresh(db_user)
+        
+    return db_user
+    

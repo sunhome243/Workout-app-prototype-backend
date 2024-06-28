@@ -4,9 +4,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from backend.user_service.database import Base, get_db
 from backend.user_service import main, crud, models
+import os
 
 # Override database URL for testing
-SQLALCHEMY_DATABASE_URL = "postgresql+psycopg2://postgres:Happy0702!@34.22.87.1/user_db_test"
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Create an engine and a SessionLocal class with a temporary database
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
@@ -55,31 +56,34 @@ def test_create_user(client: TestClient, testing_session: Session):
     user_data = {
         "email": "test@example.com",
         "password": "password",
-        "height": 190.1
-    }
-    user_data2 = {
-        "email": "test2@example.com",
-        "password": "codingtesting",
-        "height": 150.1
+        "usertype": "MEM"
     }
     response = client.post("/users/", json=user_data)
-    response2 = client.post("/users/", json=user_data2)
+
     assert response.status_code == 200
-    assert response2.status_code == 200
+
     created_user = response.json()
-    created_user2 = response2.json()
+
     assert created_user["email"] == user_data["email"]
     assert "user_id" in created_user
-    assert created_user2["email"] == user_data2["email"]
-    assert "user_id" in created_user2
+
     
+    #Create Error for purpose
     user_data3 = {
-        "email": "test2@example.com",
+        "email": "test@example.com",
         "password": "password",
-        "height": 190.1
+        "usertype": "TRN"
     }
     response3 = client.post("/users/", json=user_data3)
     assert response3.status_code == 400
+    
+    user_data4 = {
+        "email": "test2@example.com",
+        "password": "password",
+        "usertype": "TRM"
+    }
+    response4 = client.post("/users/", json=user_data4)
+    assert response4.status_code == 422
     
     
 def test_get_user(client: TestClient, testing_session: Session):
@@ -87,7 +91,8 @@ def test_get_user(client: TestClient, testing_session: Session):
     user_data = {
         "email": "test@example.com",
         "password": "password",
-        "height": 190.1
+        "height": 190.1,
+        "usertype": "MEM"
     }
     response = client.post("/users/", json=user_data)
     assert response.status_code == 200
@@ -103,18 +108,53 @@ def test_get_users(client: TestClient, testing_session: Session):
     user_data1 = {
         "email": "test1@example.com",
         "password": "password1",
-        "height": 180.1
+        "usertype": "MEM"
     }
     user_data2 = {
         "email": "test2@example.com",
         "password": "password2",
-        "height": 170.1
+        "usertype": "TRN"
     }
     client.post("/users/", json=user_data1)
     client.post("/users/", json=user_data2)
 
     # Test get_users
     users = crud.get_users(testing_session, skip=0, limit=10)
-    assert len(users) >= 2
+    assert len(users) == 2
     assert users[0].email in {user_data1["email"], user_data2["email"]}
     assert users[1].email in {user_data1["email"], user_data2["email"]}
+    
+def test_update_user(client: TestClient, testing_session: Session):
+    # Create a user to update (initial creation)
+    user_data = {
+        "email": "test@example.com",
+        "password": "password",
+        "usertype": "MEM",
+    }
+    response = client.post("/users/", json=user_data)
+    assert response.status_code == 200
+    created_user = response.json()
+    
+    # Define update data
+    user_update_data = {
+        "email": "test@example.com",
+        "password": "newpassword",
+        "age": 25,
+        "height": 170.0,
+        "weight": 65.0,
+        "exercise_level": 7,
+    }
+    
+    # Perform update operation
+    update_response = client.put(f"/users/{created_user['user_id']}", json=user_update_data)
+    assert update_response.status_code == 200
+    
+    # Check updated user in database
+    updated_user_id = created_user['user_id']
+    db_user = testing_session.query(models.User).filter(models.User.user_id == updated_user_id).first()
+    assert db_user.age == user_update_data['age']
+    assert db_user.height == user_update_data['height']
+    assert db_user.weight == user_update_data['weight']
+    assert db_user.exercise_level == user_update_data['exercise_level']
+    
+    
