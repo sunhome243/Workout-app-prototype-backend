@@ -2,6 +2,4 @@ venv
 __pycache__
 .pytest_cache
 .env
-alembic.ini
-alembic_test.ini
-migration
+
