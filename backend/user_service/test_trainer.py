@@ -3,8 +3,8 @@ from fastapi.testclient import TestClient
 from fastapi import HTTPException
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from backend.user_service.database import Base, get_db
-from backend.user_service import main, crud, models
+from .database import Base, get_db
+from . import main, crud, models
 import os
 
 # Override database URL for testing
