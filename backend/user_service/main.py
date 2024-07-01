@@ -4,8 +4,8 @@ import uvicorn
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
-from backend.user_service import crud, models, schemas
-from backend.user_service.database import SessionLocal, engine, get_db
+from . import crud, models, schemas
+from .database import SessionLocal, engine, get_db
 
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
