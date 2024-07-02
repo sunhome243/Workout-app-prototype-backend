@@ -5,7 +5,9 @@ sqlalchemy
 pydantic
 pytest
 requests
-pyJWT
 typing
 bcrypt
-jose
+pytz
+jwt
+datetime
+os
