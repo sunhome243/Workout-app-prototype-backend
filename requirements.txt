@@ -8,5 +8,5 @@ requests
 typing
 bcrypt
 pytz
-jwt
+pyjwt
 datetime

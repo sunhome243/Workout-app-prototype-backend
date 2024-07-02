@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Optional, Annotated
 import jwt
-from jwt import JWTError, decode
+from jwt.exceptions import InvalidTokenError
 import bcrypt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
