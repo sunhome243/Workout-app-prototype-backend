@@ -8,3 +8,4 @@ requests
 pyJWT
 typing
 bcrypt
+jose

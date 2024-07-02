@@ -29,7 +29,8 @@ def get_trainers(db: Session, skip: int = 0, limit: int = 100):
 # Creating user
 def create_user(db: Session, user: schemas.UserCreate):
     salt = bcrypt.gensalt()
-    after_hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), salt)
+    hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), salt)
+    after_hashed_password = hashed_password.decode('utf-8')
 
     db_user = models.User(email=user.email, hashed_password=after_hashed_password)
     
@@ -99,4 +100,9 @@ def create_trainer_user_mapping(db: Session, mapping: schemas.TrainerUserMapCrea
     db.commit()
     db.refresh(db_mapping)
     return db_mapping
+
+def delete_user(db: Session, user: models.User):
+    db.delete(user)
+    db.commit()
+
 

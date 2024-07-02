@@ -8,7 +8,7 @@ from . import main, crud, models
 import os
 
 # Override database URL for testing
-SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
+SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL_TEST")
 
 # Create an engine and a SessionLocal class with a temporary database
 engine = create_engine(SQLALCHEMY_DATABASE_URL)

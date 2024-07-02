@@ -16,7 +16,7 @@ class UserCreate(UserBase):
         if v is None:
             raise ValueError(f'{cls.__name__} is a required field')
         return v
-        
+
 class User(UserBase):
     user_id: int
     hashed_password: str
@@ -45,7 +45,7 @@ class UserUpdate(UserBase):
         if v is None:
             raise ValueError(f'{cls.__name__} is a required field')
         return v
-    
+
 class TrainerBase(BaseModel):
     email: str
     first_name: str
@@ -53,8 +53,8 @@ class TrainerBase(BaseModel):
     def check_required_fields(cls, v):
         if v is None:
             raise ValueError(f'{cls.__name__} is a required field')
-        return v    
-    
+        return v
+
 class TrainerCreate(TrainerBase):
     password: str
     
@@ -71,7 +71,7 @@ class Trainer(TrainerBase):
 class TrainerUpdate(TrainerBase):
     password: Optional[str] = Field(default=None)
     hashed_password: Optional[str] = Field(default=None)
-    
+
 class TrainerUserMapBase(BaseModel):
     trainer_id: int
     user_id: int
@@ -85,3 +85,10 @@ class TrainerUserMap(TrainerUserMapBase):
 
     class ConfigDict(ConfigDict):
         from_attributes = True
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username: Union[str, None] = None

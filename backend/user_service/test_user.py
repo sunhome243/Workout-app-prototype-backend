@@ -7,7 +7,7 @@ from . import main, crud, models
 import os
 
 # Override database URL for testing
-SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
+SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL_TEST")
 
 # Create an engine and a SessionLocal class with a temporary database
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
@@ -253,5 +253,22 @@ def test_update_user(client: TestClient, testing_session: Session):
     assert db_user.height == user_update_data['height']
     assert db_user.weight == user_update_data['weight']
 
-
+def test_login_and_get_token(client: TestClient, testing_session: Session):
+    user_data = {
+        "email": "test@example.com",
+        "password": "password",
+    }
+    response = client.post("/users/", json=user_data)
+    assert response.status_code == 200    
     
+    login_data = {
+        "username": "test@example.com",  
+        "password": "password",          
+    }
+
+    login_response = client.post(f"/token", data=login_data)
+    assert login_response.status_code == 200
+    token_data = login_response.json()
+    assert "access_token" in token_data
+    assert token_data["access_token"] is not None
+

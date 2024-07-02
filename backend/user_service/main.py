@@ -1,11 +1,15 @@
-from typing import List
+from typing import List, Annotated
 import uvicorn
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from datetime import datetime, timedelta
 
-from . import crud, models, schemas
+from . import crud, models, schemas, utils
 from .database import SessionLocal, engine, get_db
+import os
+
 
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
@@ -99,4 +103,43 @@ def create_trainer_user_mapping(mapping: schemas.TrainerUserMapCreate, db: Sessi
         raise HTTPException(status_code=404, detail="Trainer do not exist")
 
     return crud.create_trainer_user_mapping(db=db, mapping=mapping)
+
+# @app.delete("/users/me", response_model=schemas.User)
+# def delete_user_me(token: Annotated[str, Depends(oauth2_scheme)], current_user: schemas.User = Depends(utils.get_current_user), db: Session = Depends(SessionLocal)):
+#     try:
+#         crud.delete_user(db, current_user)
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Failed to delete user: {str(e)}")
+#     return current_user
+
+@app.post("/token", response_model=schemas.Token)
+async def login_for_access_token(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    db: Annotated[Session, Depends(utils.get_db)]
+) -> schemas.Token:
+    user = utils.authenticate_user(db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token_expires = timedelta(minutes=utils.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = utils.create_access_token(
+        data={"sub": user.email}, expires_delta=access_token_expires
+    )
+    return schemas.Token(access_token=access_token, token_type="bearer")
+
+@app.get("/users/me/", response_model=schemas.User)
+async def read_users_me(
+    current_user: Annotated[models.User, Depends(utils.get_current_active_user)],
+):
+    return current_user
+
+
+@app.get("/users/me/items/")
+async def read_own_items(
+    current_user: Annotated[models.User, Depends(utils.get_current_active_user)],
+):
+    return [{"item_id": "Foo", "owner": current_user.email}]
 
