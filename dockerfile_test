@@ -8,7 +8,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY backend/user_service /app
 
-ENV DATABASE_URL = ${DATABASE_URL}
+ENV DATABASE_URL_TEST = ${DATABASE_URL_TEST}
 
 RUN pip install pytest
 
