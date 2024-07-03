@@ -43,7 +43,7 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Test with pytest
         env:
-          SQLALCHEMY_DATABASE_URL_TEST: ${{ secrets.SQLALCHEMY_DATABASE_URL }}
+          SQLALCHEMY_DATABASE_URL_TEST: ${{ secrets.SQLALCHEMY_DATABASE_URL_TEST }}
           SQLALCHEMY_DATABASE_URL: ${{ secrets.SQLALCHEMY_DATABASE_URL }}
         run: |
           pytest

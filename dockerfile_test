@@ -8,7 +8,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY backend/user_service /app
 
-ENV DATABASE_URL_TEST = ${DATABASE_URL_TEST}
+ENV SQLALCHEMY_DATABASE_URL_TEST = ${SQLALCHEMY_DATABASE_URL_TEST}
+ENV SQLALCHEMY_DATABASE_URL = ${SQLALCHEMY_DATABASE_URL}
 
 RUN pip install pytest
 
