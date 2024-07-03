@@ -14,6 +14,7 @@ class User(Base):
     workout_duration = Column(Integer, nullable=True)
     workout_frequency = Column(Integer, nullable=True)
     workout_goal = Column(Integer, nullable=True)
+    role = Column(String, default="user")
 
     # Relationship with TrainerUserMap
     trainer_user_maps = relationship("TrainerUserMap", back_populates="user")

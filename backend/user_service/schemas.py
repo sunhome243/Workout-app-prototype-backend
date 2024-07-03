@@ -26,6 +26,7 @@ class User(UserBase):
     workout_duration: Optional[int] = Field(default=None)
     workout_frequency: Optional[int] = Field(default=None)
     workout_goal: Optional[int] = Field(default=None)
+    role: str
     
     class ConfigDict(ConfigDict):
         from_attributes = True

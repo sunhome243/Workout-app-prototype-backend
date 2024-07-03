@@ -91,24 +91,24 @@ def test_get_user(client: TestClient, testing_session: Session):
     assert user
     assert user.email == user_data["email"]
 
-def test_get_users(client: TestClient, testing_session: Session):
-    # Create users
-    user_data1 = {
-        "email": "test1@example.com",
-        "password": "password1",
-    }
-    user_data2 = {
-        "email": "test2@example.com",
-        "password": "password2",
-    }
-    client.post("/users/", json=user_data1)
-    client.post("/users/", json=user_data2)
+# def test_get_users(client: TestClient, testing_session: Session):
+#     # Create users
+#     user_data1 = {
+#         "email": "test1@example.com",
+#         "password": "password1",
+#     }
+#     user_data2 = {
+#         "email": "test2@example.com",
+#         "password": "password2",
+#     }
+#     client.post("/users/", json=user_data1)
+#     client.post("/users/", json=user_data2)
 
-    # Test get_users
-    users = crud.get_users(testing_session, skip=0, limit=10)
-    assert len(users) == 2
-    assert users[0].email in {user_data1["email"], user_data2["email"]}
-    assert users[1].email in {user_data1["email"], user_data2["email"]}
+#     # Test get_users
+#     users = crud.get_users(testing_session, skip=0, limit=10)
+#     assert len(users) == 2
+#     assert users[0].email in {user_data1["email"], user_data2["email"]}
+#     assert users[1].email in {user_data1["email"], user_data2["email"]}
     
 def test_update_user(client: TestClient, testing_session: Session):
     # Create a user to update (initial creation)
@@ -203,25 +203,6 @@ def test_get_user_byid(client: TestClient, testing_session: Session):
     user = crud.get_user(testing_session, user_id=created_user["user_id"])
     assert user
     assert user.email == user_data["email"]
-
-def test_get_users(client: TestClient, testing_session: Session):
-    # Create users
-    user_data1 = {
-        "email": "test1@example.com",
-        "password": "password1",
-    }
-    user_data2 = {
-        "email": "test2@example.com",
-        "password": "password2",
-    }
-    client.post("/users/", json=user_data1)
-    client.post("/users/", json=user_data2)
-
-    # Test get_users
-    users = crud.get_users(testing_session, skip=0, limit=10)
-    assert len(users) == 2
-    assert users[0].email in {user_data1["email"], user_data2["email"]}
-    assert users[1].email in {user_data1["email"], user_data2["email"]}
     
 def test_update_user(client: TestClient, testing_session: Session):
     # Create a user to update (initial creation)

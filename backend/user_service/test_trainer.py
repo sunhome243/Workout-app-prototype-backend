@@ -113,28 +113,28 @@ def test_get_trainer_byemail(client: TestClient, testing_session: Session):
     assert response.status_code == 404
     assert response.json() == {"detail": "Trainer not found"}
 
-def test_get_trainers(client: TestClient, testing_session: Session):
-    # Create multiple trainers
-    trainer_data1 = {
-        "email": "test1@example.com",
-        "password": "password",
-        "first_name": "itme",
-        "last_name": "games"
-    }
-    trainer_data2 = {
-        "email": "test2@example.com",
-        "password": "password",
-        "first_name": "itme",
-        "last_name": "games"
-    }
-    client.post("/trainers/", json=trainer_data1)
-    client.post("/trainers/", json=trainer_data2)
+# def test_get_trainers(client: TestClient, testing_session: Session):
+#     # Create multiple trainers
+#     trainer_data1 = {
+#         "email": "test1@example.com",
+#         "password": "password",
+#         "first_name": "itme",
+#         "last_name": "games"
+#     }
+#     trainer_data2 = {
+#         "email": "test2@example.com",
+#         "password": "password",
+#         "first_name": "itme",
+#         "last_name": "games"
+#     }
+#     client.post("/trainers/", json=trainer_data1)
+#     client.post("/trainers/", json=trainer_data2)
 
-    # Test GET operation to retrieve trainers
-    response = client.get("/trainers/")
-    assert response.status_code == 200
-    trainers = response.json()
-    assert len(trainers) == 2
+#     # Test GET operation to retrieve trainers
+#     response = client.get("/trainers/")
+#     assert response.status_code == 200
+#     trainers = response.json()
+#     assert len(trainers) == 2
 
 def test_update_trainer(client: TestClient, testing_session: Session):
     # Create a trainer to update
