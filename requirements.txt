@@ -9,3 +9,4 @@ httpx
 bcrypt
 pytz
 pyjwt
+pytest-timeout
