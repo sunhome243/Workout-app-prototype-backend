@@ -2,21 +2,20 @@ from datetime import datetime, timedelta
 from typing import Optional, Annotated
 from sqlalchemy import select
 import jwt
-from jwt.exceptions import PyJWTError
+from jwt.exceptions import PyJWTError 
 import bcrypt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 import pytz
-from . import schemas, crud, models
+from . import schemas, models
 from .database import AsyncSession, get_db
+from . import crud  
 
-# JWT 설정
 SECRET_KEY = "LcdBKEBUqF3F12SFU0JhP0061PXJGQUp"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 20
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
@@ -40,12 +39,12 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
         user_type: str = payload.get("type")
         if email is None or user_type is None:
             raise credentials_exception
-    except JWTError:
+    except PyJWTError:
         raise credentials_exception
     if user_type == 'user':
-        user = await get_user_by_email(db, email)
+        user = await crud.get_user_by_email(db, email)
     elif user_type == 'trainer':
-        user = await get_trainer_by_email(db, email)
+        user = await crud.get_trainer_by_email(db, email)
     else:
         raise credentials_exception
     if user is None:
@@ -61,13 +60,11 @@ async def authenticate_user(db: AsyncSession, email: str, password: str):
     user = user_result.scalar_one_or_none()
     if user and verify_password(password, user.hashed_password):
         return user, 'user'
-
     # Check trainer table
     trainer_result = await db.execute(select(models.Trainer).filter(models.Trainer.email == email))
     trainer = trainer_result.scalar_one_or_none()
     if trainer and verify_password(password, trainer.hashed_password):
         return trainer, 'trainer'
-
     return None, None
 
 async def admin_required(current_user: schemas.User = Depends(get_current_user)):

@@ -9,4 +9,3 @@ httpx
 bcrypt
 pytz
 pyjwt
-psycopg2-binary
