@@ -7,7 +7,6 @@ import bcrypt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
-import pytz
 from . import schemas, crud, models
 from .database import AsyncSession, get_db
 
