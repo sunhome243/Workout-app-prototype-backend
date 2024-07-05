@@ -247,7 +247,7 @@ def test_login_and_get_token(client: TestClient, testing_session: Session):
         "password": "password",          
     }
 
-    login_response = client.post(f"/token", data=login_data)
+    login_response = client.post(f"/login", data=login_data)
     assert login_response.status_code == 200
     token_data = login_response.json()
     assert "access_token" in token_data

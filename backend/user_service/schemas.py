@@ -31,20 +31,23 @@ class User(UserBase):
     class ConfigDict(ConfigDict):
         from_attributes = True
 
-class UserUpdate(UserBase):
-    password: Optional[str] = Field(default=None)
-    hashed_password: Optional[str] = Field(default=None)
-    age: int 
-    height: float 
-    weight: float
-    workout_duration: Optional[int] = Field(default=1)
-    workout_frequency: Optional[int] = Field(default=1)
-    workout_goal: Optional[int] = Field(default=1)
-    
-    @field_validator('age', 'height', 'weight')
-    def check_required_fields(cls, v):
-        if v is None:
-            raise ValueError(f'{cls.__name__} is a required field')
+class UserUpdate(BaseModel):
+    current_password: Optional[str] = None
+    new_password: Optional[str] = None
+    confirm_password: Optional[str] = None
+    age: Optional[int] = None
+    height: Optional[float] = None
+    weight: Optional[float] = None
+    workout_duration: Optional[int] = None
+    workout_frequency: Optional[int] = None
+    workout_goal: Optional[int] = None
+
+    @field_validator('confirm_password')
+    def passwords_match(cls, v, info):
+        if 'new_password' in info.data:
+            new_password = info.data['new_password']
+            if new_password is not None and v != new_password:
+                raise ValueError('Passwords do not match')
         return v
 
 class TrainerBase(BaseModel):

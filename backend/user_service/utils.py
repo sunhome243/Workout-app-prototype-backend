@@ -5,30 +5,29 @@ from jwt.exceptions import InvalidTokenError
 import bcrypt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 import pytz
-
 from . import schemas, crud
-from .database import SessionLocal, engine, get_db
+from .database import AsyncSession, get_db
 
 # JWT 설정
 SECRET_KEY = "LcdBKEBUqF3F12SFU0JhP0061PXJGQUp"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 20
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.now(pytz.utc) + expires_delta
+        expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.now(pytz.utc) + timedelta(minutes=30)
+        expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)):
+async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -36,37 +35,41 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
+        email: str = payload.get("sub")
+        user_type: str = payload.get("type")
+        if email is None or user_type is None:
             raise credentials_exception
-        token_data = schemas.TokenData(username=username)
-    except InvalidTokenError:
+    except JWTError:
         raise credentials_exception
-    user = crud.get_user_by_email(db, email=token_data.username)
+    if user_type == 'user':
+        user = await get_user_by_email(db, email)
+    elif user_type == 'trainer':
+        user = await get_trainer_by_email(db, email)
+    else:
+        raise credentials_exception
     if user is None:
         raise credentials_exception
     return user
 
-async def get_current_active_user(
-    current_user: Annotated[schemas.User, Depends(get_current_user)],
-):
-    return current_user
-
 def verify_password(plain_password, hashed_password):
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
-def authenticate_user(db: Session, email: str, password: str):
-    user = crud.get_user_by_email(db, email)
+async def authenticate_user(db: AsyncSession, email: str, password: str):
+    # Check user table
+    user_result = await db.execute(select(User).filter(User.email == email))
+    user = user_result.scalar_one_or_none()
     if user and verify_password(password, user.hashed_password):
-        return user
-    
-    trainer = crud.get_trainer_by_email(db, email)
-    if trainer and verify_password(password, trainer.hashed_password):
-        return trainer
-    
-    return False
+        return user, 'user'
 
-def admin_required(current_user: schemas.User = Depends(get_current_active_user)):
+    # Check trainer table
+    trainer_result = await db.execute(select(Trainer).filter(Trainer.email == email))
+    trainer = trainer_result.scalar_one_or_none()
+    if trainer and verify_password(password, trainer.hashed_password):
+        return trainer, 'trainer'
+
+    return None, None
+
+async def admin_required(current_user: schemas.User = Depends(get_current_user)):
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user
