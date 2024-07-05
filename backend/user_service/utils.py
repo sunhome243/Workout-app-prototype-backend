@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Optional, Annotated
+from sqlalchemy import select
 import jwt
 from jwt.exceptions import InvalidTokenError
 import bcrypt
@@ -7,7 +8,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 import pytz
-from . import schemas, crud
+from . import schemas, crud, models
 from .database import AsyncSession, get_db
 
 # JWT 설정
@@ -56,13 +57,13 @@ def verify_password(plain_password, hashed_password):
 
 async def authenticate_user(db: AsyncSession, email: str, password: str):
     # Check user table
-    user_result = await db.execute(select(User).filter(User.email == email))
+    user_result = await db.execute(select(models.User).filter(models.User.email == email))
     user = user_result.scalar_one_or_none()
     if user and verify_password(password, user.hashed_password):
         return user, 'user'
 
     # Check trainer table
-    trainer_result = await db.execute(select(Trainer).filter(Trainer.email == email))
+    trainer_result = await db.execute(select(models.Trainer).filter(models.Trainer.email == email))
     trainer = trainer_result.scalar_one_or_none()
     if trainer and verify_password(password, trainer.hashed_password):
         return trainer, 'trainer'

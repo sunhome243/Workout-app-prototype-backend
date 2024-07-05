@@ -10,3 +10,4 @@ bcrypt
 pytz
 pyjwt
 datetime
+psycopg2

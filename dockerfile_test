@@ -7,6 +7,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY backend/user_service /app
+COPY pyest.ini /app/pytest.ini
+COPY /tests /app/tests
 
 ENV SQLALCHEMY_DATABASE_URL_TEST = ${SQLALCHEMY_DATABASE_URL_TEST}
 ENV SQLALCHEMY_DATABASE_URL = ${SQLALCHEMY_DATABASE_URL}

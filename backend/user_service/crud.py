@@ -1,10 +1,28 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
+from fastapi import HTTPException
 from . import models, schemas
 import bcrypt
 
+async def is_email_unique(db: AsyncSession, email: str) -> bool:
+    # Check user table
+    user_result = await db.execute(select(models.User).filter(models.User.email == email))
+    user = user_result.scalar_one_or_none()
+    if user:
+        return False
+
+    # Check trainer table
+    trainer_result = await db.execute(select(models.Trainer).filter(models.Trainer.email == email))
+    trainer = trainer_result.scalar_one_or_none()
+    if trainer:
+        return False
+
+    return True
+
 # Creating user
 async def create_user(db: AsyncSession, user: schemas.UserCreate):
+    if not await is_email_unique(db, user.email):
+        raise HTTPException(status_code=400, detail="Email already registered")
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), salt)
     after_hashed_password = hashed_password.decode('utf-8')
@@ -16,8 +34,11 @@ async def create_user(db: AsyncSession, user: schemas.UserCreate):
 
 # Creating trainer
 async def create_trainer(db: AsyncSession, trainer: schemas.TrainerCreate):
+    if not await is_email_unique(db, trainer.email):
+        raise HTTPException(status_code=400, detail="Email already registered")
     salt = bcrypt.gensalt()
-    after_hashed_password = bcrypt.hashpw(trainer.password.encode('utf-8'), salt)
+    hashed_password = bcrypt.hashpw(trainer.password.encode('utf-8'), salt)
+    after_hashed_password = hashed_password.decode('utf-8')
     db_user = models.Trainer(email=trainer.email, hashed_password=after_hashed_password, first_name=trainer.first_name, last_name=trainer.last_name)
     db.add(db_user)
     await db.commit()
