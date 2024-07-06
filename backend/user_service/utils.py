@@ -27,7 +27,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
+async def get_current_member(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -54,7 +54,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
 def verify_password(plain_password, hashed_password):
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
-async def authenticate_user(db: AsyncSession, email: str, password: str):
+async def authenticate_member(db: AsyncSession, email: str, password: str):
     # Check user table
     user_result = await db.execute(select(models.User).filter(models.User.email == email))
     user = user_result.scalar_one_or_none()
@@ -67,7 +67,7 @@ async def authenticate_user(db: AsyncSession, email: str, password: str):
         return trainer, 'trainer'
     return None, None
 
-async def admin_required(current_user: schemas.User = Depends(get_current_user)):
+async def admin_required(current_user: schemas.User = Depends(get_current_member)):
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user

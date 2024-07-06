@@ -48,10 +48,10 @@ def client(testing_session):
         finally:
             testing_session.close()
 
-    main.app.dependency_overrides[get_db] = override_get_db
-    with TestClient(main.app) as c:
+    main.router.dependency_overrides[get_db] = override_get_db
+    with TestClient(main.router) as c:
         yield c
-    main.app.dependency_overrides = {}
+    main.router.dependency_overrides = {}
 
 # Test CRUD operations
 def test_create_trainer(client: TestClient, testing_session: Session):

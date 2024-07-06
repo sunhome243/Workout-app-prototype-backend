@@ -2,15 +2,22 @@ import asyncio
 import pytest
 import pytest_asyncio
 import os
-from httpx import AsyncClient, ASGITransport
+from httpx import AsyncClient, ASGITransport  # 추가된 부분
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
-from sqlalchemy.sql import text
 from backend.user_service.database import Base, get_db
 from backend.user_service.main import app
+from backend.user_service import models  # 모델 import 추가
 
 SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL_TEST")
+
+@pytest.fixture(scope="session")
+def event_loop():
+    policy = asyncio.get_event_loop_policy()
+    loop = policy.new_event_loop()
+    yield loop
+    loop.close()
 
 @pytest_asyncio.fixture(scope="session")
 async def engine():
@@ -18,39 +25,24 @@ async def engine():
         SQLALCHEMY_DATABASE_URL,
         poolclass=NullPool
     )
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
     yield engine
     await engine.dispose()
-
-async def cleanup_database(engine):
-    async with engine.begin() as conn:
-        # 모든 테이블 목록 가져오기
-        result = await conn.execute(text("""
-            SELECT table_name 
-            FROM information_schema.tables 
-            WHERE table_schema = 'public'
-        """))
-        tables = result.fetchall()
-
-        # 외래 키 제약 조건 비활성화
-        await conn.execute(text("SET CONSTRAINTS ALL DEFERRED"))
-
-        # 모든 테이블 비우기
-        for table in tables:
-            await conn.execute(text(f"TRUNCATE TABLE {table[0]} RESTART IDENTITY CASCADE"))
-
-        # 외래 키 제약 조건 다시 활성화
-        await conn.execute(text("SET CONSTRAINTS ALL IMMEDIATE"))
-
-        await conn.commit()
 
 @pytest_asyncio.fixture(autouse=True, scope="function")
 async def session(engine):
     async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
     async with async_session() as session:
-        await cleanup_database(engine)  # 세션 시작 전 데이터베이스 정리
+        await cleanup_database(session)  # 세션 시작 전 데이터베이스 정리
         yield session
-        await session.close()
-        await cleanup_database(engine)  # 세션 종료 후 데이터베이스 정리
+        # await session.close() # 이 줄을 제거합니다.
+
+async def cleanup_database(session):
+    # 모든 테이블 데이터 삭제
+    for table in reversed(Base.metadata.sorted_tables):
+        await session.execute(f"TRUNCATE TABLE {table.name} RESTART IDENTITY CASCADE")
+    await session.commit()
 
 @pytest.fixture
 def test_app():
@@ -65,8 +57,8 @@ async def client(test_app, session):
             await session.close()
 
     test_app.dependency_overrides[get_db] = override_get_db
-    transport = ASGITransport(app=test_app) 
-    async with AsyncClient(transport=transport, base_url="http://test") as client: 
+    transport = ASGITransport(app=test_app)  # 수정된 부분
+    async with AsyncClient(transport=transport, base_url="http://test") as client:  # 수정된 부분
         yield client
     test_app.dependency_overrides.clear()
 

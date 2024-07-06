@@ -6,15 +6,32 @@ from tests.conftest import BaseTestRouter
 pytestmark = pytest.mark.asyncio
 
 class TestUserRouter(BaseTestRouter):
-    @pytest.fixture
-    def app(self):
-        return app
-
+    
+    @pytest.mark.asyncio
     async def test_create_user(self, client: AsyncClient, session):
         data = {"email": "test@example.com", "password": "password"}
         response = await client.post("/users/", json=data)
-        assert response.status_code == 200
+        print(f"Response status: {response.status_code}")
+        print(f"Response body: {response.text}")
+        assert response.status_code == 201 
         assert response.json()["email"] == data["email"]
+        
+    #     #create user data with same email
+    #     data2 = {"email": "test@example.com", "password": "password"}
+    #     response2 = await client.post("/users/", json=data2)
+    #     assert response2.status_code == 400
+    #     assert response2.json()["email"] == data2["email"]
+
+    # async def test_login(self, client: AsyncClient, session):
+    #     login_data = {"email": "test@example.com", "password": "password"}
+    #     login_response = await client.post("/login", json=login_data)
+    #     assert response.status_code == 200
+    #     assert response.json()["email"] == data["email"]       
+    #     assert "access_token" in token_data
+    #     assert token_data["access_token"] is not None
+        
+        
+        
         
 # # Override database URL for testing (use async database URL)
 # SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL_TEST")

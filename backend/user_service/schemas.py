@@ -73,8 +73,9 @@ class Trainer(TrainerBase):
     hashed_password: str
 
 class TrainerUpdate(TrainerBase):
-    password: Optional[str] = Field(default=None)
-    hashed_password: Optional[str] = Field(default=None)
+    current_password: Optional[str] = None
+    new_password: Optional[str] = None
+    confirm_password: Optional[str] = None
 
 class TrainerUserMapBase(BaseModel):
     trainer_id: int
