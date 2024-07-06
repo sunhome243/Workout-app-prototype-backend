@@ -77,7 +77,6 @@ async def get_trainers(db: AsyncSession, skip: int = 0, limit: int = 100):
 
 # Updating user info
 async def update_user(db: AsyncSession, user: models.User, user_update: dict):
-    # We don't need to query the user again as we already have the user object
     if user:
         # Update fields
         for key, value in user_update.items():
@@ -95,17 +94,20 @@ async def update_user(db: AsyncSession, user: models.User, user_update: dict):
 
 # Updating trainer info
 async def update_trainer(db: AsyncSession, trainer_id: int, trainer_update: schemas.TrainerUpdate):
-    result = await db.execute(select(models.Trainer).filter(models.Trainer.trainer_id == trainer_id))
-    db_user = result.scalar_one_or_none()
-    if db_user:
-        # Optional Update
-        if trainer_update.password:
-            salt = bcrypt.gensalt()
-            after_hashed_password = bcrypt.hashpw(trainer_update.password.encode('utf-8'), salt)
-            db_user.hashed_password = after_hashed_password
+    if user:
+        # Update fields
+        for key, value in user_update.items():
+            if value is not None:
+                if key == 'hashed_password':
+                    # Password is already hashed in the update_user endpoint
+                    setattr(user, key, value)
+                elif hasattr(user, key):
+                    setattr(user, key, value)
+
         await db.commit()
-        await db.refresh(db_user)
-    return db_user
+        await db.refresh(user)
+        return user
+    return None
 
 async def create_trainer_user_mapping(db: AsyncSession, mapping: schemas.TrainerUserMapCreate):
     db_trainer = await get_trainer(db, mapping.trainer_id)
