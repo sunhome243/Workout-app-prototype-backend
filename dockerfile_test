@@ -1,18 +1,24 @@
-FROM python:3.10
+FROM python:3.10-slim
+
 
 WORKDIR /app
 
-COPY requirements.txt .
 
+RUN apt-get update && apt-get install -y \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY backend/user_service /app
-COPY pyest.ini /app/pytest.ini
-COPY /tests /app/tests
 
-ENV SQLALCHEMY_DATABASE_URL_TEST = ${SQLALCHEMY_DATABASE_URL_TEST}
-ENV SQLALCHEMY_DATABASE_URL = ${SQLALCHEMY_DATABASE_URL}
+COPY backend/user_service /app/backend/user_service
+COPY pytest.ini /app/pytest.ini
+COPY tests /app/tests
 
-RUN pip install pytest
+
+ENV PYTHONPATH=/app
+ENV SQLALCHEMY_DATABASE_URL_TEST=${SQLALCHEMY_DATABASE_URL_TEST}
+ENV SQLALCHEMY_DATABASE_URL=${SQLALCHEMY_DATABASE_URL}
 
 CMD ["pytest"]

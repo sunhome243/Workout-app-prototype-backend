@@ -3,8 +3,6 @@ from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-
-
 # 현재 파일의 디렉토리 경로를 얻습니다.
 current_dir = os.path.dirname(os.path.abspath(__file__))
 # 프로젝트 루트 디렉토리 경로를 얻습니다 (현재 디렉토리의 상위 디렉토리).

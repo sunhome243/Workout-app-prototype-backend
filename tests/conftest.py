@@ -2,7 +2,7 @@ import asyncio
 import pytest
 import pytest_asyncio
 import os
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
@@ -11,13 +11,6 @@ from backend.user_service.database import Base, get_db
 from backend.user_service.main import app
 
 SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL_TEST")
-
-@pytest.fixture(scope="session")
-def event_loop():
-    policy = asyncio.get_event_loop_policy()
-    loop = policy.new_event_loop()
-    yield loop
-    loop.close()
 
 @pytest_asyncio.fixture(scope="session")
 async def engine():
@@ -66,10 +59,14 @@ def test_app():
 @pytest_asyncio.fixture
 async def client(test_app, session):
     async def override_get_db():
-        yield session
+        try:
+            yield session
+        finally:
+            await session.close()
 
     test_app.dependency_overrides[get_db] = override_get_db
-    async with AsyncClient(app=test_app, base_url="http://test") as client:
+    transport = ASGITransport(app=test_app) 
+    async with AsyncClient(transport=transport, base_url="http://test") as client: 
         yield client
     test_app.dependency_overrides.clear()
 

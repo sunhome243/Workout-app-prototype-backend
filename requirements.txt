@@ -4,10 +4,9 @@ asyncpg
 sqlalchemy
 pydantic
 pytest
-requests
-typing
+pytest-asyncio
+httpx
 bcrypt
 pytz
 pyjwt
-datetime
-psycopg2
+pytest-timeout
