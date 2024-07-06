@@ -122,6 +122,6 @@ async def delete_user(db: AsyncSession, user: models.User):
     await db.delete(user)
     await db.commit()
     
-async def delete_trainer(db: AsyncSession, user: models.Trainer):
+async def delete_trainer(db: AsyncSession, trainer: models.Trainer):
     await db.delete(trainer)
     await db.commit()
