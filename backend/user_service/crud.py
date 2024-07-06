@@ -93,7 +93,7 @@ async def update_user(db: AsyncSession, user: models.User, user_update: dict):
     return None
 
 # Updating trainer info
-async def update_trainer(db: AsyncSession, trainer_id: int, trainer_update: schemas.TrainerUpdate):
+async def update_traineupdate_user(db: AsyncSession, trainer: models.Trainer, trainer_update: dict):
     if trainer:
         # Update fields
         for key, value in trainer_update.items():
