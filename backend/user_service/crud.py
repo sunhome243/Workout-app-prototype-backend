@@ -94,19 +94,19 @@ async def update_user(db: AsyncSession, user: models.User, user_update: dict):
 
 # Updating trainer info
 async def update_trainer(db: AsyncSession, trainer_id: int, trainer_update: schemas.TrainerUpdate):
-    if user:
+    if trainer:
         # Update fields
-        for key, value in user_update.items():
+        for key, value in trainer_update.items():
             if value is not None:
                 if key == 'hashed_password':
                     # Password is already hashed in the update_user endpoint
-                    setattr(user, key, value)
-                elif hasattr(user, key):
-                    setattr(user, key, value)
+                    setattr(trainer, key, value)
+                elif hasattr(trainer, key):
+                    setattr(trainer, key, value)
 
         await db.commit()
-        await db.refresh(user)
-        return user
+        await db.refresh(trainer)
+        return trainer
     return None
 
 async def create_trainer_user_mapping(db: AsyncSession, mapping: schemas.TrainerUserMapCreate):
@@ -120,4 +120,8 @@ async def create_trainer_user_mapping(db: AsyncSession, mapping: schemas.Trainer
 
 async def delete_user(db: AsyncSession, user: models.User):
     await db.delete(user)
+    await db.commit()
+    
+async def delete_trainer(db: AsyncSession, user: models.Trainer):
+    await db.delete(trainer)
     await db.commit()

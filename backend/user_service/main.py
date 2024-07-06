@@ -94,8 +94,8 @@ async def update_trainer(
     update_data = trainer_update.model_dump(exclude={'current_password', 'new_password', 'confirm_password'})
 
     # Update password if new password is provided
-    if user_update.new_password:
-        hashed_password = bcrypt.hashpw(user_update.new_password.encode('utf-8'), salt)
+    if trainer_update.new_password:
+        hashed_password = bcrypt.hashpw(trainer_update.new_password.encode('utf-8'), salt)
         after_hashed_password = hashed_password.decode('utf-8')
         update_data['hashed_password'] = after_hashed_password
 
@@ -206,7 +206,7 @@ async def delete_trainers_me(
         await crud.delete_trainer(db, current_trainer)
         await db.commit()
 
-        return current_user
+        return current_trainer
     except Exception as e:
         await db.rollback()
         logging.error(f"Error deleting user: {str(e)}")
