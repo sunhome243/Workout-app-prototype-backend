@@ -196,7 +196,7 @@ async def delete_users_me(
         logging.error(f"Error deleting user: {str(e)}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to delete user: {str(e)}")
     
-@router.delete("/trainers/me/", response_model=schemas.User)
+@router.delete("/trainers/me/", response_model=schemas.Trainer)
 async def delete_trainers_me(
     current_trainer: Annotated[models.Trainer, Depends(utils.get_current_member)],
     db: AsyncSession = Depends(utils.get_db)
