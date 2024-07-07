@@ -21,7 +21,7 @@ async def create_user(user: schemas.UserCreate, db: AsyncSession = Depends(get_d
 
 # Trainer sign up
 @router.post("/trainers/", response_model=schemas.Trainer)
-async def create_trainer(trainer: schemas.TrainerCreate, db: AsyncSession = Depends(get_db)):
+async def create_trainer(trainer: schemas.TrainerCreate, db: AsyncSession = Depends(get_db)): 
     await crud.get_trainer_by_email (db, email = trainer.email)
     return await crud.create_trainer(db=db, trainer=trainer)
 

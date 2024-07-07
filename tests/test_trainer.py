@@ -1,3 +1,21 @@
+import pytest
+from httpx import AsyncClient
+from backend.user_service.main import app
+from tests.conftest import BaseTestRouter
+
+pytestmark = pytest.mark.asyncio
+
+class TestUserRouter(BaseTestRouter):
+    @pytest.fixture
+    def app(self):
+        return app
+
+    async def test_create_trainer(self, client: AsyncClient, session):
+        data2 = {"email": "trainertest@example.com", "password": "password", "first_name":"Sunho", "last_name":"Kim"}
+        response2 = await client.post("/trainers/", json=data2)
+        assert response2.status_code == 200
+        assert response2.json()["email"] == data2["email"]
+
 '''
 import pytest
 from fastapi.testclient import TestClient
