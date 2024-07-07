@@ -11,10 +11,10 @@ class TestUserRouter(BaseTestRouter):
         return app
 
     async def test_create_trainer(self, client: AsyncClient, session):
-        data = {"email": "trainertest@example.com", "password": "password"}
-        response = await client.post("/trainers/", json=data)
-        assert response.status_code == 200
-        assert response.json()["email"] == data["email"]
+        data2 = {"email": "trainertest@example.com", "password": "password", "first_name":"Sunho", "last_name":"Kim"}
+        response2 = await client.post("/trainers/", json=data2)
+        assert response2.status_code == 200
+        assert response2.json()["email"] == data2["email"]
 
 '''
 import pytest
