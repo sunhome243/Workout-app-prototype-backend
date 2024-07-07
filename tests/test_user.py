@@ -6,10 +6,6 @@ from tests.conftest import BaseTestRouter
 pytestmark = pytest.mark.asyncio
 
 class TestUserRouter(BaseTestRouter):
-    @pytest.fixture
-    def app(self):
-        return app
-
     async def test_create_user(self, client: AsyncClient, session):
         data = {"email": "test@example.com", "password": "password"}
         response = await client.post("/users/", json=data)
