@@ -6,9 +6,19 @@ from typing import List, Annotated
 from . import crud, models, schemas, utils
 from .database import get_db
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.middleware.cors import CORSMiddleware
 from datetime import timedelta
 
 app = FastAPI()  # Create the main FastAPI application
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
 router = APIRouter()  # Create an APIRouter
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
@@ -149,22 +159,46 @@ async def read_trainer_email(email: str, db: AsyncSession = Depends(get_db)):
     db_trainer = await crud.get_trainer_by_email(db, email=email)
     if db_trainer is None:
         raise HTTPException(status_code=404, detail="Trainer not found")
-    return await db_trainer
+    return db_trainer
 
 
 @router.post("/trainer-user-mapping/", response_model=schemas.TrainerUserMap)
-def create_trainer_user_mapping(mapping: schemas.TrainerUserMapCreate, db: AsyncSession = Depends(get_db)):
-    # Check if user_id exists
-    user = crud.get_user(db, mapping.user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User do not exist")
-    
-    # Check if trainer_id exists
-    trainer = crud.get_trainer(db, mapping.trainer_id)
-    if not trainer:
-        raise HTTPException(status_code=404, detail="Trainer do not exist")
+async def create_trainer_user_mapping(mapping: schemas.TrainerUserMapCreate, db: AsyncSession = Depends(get_db)):
+    try:
+        # Check if user_id exists
+        user = await crud.get_user(db, mapping.user_id)
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User does not exist")
 
-    return crud.create_trainer_user_mapping(db=db, mapping=mapping)
+        # Check if trainer_id exists
+        trainer = await crud.get_trainer(db, mapping.trainer_id)
+        if not trainer:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Trainer does not exist")
+
+        # Check if the mapping already exists
+        existing_mapping = await db.execute(
+            select(models.TrainerUserMap).filter_by(
+                trainer_id=mapping.trainer_id,
+                user_id=mapping.user_id
+            )
+        )
+        if existing_mapping.scalar():
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Mapping already exists")
+
+        # Create trainer-user mapping
+        db_mapping = models.TrainerUserMap(trainer_id=mapping.trainer_id, user_id=mapping.user_id)
+        db.add(db_mapping)
+        await db.commit()
+        await db.refresh(db_mapping)
+        return db_mapping
+
+    except IntegrityError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Integrity error occurred")
+    except ResponseValidationError as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to process response")
+
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 @router.get("/users/me/", response_model=schemas.User)
 async def read_users_me(

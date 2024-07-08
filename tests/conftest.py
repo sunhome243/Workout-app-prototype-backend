@@ -10,7 +10,7 @@ from sqlalchemy.sql import text
 from backend.user_service.database import Base, get_db
 from backend.user_service.main import app
 
-SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL_TEST")
+SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_USER_URL_TEST")
 
 @pytest_asyncio.fixture(scope="session")
 async def engine():

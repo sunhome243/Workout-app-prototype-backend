@@ -42,8 +42,8 @@ jobs:
         pip install -r requirements.txt
     - name: Test with pytest
       env:
-        SQLALCHEMY_DATABASE_URL_TEST: ${{ secrets.SQLALCHEMY_DATABASE_URL_TEST }}
-        SQLALCHEMY_DATABASE_URL: ${{ secrets.SQLALCHEMY_DATABASE_URL }}
+        SQLALCHEMY_DATABASE_URL_TEST: ${{ secrets.SQLALCHEMY_DATABASE_USER_URL_TEST }}
+        SQLALCHEMY_DATABASE_URL: ${{ secrets.SQLALCHEMY_DATABASE_USER_URL }}
       run: |
         pytest
 
@@ -62,7 +62,7 @@ jobs:
         load: true
     - name: Run tests inside Docker
       env:
-        SQLALCHEMY_DATABASE_URL_TEST: ${{ secrets.SQLALCHEMY_DATABASE_URL_TEST }}
-        SQLALCHEMY_DATABASE_URL: ${{ secrets.SQLALCHEMY_DATABASE_URL }}
+        SQLALCHEMY_DATABASE_URL_TEST: ${{ secrets.SQLALCHEMY_DATABASE_USER_URL_TEST }}
+        SQLALCHEMY_DATABASE_URL: ${{ secrets.SQLALCHEMY_DATABASE_USER_URL }}
       run: |
         docker run --network host -e SQLALCHEMY_DATABASE_URL_TEST -e SQLALCHEMY_DATABASE_URL myapp:latest pytest

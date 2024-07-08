@@ -110,6 +110,16 @@ async def update_trainer(db: AsyncSession, trainer: models.Trainer, trainer_upda
     return None
 
 async def create_trainer_user_mapping(db: AsyncSession, mapping: schemas.TrainerUserMapCreate):
+    # Check if the mapping already exists
+    existing_mapping = await db.execute(
+        select(models.TrainerUserMap).filter_by(
+            trainer_id=mapping.trainer_id,
+            user_id=mapping.user_id
+        )
+    )
+    if existing_mapping.scalar():
+        raise HTTPException(status_code=400, detail="Mapping already exists")
+
     db_trainer = await get_trainer(db, mapping.trainer_id)
     db_user = await get_user(db, mapping.user_id)
     db_mapping = models.TrainerUserMap(trainer_id=mapping.trainer_id, user_id=mapping.user_id)

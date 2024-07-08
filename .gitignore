@@ -2,5 +2,7 @@ venv
 __pycache__
 .pytest_cache
 .env
-alembic.ini
-alembic_test.ini
+alembic_user.ini
+alembic_user_test.ini
+alembic_wo_test.ini
+alembic_wo.ini

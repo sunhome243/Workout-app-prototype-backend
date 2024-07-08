@@ -5,14 +5,16 @@ import jwt
 from jwt.exceptions import PyJWTError 
 import bcrypt
 from fastapi import Depends, HTTPException, status
+
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 import pytz
 from . import schemas, models
 from .database import AsyncSession, get_db
 from . import crud  
+import os
 
-SECRET_KEY = "LcdBKEBUqF3F12SFU0JhP0061PXJGQUp"
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 20
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")

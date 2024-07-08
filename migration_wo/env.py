@@ -6,7 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 from alembic import context
 
-from backend.user_service.models import Base
+from backend.workout_service.models import Base
+target_metadata = Base.metadata
 
 config = context.config
 
