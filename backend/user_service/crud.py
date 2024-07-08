@@ -1,8 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, or_
+from sqlalchemy.exc import SQLAlchemyError
 from fastapi import HTTPException
 from . import models, schemas
 import bcrypt
+import logging
 
 async def is_email_unique(db: AsyncSession, email: str) -> bool:
     # Check user table
@@ -46,12 +48,12 @@ async def create_trainer(db: AsyncSession, trainer: schemas.TrainerCreate):
     return db_user
 
 # Call user with ID
-async def get_user(db: AsyncSession, user_id: int):
+async def get_user_by_id(db: AsyncSession, user_id: int):
     result = await db.execute(select(models.User).filter(models.User.user_id == user_id))
     return result.scalar_one_or_none()
 
 # Call trainer with ID
-async def get_trainer(db: AsyncSession, trainer_id: int):
+async def get_trainer_by_id(db: AsyncSession, trainer_id: int):
     result = await db.execute(select(models.Trainer).filter(models.Trainer.trainer_id == trainer_id))
     return result.scalar_one_or_none()
 
@@ -109,29 +111,85 @@ async def update_trainer(db: AsyncSession, trainer: models.Trainer, trainer_upda
         return trainer
     return None
 
-async def create_trainer_user_mapping(db: AsyncSession, mapping: schemas.TrainerUserMapCreate):
-    # Check if the mapping already exists
-    existing_mapping = await db.execute(
-        select(models.TrainerUserMap).filter_by(
-            trainer_id=mapping.trainer_id,
-            user_id=mapping.user_id
-        )
-    )
-    if existing_mapping.scalar():
-        raise HTTPException(status_code=400, detail="Mapping already exists")
+async def create_trainer_user_mapping(db: AsyncSession, current_user_id: int, other_id: int, is_trainer: bool):
+    try:
+        if is_trainer:
+            trainer_id, user_id = current_user_id, other_id
+        else:
+            trainer_id, user_id = other_id, current_user_id
 
-    db_trainer = await get_trainer(db, mapping.trainer_id)
-    db_user = await get_user(db, mapping.user_id)
-    db_mapping = models.TrainerUserMap(trainer_id=mapping.trainer_id, user_id=mapping.user_id)
-    db.add(db_mapping)
-    await db.commit()
-    await db.refresh(db_mapping)
-    return db_mapping
+        # Check if mapping already exists
+        existing_mapping = await db.execute(
+            select(models.TrainerUserMap).where(
+                (models.TrainerUserMap.trainer_id == trainer_id) &
+                (models.TrainerUserMap.user_id == user_id)
+            )
+        )
+        if existing_mapping.scalar_one_or_none():
+            raise ValueError("This mapping already exists")
+
+        db_mapping = models.TrainerUserMap(trainer_id=trainer_id, user_id=user_id)
+        db.add(db_mapping)
+        await db.commit()
+        await db.refresh(db_mapping)
+        logging.info(f"Created new trainer-user mapping: trainer_id={trainer_id}, user_id={user_id}")
+        return db_mapping
+    except SQLAlchemyError as e:
+        await db.rollback()
+        logging.error(f"Database error occurred: {str(e)}")
+        raise
+    except ValueError as e:
+        logging.warning(str(e))
+        raise
+    except Exception as e:
+        await db.rollback()
+        logging.error(f"Unexpected error occurred: {str(e)}")
+        raise
+    
+async def get_trainer_user_mapping(db: AsyncSession, trainer_id: int, user_id: int):
+    query = select(models.TrainerUserMap).options(
+        selectinload(models.TrainerUserMap.trainer),
+        selectinload(models.TrainerUserMap.user)
+    ).filter_by(trainer_id=trainer_id, user_id=user_id)
+    result = await db.execute(query)
+    return result.scalar_one_or_none()
+
+async def remove_user_mappings(db: AsyncSession, identifier: int, is_trainer: bool) -> int:
+    try:
+        # Select the appropriate column based on user type
+        if is_trainer:
+            query = select(models.TrainerUserMap).where(models.TrainerUserMap.trainer_id == identifier)
+        else:
+            query = select(models.TrainerUserMap).where(models.TrainerUserMap.user_id == identifier)
+        
+        result = await db.execute(query)
+        mappings_to_remove = result.scalars().all()
+        
+        # If no mappings found, return 0
+        if not mappings_to_remove:
+            return 0
+
+        # Delete the mappings
+        for mapping in mappings_to_remove:
+            await db.delete(mapping)
+        
+        await db.commit()
+        return len(mappings_to_remove)
+    except SQLAlchemyError as e:
+        await db.rollback()
+        logging.error(f"Database error occurred: {str(e)}")
+        raise
+    except Exception as e:
+        await db.rollback()
+        logging.error(f"Unexpected error occurred: {str(e)}")
+        raise
 
 async def delete_user(db: AsyncSession, user: models.User):
+    await db.execute(delete(models.TrainerUserMap).where(models.TrainerUserMap.user_id == user.user_id))
     await db.delete(user)
     await db.commit()
     
 async def delete_trainer(db: AsyncSession, trainer: models.Trainer):
+    await db.execute(delete(models.TrainerUserMap).where(models.TrainerUserMap.trainer_id == trainer.trainer_id))
     await db.delete(trainer)
     await db.commit()

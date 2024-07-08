@@ -13,6 +13,7 @@ from . import schemas, models
 from .database import AsyncSession, get_db
 from . import crud  
 import os
+import logging
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
@@ -40,17 +41,27 @@ async def get_current_member(token: str = Depends(oauth2_scheme), db: AsyncSessi
         email: str = payload.get("sub")
         user_type: str = payload.get("type")
         if email is None or user_type is None:
+            logging.error("Email or user_type is None in the token payload")
             raise credentials_exception
-    except PyJWTError:
+    except JWTError as e:
+        logging.error(f"JWT decode error: {str(e)}")
         raise credentials_exception
+
+    logging.info(f"Token decoded successfully. Email: {email}, User Type: {user_type}")
+
     if user_type == 'user':
         user = await crud.get_user_by_email(db, email)
     elif user_type == 'trainer':
         user = await crud.get_trainer_by_email(db, email)
     else:
+        logging.error(f"Invalid user_type: {user_type}")
         raise credentials_exception
+
     if user is None:
+        logging.error(f"User not found for email: {email}")
         raise credentials_exception
+
+    logging.info(f"User authenticated successfully: {user}")
     return user
 
 def verify_password(plain_password, hashed_password):

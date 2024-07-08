@@ -71,25 +71,25 @@ class TrainerCreate(TrainerBase):
 class Trainer(TrainerBase):
     trainer_id: int
     hashed_password: str
+    role: str
 
 class TrainerUpdate(TrainerBase):
     current_password: Optional[str] = None
     new_password: Optional[str] = None
     confirm_password: Optional[str] = None
 
-class TrainerUserMapBase(BaseModel):
+class CreateTrainerUserMapping(BaseModel):
+    other_id: int
+
+class TrainerUserMappingResponse(BaseModel):
     trainer_id: int
     user_id: int
 
-class TrainerUserMapCreate(TrainerUserMapBase):
-    pass
-
-class TrainerUserMap(TrainerUserMapBase):
-    trainer: Trainer
-    user: User
-
     class ConfigDict(ConfigDict):
         from_attributes = True
+
+class Message(BaseModel):
+    message: str
 
 class Token(BaseModel):
     access_token: str

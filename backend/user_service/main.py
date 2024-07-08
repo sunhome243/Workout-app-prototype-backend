@@ -2,7 +2,7 @@ import bcrypt
 import logging
 from fastapi import FastAPI, APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List, Annotated
+from typing import List, Annotated, Union
 from . import crud, models, schemas, utils
 from .database import get_db
 from fastapi.security import OAuth2PasswordRequestForm
@@ -11,13 +11,10 @@ from datetime import timedelta
 
 app = FastAPI()  # Create the main FastAPI application
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
-    allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
-)
+# Configure logging
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
 
 router = APIRouter()  # Create an APIRouter
 
@@ -132,7 +129,7 @@ async def read_trainers(
 # Getting a user with id
 @router.get("/users/byid/{user_id}", response_model=schemas.User)
 async def read_user(user_id: int, db: AsyncSession = Depends(get_db)):
-    db_user = await crud.get_user(db, user_id=user_id)
+    db_user = await crud.get_user_by_id(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
@@ -140,7 +137,7 @@ async def read_user(user_id: int, db: AsyncSession = Depends(get_db)):
 #Getting a trainer with id
 @router.get("/trainers/byid/{trainer_id}", response_model=schemas.Trainer)
 async def read_trainer(trainer_id: int, db: AsyncSession = Depends(get_db)):
-    db_user = await crud.get_trainer(db, trainer_id=trainer_id)
+    db_user = await crud.get_trainer_by_id(db, trainer_id=trainer_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="Trainer not found")
     return db_user
@@ -162,43 +159,61 @@ async def read_trainer_email(email: str, db: AsyncSession = Depends(get_db)):
     return db_trainer
 
 
-@router.post("/trainer-user-mapping/", response_model=schemas.TrainerUserMap)
-async def create_trainer_user_mapping(mapping: schemas.TrainerUserMapCreate, db: AsyncSession = Depends(get_db)):
+@router.post("/trainer-user-mapping/", response_model=schemas.TrainerUserMappingResponse)
+async def create_trainer_user_mapping(
+    mapping: schemas.CreateTrainerUserMapping,
+    current_user: Union[models.User, models.Trainer] = Depends(utils.get_current_member),
+    db: AsyncSession = Depends(utils.get_db)
+):
+    logging.info(f"Received request to create trainer-user mapping with other_id: {mapping.other_id}")
+    logging.info(f"Current user: {current_user}")
+
+    # Check if the current user is a trainer or a regular user
+    is_trainer = isinstance(current_user, models.Trainer)
+    
+    logging.info(f"Is trainer: {is_trainer}")
+
     try:
-        # Check if user_id exists
-        user = await crud.get_user(db, mapping.user_id)
-        if not user:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User does not exist")
-
-        # Check if trainer_id exists
-        trainer = await crud.get_trainer(db, mapping.trainer_id)
-        if not trainer:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Trainer does not exist")
-
-        # Check if the mapping already exists
-        existing_mapping = await db.execute(
-            select(models.TrainerUserMap).filter_by(
-                trainer_id=mapping.trainer_id,
-                user_id=mapping.user_id
-            )
+        # Use the correct primary key attribute names
+        current_user_id = current_user.trainer_id if is_trainer else current_user.user_id
+        
+        new_mapping = await crud.create_trainer_user_mapping(
+            db, 
+            current_user_id,  # Pass current_user_id
+            mapping.other_id,
+            is_trainer
         )
-        if existing_mapping.scalar():
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Mapping already exists")
-
-        # Create trainer-user mapping
-        db_mapping = models.TrainerUserMap(trainer_id=mapping.trainer_id, user_id=mapping.user_id)
-        db.add(db_mapping)
-        await db.commit()
-        await db.refresh(db_mapping)
-        return db_mapping
-
-    except IntegrityError:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Integrity error occurred")
-    except ResponseValidationError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to process response")
-
+        logging.info(f"New mapping created: {new_mapping}")
+        return new_mapping
+    except ValueError as e:
+        logging.warning(str(e))
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        logging.error(f"Error creating mapping: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to create mapping")
+
+@router.delete("/trainer-user-mapping/", response_model=schemas.Message)
+async def remove_user_mappings(
+    current_user: Union[models.User, models.Trainer] = Depends(utils.get_current_member),
+    db: AsyncSession = Depends(utils.get_db)
+):
+    # Check if the current user is a trainer or a regular user
+    is_trainer = isinstance(current_user, models.Trainer)
+    
+    # Determine the correct ID to use
+    if is_trainer:
+        identifier = current_user.trainer_id
+    else:
+        identifier = current_user.user_id
+    
+    # Remove mappings based on the user type
+    removed_count = await crud.remove_user_mappings(db, identifier, is_trainer)
+    
+    if removed_count > 0:
+        return {"message": f"Successfully removed {removed_count} trainer-user mapping(s)"}
+    else:
+        return {"message": "No trainer-user mappings found to remove"}
+
 
 @router.get("/users/me/", response_model=schemas.User)
 async def read_users_me(
@@ -220,7 +235,6 @@ async def delete_users_me(
     try:
         # deleting user
         await crud.delete_user(db, current_user)
-        await db.commit()
 
         return current_user
     except Exception as e:
@@ -236,7 +250,6 @@ async def delete_trainers_me(
     try:
         # deleting user
         await crud.delete_trainer(db, current_trainer)
-        await db.commit()
 
         return current_trainer
     except Exception as e:

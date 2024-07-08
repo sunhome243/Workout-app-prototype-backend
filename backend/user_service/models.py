@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, Double, ForeignKey
 from sqlalchemy.orm import relationship, declarative_base
-
+from sqlalchemy.ext.asyncio import AsyncAttrs
 
 Base = declarative_base()
 
@@ -28,18 +28,18 @@ class Trainer(Base):
     hashed_password = Column(String, nullable=False)
     first_name = Column(String, nullable=True)
     last_name = Column(String, nullable=True)
+    role = Column(String, default="trainer")
 
     # Relationship with TrainerUserMap
     trainer_user_maps = relationship("TrainerUserMap", back_populates="trainer")
 
 
-class TrainerUserMap(Base):
+class TrainerUserMap(Base, AsyncAttrs):
     __tablename__ = "trainer_user_mapping"
     trainer_id = Column(Integer, ForeignKey('trainers.trainer_id', ondelete='CASCADE'), primary_key=True)
     user_id = Column(Integer, ForeignKey('users.user_id', ondelete='CASCADE'), primary_key=True)
-
-    trainer = relationship("Trainer", back_populates="trainer_user_maps")
-    user = relationship("User", back_populates="trainer_user_maps")
+    trainer = relationship("Trainer", back_populates="trainer_user_maps", lazy="selectin")
+    user = relationship("User", back_populates="trainer_user_maps", lazy="selectin")
 
 
 class WorkoutGoalMap(Base):

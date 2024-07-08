@@ -63,8 +63,8 @@ class TestUserRouter(BaseTestRouter):
 #     assert response.status_code == 200
 #     created_user = response.json()
 
-#     # Test get_user
-#     user = await crud.get_user(testing_session, user_id=created_user["user_id"])
+#     # Test get_user_by_id
+#     user = await crud.get_user_by_id(testing_session, user_id=created_user["user_id"])
 #     assert user
 #     assert user.email == user_data["email"]
 
