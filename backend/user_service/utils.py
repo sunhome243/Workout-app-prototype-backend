@@ -14,6 +14,7 @@ from .database import AsyncSession, get_db
 from . import crud  
 import os
 import logging
+import re
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
@@ -43,7 +44,7 @@ async def get_current_member(token: str = Depends(oauth2_scheme), db: AsyncSessi
         if email is None or user_type is None:
             logging.error("Email or user_type is None in the token payload")
             raise credentials_exception
-    except JWTError as e:
+    except PyJWTError as e:
         logging.error(f"JWT decode error: {str(e)}")
         raise credentials_exception
 
@@ -84,3 +85,29 @@ async def admin_required(current_user: schemas.User = Depends(get_current_member
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user
+
+def validate_password(password: str):
+    if len(password) < 8:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be at least 8 characters long"
+        )
+    
+    if not re.match(r'^[a-zA-Z0-9!@#$%^&*(),.?":{}|<>]+$', password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password can only contain English letters, numbers, and special characters"
+        )
+
+    # Optional: Uncomment these if you want to enforce numbers and special characters
+    # if not re.search(r'\d', password):
+    #     raise HTTPException(
+    #         status_code=status.HTTP_400_BAD_REQUEST,
+    #         detail="Password must contain at least one number"
+    #     )
+    # 
+    # if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+    #     raise HTTPException(
+    #         status_code=status.HTTP_400_BAD_REQUEST,
+    #         detail="Password must contain at least one special character"
+    #     )

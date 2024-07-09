@@ -5,6 +5,7 @@ from fastapi import HTTPException
 from . import models, schemas
 import bcrypt
 import logging
+from . import utils
 
 async def is_email_unique(db: AsyncSession, email: str) -> bool:
     # Check user table
@@ -78,45 +79,98 @@ async def get_trainers(db: AsyncSession, skip: int = 0, limit: int = 100):
     return result.scalars().all()
 
 # Updating user info
-async def update_user(db: AsyncSession, user: models.User, user_update: dict):
-    if user:
-        # Update fields
-        for key, value in user_update.items():
-            if value is not None:
-                if key == 'hashed_password':
-                    # Password is already hashed in the update_user endpoint
-                    setattr(user, key, value)
-                elif hasattr(user, key):
-                    setattr(user, key, value)
+async def update_user(db: AsyncSession, current_user: models.User, user_update: dict):
+    # Prepare update data
+    update_data = {k: v for k, v in user_update.items() if v is not None}
 
-        await db.commit()
-        await db.refresh(user)
-        return user
-    return None
+    # Handle password change if requested
+    if 'new_password' in update_data:
+        if 'current_password' not in update_data:
+            raise ValueError("Current password is required to change password")
+        
+        # Verify current password
+        if not bcrypt.checkpw(update_data['current_password'].encode('utf-8'), current_user.hashed_password.encode('utf-8')):
+            raise ValueError("Incorrect current password")
+
+        # Validate new password
+        utils.validate_password(update_data['new_password'])
+
+        # Hash the new password
+        salt = bcrypt.gensalt()
+        hashed_password = bcrypt.hashpw(update_data['new_password'].encode('utf-8'), salt)
+        update_data['hashed_password'] = hashed_password.decode('utf-8')
+
+        # Remove password fields from update_data
+        del update_data['new_password']
+        del update_data['current_password']
+
+    # Update the user in the database
+    stmt = select(models.User).where(models.User.user_id == current_user.user_id)
+    result = await db.execute(stmt)
+    db_user = result.scalar_one_or_none()
+
+    if db_user is None:
+        return None
+
+    for key, value in update_data.items():
+        setattr(db_user, key, value)
+
+    await db.commit()
+    await db.refresh(db_user)
+
+    return db_user
 
 # Updating trainer info
-async def update_trainer(db: AsyncSession, trainer: models.Trainer, trainer_update: dict):
-    if trainer:
-        # Update fields
-        for key, value in trainer_update.items():
-            if value is not None:
-                if key == 'hashed_password':
-                    # Password is already hashed in the update_user endpoint
-                    setattr(trainer, key, value)
-                elif hasattr(trainer, key):
-                    setattr(trainer, key, value)
+async def update_trainer(db: AsyncSession, current_trainer: models.Trainer, trainer_update: dict):
+    # Prepare update data
+    update_data = {k: v for k, v in trainer_update.items() if v is not None}
 
-        await db.commit()
-        await db.refresh(trainer)
-        return trainer
-    return None
+    # Handle password change if reqFuuested
+    if 'new_password' in update_data:
+        if 'current_password' not in update_data:
+            raise ValueError("Current password is required to change password")
+        
+        # Verify current password
+        if not bcrypt.checkpw(update_data['current_password'].encode('utf-8'), current_trainer.hashed_password.encode('utf-8')):
+            raise ValueError("Incorrect current password")
 
-async def create_trainer_user_mapping(db: AsyncSession, current_user_id: int, other_id: int, is_trainer: bool):
+        # Validate new password
+        utils.validate_password(update_data['new_password'])
+
+        # Hash the new password
+        salt = bcrypt.gensalt()
+        hashed_password = bcrypt.hashpw(update_data['new_password'].encode('utf-8'), salt)
+        update_data['hashed_password'] = hashed_password.decode('utf-8')
+
+        # Remove password fields from update_data
+        del update_data['new_password']
+        del update_data['current_password']
+
+    # Update the trainer in the database
+    stmt = select(models.trainer).where(models.Trainer.trainer_id == current_trainer.trainer_id)
+    result = await db.execute(stmt)
+    db_trainer = result.scalar_one_or_none()
+
+    if db_trainer is None:
+        return None
+
+    for key, value in update_data.items():
+        setattr(db_trainer, key, value)
+
+    await db.commit()
+    await db.refresh(db_trainer)
+
+    return db_trainer
+
+
+async def create_trainer_user_mapping_request(db: AsyncSession, current_user_id: int, other_id: int, is_trainer: bool):
     try:
         if is_trainer:
             trainer_id, user_id = current_user_id, other_id
         else:
             trainer_id, user_id = other_id, current_user_id
+
+        logging.debug(f"Attempting to create mapping: trainer_id={trainer_id}, user_id={user_id}")
 
         # Check if mapping already exists
         existing_mapping = await db.execute(
@@ -128,11 +182,23 @@ async def create_trainer_user_mapping(db: AsyncSession, current_user_id: int, ot
         if existing_mapping.scalar_one_or_none():
             raise ValueError("This mapping already exists")
 
-        db_mapping = models.TrainerUserMap(trainer_id=trainer_id, user_id=user_id)
+        new_status = models.MappingStatus.pending
+        logging.debug(f"Creating new mapping with status: {new_status.value}")
+        
+        db_mapping = models.TrainerUserMap(
+            trainer_id=trainer_id, 
+            user_id=user_id, 
+            status=new_status,
+            requester_id=current_user_id  # Add the requester_id
+        )
+        
+        logging.debug(f"New mapping object created: {db_mapping.__dict__}")
         db.add(db_mapping)
+        logging.debug("Added mapping to session")
         await db.commit()
+        logging.debug("Committed session")
         await db.refresh(db_mapping)
-        logging.info(f"Created new trainer-user mapping: trainer_id={trainer_id}, user_id={user_id}")
+        logging.debug(f"Refreshed mapping object: {db_mapping.__dict__}")
         return db_mapping
     except SQLAlchemyError as e:
         await db.rollback()
@@ -145,8 +211,42 @@ async def create_trainer_user_mapping(db: AsyncSession, current_user_id: int, ot
         await db.rollback()
         logging.error(f"Unexpected error occurred: {str(e)}")
         raise
+
+async def update_trainer_user_mapping_status(db: AsyncSession, mapping_id: int, current_user_id: int, new_status: models.MappingStatus):
+    try:
+        # Fetch the mapping
+        mapping = await db.execute(select(models.TrainerUserMap).where(models.TrainerUserMap.id == mapping_id))
+        mapping = mapping.scalar_one_or_none()
+
+        if not mapping:
+            raise ValueError("Mapping not found")
+
+        # Check if the current user is the one who didn't request the mapping
+        if mapping.requester_id == current_user_id:
+            raise ValueError("You cannot update the status of a mapping you requested")
+
+        # Check if the current user is either the trainer or the user in the mapping
+        if current_user_id not in (mapping.trainer_id, mapping.user_id):
+            raise ValueError("You are not authorized to update this mapping")
+
+        # Update the status
+        mapping.status = new_status
+        await db.commit()
+        await db.refresh(mapping)
+        return mapping
+    except SQLAlchemyError as e:
+        await db.rollback()
+        logging.error(f"Database error occurred: {str(e)}")
+        raise
+    except ValueError as e:
+        logging.warning(str(e))
+        raise
+    except Exception as e:
+        await db.rollback()
+        logging.error(f"Unexpected error occurred: {str(e)}")
+        raise
     
-async def get_trainer_user_mapping(db: AsyncSession, trainer_id: int, user_id: int):
+async def get_trainer_user_mapping(db: AsyncSession, trainer_id: int, user_id: int):   
     query = select(models.TrainerUserMap).options(
         selectinload(models.TrainerUserMap.trainer),
         selectinload(models.TrainerUserMap.user)

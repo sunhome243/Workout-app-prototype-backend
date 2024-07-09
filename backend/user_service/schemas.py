@@ -1,5 +1,6 @@
 from typing import List, Union, Optional
 from pydantic import BaseModel, Field, ConfigDict, field_validator
+from enum import Enum
 
 class UserBase(BaseModel):
     email: str
@@ -42,14 +43,6 @@ class UserUpdate(BaseModel):
     workout_frequency: Optional[int] = None
     workout_goal: Optional[int] = None
 
-    @field_validator('confirm_password')
-    def passwords_match(cls, v, info):
-        if 'new_password' in info.data:
-            new_password = info.data['new_password']
-            if new_password is not None and v != new_password:
-                raise ValueError('Passwords do not match')
-        return v
-
 class TrainerBase(BaseModel):
     email: str
     first_name: str
@@ -72,21 +65,29 @@ class Trainer(TrainerBase):
     trainer_id: int
     hashed_password: str
     role: str
-
+    
 class TrainerUpdate(TrainerBase):
     current_password: Optional[str] = None
     new_password: Optional[str] = None
     confirm_password: Optional[str] = None
-
+    
+class MappingStatus(str, Enum):
+    pending = "pending"
+    accepted = "accepted"
+    
 class CreateTrainerUserMapping(BaseModel):
     other_id: int
 
 class TrainerUserMappingResponse(BaseModel):
+    id: int
     trainer_id: int
     user_id: int
 
     class ConfigDict(ConfigDict):
         from_attributes = True
+
+class TrainerUserMappingUpdate(BaseModel):
+    accept: bool
 
 class Message(BaseModel):
     message: str

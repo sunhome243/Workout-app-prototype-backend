@@ -2,6 +2,7 @@ import bcrypt
 import logging
 from fastapi import FastAPI, APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from typing import List, Annotated, Union
 from . import crud, models, schemas, utils
 from .database import get_db
@@ -20,16 +21,7 @@ router = APIRouter()  # Create an APIRouter
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-# User sign up
-@router.post("/users/", response_model=schemas.User)
-async def create_user(user: schemas.UserCreate, db: AsyncSession = Depends(get_db)):
-    return await crud.create_user(db=db, user=user)
-
-# Trainer sign up
-@router.post("/trainers/", response_model=schemas.Trainer)
-async def create_trainer(trainer: schemas.TrainerCreate, db: AsyncSession = Depends(get_db)): 
-    return await crud.create_trainer(db=db, trainer=trainer)
-
+# Login for both trainer + member
 @router.post("/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     user, user_type = await utils.authenticate_member(db, form_data.username, form_data.password)
@@ -45,64 +37,45 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
     )
     return {"access_token": access_token, "token_type": "bearer", "user_type": user_type}
 
+# User sign up
+@router.post("/users/", response_model=schemas.User)
+async def create_user(user: schemas.UserCreate, db: AsyncSession = Depends(get_db)):
+    return await crud.create_user(db=db, user=user)
+
 # Updating a user
-@router.put("/users/me", response_model=schemas.User)
+@router.patch("/users/me", response_model=schemas.User)
 async def update_user(
     current_user: Annotated[models.User, Depends(utils.get_current_member)],
     user_update: schemas.UserUpdate,
     db: AsyncSession = Depends(get_db)
 ):
-    salt = bcrypt.gensalt()
-    # Verify current password using authenticate_member
-    authenticated_user = await utils.authenticate_member(db, current_user.email, user_update.current_password)
-    if not authenticated_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Incorrect password"
-        )
+    try:
+        updated_user = await crud.update_user(db, current_user, user_update.model_dump())
+        if updated_user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        return updated_user
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-    # Prepare update data
-    update_data = user_update.model_dump(exclude={'current_password', 'new_password', 'confirm_password'})
-
-    # Update password if new password is provided
-    if user_update.new_password:
-        hashed_password = bcrypt.hashpw(user_update.new_password.encode('utf-8'), salt)
-        after_hashed_password = hashed_password.decode('utf-8')
-        update_data['hashed_password'] = after_hashed_password
-
-    # Remove None values from update_data
-    update_data = {k: v for k, v in update_data.items() if v is not None}
-
-    # Update the user in the database
-    updated_user = await crud.update_user(db, user=current_user, user_update=update_data)
-    if updated_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return updated_user
+# Trainer sign up
+@router.post("/trainers/", response_model=schemas.Trainer)
+async def create_trainer(trainer: schemas.TrainerCreate, db: AsyncSession = Depends(get_db)): 
+    return await crud.create_trainer(db=db, trainer=trainer)
 
 # Updating a trainer
-@router.put("/trainers/", response_model = schemas.Trainer)
-async def update_trainer(
-    current_trainer: Annotated[models.Trainer, Depends(utils.get_current_member)],
-    trainer_update: schemas.TrainerUpdate,
+@router.patch("/trainers/me", response_model=schemas.Trainer)
+async def update_user(
+    current_user: Annotated[models.Trainer, Depends(utils.get_current_member)],
+    user_update: schemas.TrainerUpdate,
     db: AsyncSession = Depends(get_db)
 ):
-    salt = bcrypt.gensalt()
-    # Verify current password using authenticate_member
-    authenticated_trainer = await utils.authenticate_member(db, current_trainer.email, trainer_update.current_password)
-    if not authenticated_trainer:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Incorrect password"
-        )
-
-    # Prepare update data
-    update_data = trainer_update.model_dump(exclude={'current_password', 'new_password', 'confirm_password'})
-
-    # Update password if new password is provided
-    if trainer_update.new_password:
-        hashed_password = bcrypt.hashpw(trainer_update.new_password.encode('utf-8'), salt)
-        after_hashed_password = hashed_password.decode('utf-8')
-        update_data['hashed_password'] = after_hashed_password
+    try:
+        updated_user = await crud.update_trainer(db, current_trainer, trainer_update.model_dump())
+        if updated_trainer is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        return updated_trainer
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 # Only Admin can use. Get all users
 @router.get("/users/", response_model=List[schemas.User])
@@ -159,39 +132,53 @@ async def read_trainer_email(email: str, db: AsyncSession = Depends(get_db)):
     return db_trainer
 
 
-@router.post("/trainer-user-mapping/", response_model=schemas.TrainerUserMappingResponse)
-async def create_trainer_user_mapping(
+@router.post("/trainer-user-mapping/request", response_model=schemas.TrainerUserMappingResponse)
+async def request_trainer_user_mapping(
     mapping: schemas.CreateTrainerUserMapping,
     current_user: Union[models.User, models.Trainer] = Depends(utils.get_current_member),
     db: AsyncSession = Depends(utils.get_db)
 ):
     logging.info(f"Received request to create trainer-user mapping with other_id: {mapping.other_id}")
     logging.info(f"Current user: {current_user}")
-
-    # Check if the current user is a trainer or a regular user
-    is_trainer = isinstance(current_user, models.Trainer)
     
+    is_trainer = isinstance(current_user, models.Trainer)
     logging.info(f"Is trainer: {is_trainer}")
-
+    
     try:
-        # Use the correct primary key attribute names
         current_user_id = current_user.trainer_id if is_trainer else current_user.user_id
         
-        new_mapping = await crud.create_trainer_user_mapping(
+        new_mapping = await crud.create_trainer_user_mapping_request(
             db, 
-            current_user_id,  # Pass current_user_id
+            current_user_id,
             mapping.other_id,
             is_trainer
         )
-        logging.info(f"New mapping created: {new_mapping}")
+        logging.info(f"New mapping request created: {new_mapping}")
         return new_mapping
     except ValueError as e:
         logging.warning(str(e))
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logging.error(f"Error creating mapping: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to create mapping")
+        logging.error(f"Error creating mapping request: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to create mapping request")
 
+@router.put("/trainer-user-mapping/{mapping_id}/status", response_model=schemas.TrainerUserMappingResponse)
+async def update_trainer_user_mapping_status(
+    mapping_id: int,
+    new_status: schemas.MappingStatus,
+    current_user: Union[models.User, models.Trainer] = Depends(utils.get_current_member),
+    db: AsyncSession = Depends(utils.get_db)
+):
+    try:
+        current_user_id = current_user.trainer_id if isinstance(current_user, models.Trainer) else current_user.user_id
+        updated_mapping = await crud.update_trainer_user_mapping_status(db, mapping_id, current_user_id, new_status)
+        return updated_mapping
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logging.error(f"Error updating mapping status: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to update mapping status")
+    
 @router.delete("/trainer-user-mapping/", response_model=schemas.Message)
 async def remove_user_mappings(
     current_user: Union[models.User, models.Trainer] = Depends(utils.get_current_member),
