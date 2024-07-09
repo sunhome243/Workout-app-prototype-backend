@@ -245,36 +245,62 @@ async def update_trainer_user_mapping_status(db: AsyncSession, mapping_id: int, 
         await db.rollback()
         logging.error(f"Unexpected error occurred: {str(e)}")
         raise
-    
-async def get_trainer_user_mapping(db: AsyncSession, trainer_id: int, user_id: int):   
-    query = select(models.TrainerUserMap).options(
-        selectinload(models.TrainerUserMap.trainer),
-        selectinload(models.TrainerUserMap.user)
-    ).filter_by(trainer_id=trainer_id, user_id=user_id)
-    result = await db.execute(query)
-    return result.scalar_one_or_none()
 
-async def remove_user_mappings(db: AsyncSession, identifier: int, is_trainer: bool) -> int:
-    try:
-        # Select the appropriate column based on user type
+async def get_user_mappings(db: AsyncSession, user_id: int, is_trainer: bool):
+    if is_trainer:
+        query = select(models.TrainerUserMap).where(models.TrainerUserMap.trainer_id == user_id)
+    else:
+        query = select(models.TrainerUserMap).where(models.TrainerUserMap.user_id == user_id)
+    
+    result = await db.execute(query)
+    mappings = result.scalars().all()
+    
+    mapping_data = []
+    for mapping in mappings:
         if is_trainer:
-            query = select(models.TrainerUserMap).where(models.TrainerUserMap.trainer_id == identifier)
+            user = await get_user_by_id(db, mapping.user_id)
+            mapping_info = {
+                "user_id": user.user_id,
+                "user_email": user.email,
+                "user_first_name": user.first_name,
+                "user_last_name": user.last_name,
+                "status": mapping.status
+            }
         else:
-            query = select(models.TrainerUserMap).where(models.TrainerUserMap.user_id == identifier)
+            trainer = await get_trainer_by_id(db, mapping.trainer_id)
+            mapping_info = {
+                "trainer_id": trainer.trainer_id,
+                "trainer_email": trainer.email,
+                "trainer_first_name": trainer.first_name,
+                "trainer_last_name": trainer.last_name,
+                "status": mapping.status
+            }
+        mapping_data.append(mapping_info)
+    
+    return mapping_data
+
+async def remove_specific_mapping(db: AsyncSession, current_user_id: int, other_id: int, is_trainer: bool) -> bool:
+    try:
+        if is_trainer:
+            query = select(models.TrainerUserMap).where(
+                (models.TrainerUserMap.trainer_id == current_user_id) &
+                (models.TrainerUserMap.user_id == other_id)
+            )
+        else:
+            query = select(models.TrainerUserMap).where(
+                (models.TrainerUserMap.user_id == current_user_id) &
+                (models.TrainerUserMap.trainer_id == other_id)
+            )
         
         result = await db.execute(query)
-        mappings_to_remove = result.scalars().all()
+        mapping_to_remove = result.scalar_one_or_none()
         
-        # If no mappings found, return 0
-        if not mappings_to_remove:
-            return 0
+        if mapping_to_remove is None:
+            return False
 
-        # Delete the mappings
-        for mapping in mappings_to_remove:
-            await db.delete(mapping)
-        
+        await db.delete(mapping_to_remove)
         await db.commit()
-        return len(mappings_to_remove)
+        return True
     except SQLAlchemyError as e:
         await db.rollback()
         logging.error(f"Database error occurred: {str(e)}")

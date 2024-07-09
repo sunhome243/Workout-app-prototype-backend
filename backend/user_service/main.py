@@ -178,9 +178,21 @@ async def update_trainer_user_mapping_status(
     except Exception as e:
         logging.error(f"Error updating mapping status: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to update mapping status")
+
+@router.get("/my-mappings/", response_model=List[Union[schemas.UserMappingInfo, schemas.TrainerMappingInfo]])
+async def read_my_mappings(
+    current_user: Union[models.User, models.Trainer] = Depends(utils.get_current_member),
+    db: AsyncSession = Depends(utils.get_db)
+):
+    is_trainer = isinstance(current_user, models.Trainer)
+    user_id = current_user.trainer_id if is_trainer else current_user.user_id
     
-@router.delete("/trainer-user-mapping/", response_model=schemas.Message)
-async def remove_user_mappings(
+    mappings = await crud.get_user_mappings(db, user_id, is_trainer)
+    return mappings
+
+@router.delete("/trainer-user-mapping/{other_id}", response_model=schemas.Message)
+async def remove_specific_mapping(
+    other_id: int,
     current_user: Union[models.User, models.Trainer] = Depends(utils.get_current_member),
     db: AsyncSession = Depends(utils.get_db)
 ):
@@ -188,18 +200,15 @@ async def remove_user_mappings(
     is_trainer = isinstance(current_user, models.Trainer)
     
     # Determine the correct ID to use
-    if is_trainer:
-        identifier = current_user.trainer_id
-    else:
-        identifier = current_user.user_id
+    current_user_id = current_user.trainer_id if is_trainer else current_user.user_id
     
-    # Remove mappings based on the user type
-    removed_count = await crud.remove_user_mappings(db, identifier, is_trainer)
+    # Remove the specific mapping
+    removed = await crud.remove_specific_mapping(db, current_user_id, other_id, is_trainer)
     
-    if removed_count > 0:
-        return {"message": f"Successfully removed {removed_count} trainer-user mapping(s)"}
+    if removed:
+        return {"message": f"Successfully removed the trainer-user mapping"}
     else:
-        return {"message": "No trainer-user mappings found to remove"}
+        return {"message": "No trainer-user mapping found to remove"}
 
 
 @router.get("/users/me/", response_model=schemas.User)

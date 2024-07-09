@@ -16,6 +16,8 @@ class User(Base, AsyncAttrs):
     workout_duration = Column(Integer, nullable=True)
     workout_frequency = Column(Integer, nullable=True)
     workout_goal = Column(Integer, nullable=True)
+    first_name = Column(String, nullable=True)
+    last_name = Column(String, nullable=True)
     role = Column(String, default="user")
 
     # Relationship with TrainerUserMap

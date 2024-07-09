@@ -4,6 +4,8 @@ from enum import Enum
 
 class UserBase(BaseModel):
     email: str
+    first_name: str
+    last_name: str
     @field_validator('email')
     def check_required_fields(cls, v):
         if v is None:
@@ -74,7 +76,21 @@ class TrainerUpdate(TrainerBase):
 class MappingStatus(str, Enum):
     pending = "pending"
     accepted = "accepted"
-    
+
+class UserMappingInfo(BaseModel):
+    user_id: int
+    user_email: str
+    user_first_name: str
+    user_last_name: str
+    status: MappingStatus
+
+class TrainerMappingInfo(BaseModel):
+    trainer_id: int
+    trainer_email: str
+    trainer_first_name: str
+    trainer_last_name: str
+    status: MappingStatus
+
 class CreateTrainerUserMapping(BaseModel):
     other_id: int
 
