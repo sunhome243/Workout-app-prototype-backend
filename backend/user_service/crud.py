@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete, or_
+from sqlalchemy import select, delete, or_, and_
 from sqlalchemy.exc import SQLAlchemyError
 from fastapi import HTTPException
 from . import models, schemas
@@ -147,7 +147,7 @@ async def update_trainer(db: AsyncSession, current_trainer: models.Trainer, trai
         del update_data['current_password']
 
     # Update the trainer in the database
-    stmt = select(models.trainer).where(models.Trainer.trainer_id == current_trainer.trainer_id)
+    stmt = select(models.Trainer).where(models.Trainer.trainer_id == current_trainer.trainer_id)
     result = await db.execute(stmt)
     db_trainer = result.scalar_one_or_none()
 
@@ -319,3 +319,31 @@ async def delete_trainer(db: AsyncSession, trainer: models.Trainer):
     await db.execute(delete(models.TrainerUserMap).where(models.TrainerUserMap.trainer_id == trainer.trainer_id))
     await db.delete(trainer)
     await db.commit()
+
+async def get_specific_connected_user_info(db: AsyncSession, trainer_id: int, user_id: int):
+    query = select(models.User).join(
+        models.TrainerUserMap,
+        and_(
+            models.TrainerUserMap.user_id == models.User.user_id,
+            models.TrainerUserMap.trainer_id == trainer_id,
+            models.TrainerUserMap.status == 'accepted',
+            models.User.user_id == user_id
+        )
+    )
+    
+    result = await db.execute(query)
+    user = result.scalar_one_or_none()
+    
+    if user:
+        return {
+            "user_id": user.user_id,
+            "age": user.age,
+            "height": user.height,
+            "weight": user.weight,
+            "workout_duration": user.workout_duration,
+            "workout_frequency": user.workout_frequency,
+            "workout_goal": user.workout_goal,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+        }
+    return None

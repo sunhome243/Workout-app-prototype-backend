@@ -3,7 +3,7 @@ import logging
 from fastapi import FastAPI, APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from typing import List, Annotated, Union
+from typing import List, Annotated, Union, Optional
 from . import crud, models, schemas, utils
 from .database import get_db
 from fastapi.security import OAuth2PasswordRequestForm
@@ -64,13 +64,13 @@ async def create_trainer(trainer: schemas.TrainerCreate, db: AsyncSession = Depe
 
 # Updating a trainer
 @router.patch("/trainers/me", response_model=schemas.Trainer)
-async def update_user(
-    current_user: Annotated[models.Trainer, Depends(utils.get_current_member)],
-    user_update: schemas.TrainerUpdate,
+async def update_trainer(
+    current_trainer: Annotated[models.Trainer, Depends(utils.get_current_member)],
+    trainer_update: schemas.TrainerUpdate,
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        updated_user = await crud.update_trainer(db, current_trainer, trainer_update.model_dump())
+        updated_trainer = await crud.update_trainer(db, current_trainer, trainer_update.model_dump())
         if updated_trainer is None:
             raise HTTPException(status_code=404, detail="User not found")
         return updated_trainer
@@ -222,6 +222,20 @@ async def read_trainer_me(
     current_trainer: Annotated[models.Trainer, Depends(utils.get_current_member)],
 ):
     return current_trainer
+
+@router.get("/trainer/connected-users/{user_id}", response_model=Optional[schemas.ConnectedUserInfo])
+async def read_specific_connected_user_info(
+    user_id: int,
+    current_user: models.Trainer = Depends(utils.get_current_member),
+    db: AsyncSession = Depends(utils.get_db)
+):
+    if not isinstance(current_user, models.Trainer):
+        raise HTTPException(status_code=403, detail="Trainer access required")
+    
+    user_info = await crud.get_specific_connected_user_info(db, current_user.trainer_id, user_id)
+    if user_info is None:
+        raise HTTPException(status_code=404, detail="Connected user not found")
+    return user_info
 
 @router.delete("/users/me/", response_model=schemas.User)
 async def delete_users_me(

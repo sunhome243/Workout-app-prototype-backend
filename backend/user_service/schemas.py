@@ -68,10 +68,24 @@ class Trainer(TrainerBase):
     hashed_password: str
     role: str
     
-class TrainerUpdate(TrainerBase):
+class TrainerUpdate(BaseModel):
     current_password: Optional[str] = None
     new_password: Optional[str] = None
     confirm_password: Optional[str] = None
+
+class ConnectedUserInfo(BaseModel):
+    user_id: int
+    age: Optional[int]
+    height: Optional[float]
+    weight: Optional[float]
+    workout_duration: Optional[int]
+    workout_frequency: Optional[int]
+    workout_goal: Optional[int]
+    first_name: Optional[str]
+    last_name: Optional[str]
+
+    class ConfigDict(ConfigDict):
+        from_attributes = True
     
 class MappingStatus(str, Enum):
     pending = "pending"
