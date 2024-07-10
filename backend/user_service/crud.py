@@ -347,3 +347,16 @@ async def get_specific_connected_user_info(db: AsyncSession, trainer_id: int, us
             "last_name": user.last_name,
         }
     return None
+
+async def get_trainer_user_mapping(db: AsyncSession, trainer_id: int, user_id: int):
+    try:
+        result = await db.execute(
+            select(models.TrainerUserMap).filter(
+                models.TrainerUserMap.trainer_id == trainer_id,
+                models.TrainerUserMap.user_id == user_id
+            )
+        )
+        return result.scalar_one_or_none()
+    except Exception as e:
+        logger.error(f"Error in get_trainer_user_mapping: {str(e)}")
+        raise

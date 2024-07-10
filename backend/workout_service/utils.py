@@ -1,75 +1,63 @@
-import os
-from typing import Union
-from fastapi import HTTPException, status, Depends
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import HTTPException, status
 import httpx
-from . import schemas
+import os
+import logging
+import jwt
+from jwt.exceptions import PyJWTError
 
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = "HS256"
-USER_SERVICE_URL = os.getenv("USER_SERVICE_URL")
+USER_SERVICE_URL = "http://127.0.0.1:8000"
+SECRET_KEY = os.getenv("SECRET_KEY")  # Make sure this matches the secret key used in user_service
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl=USER_SERVICE_URL + "/login")
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+async def get_current_member(token: str):
     try:
+        # Remove 'Bearer ' prefix if present
+        if token.startswith('Bearer '):
+            token = token[7:]
+
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        email: str = payload.get("sub")
+        user_type: str = payload.get("type")
+        
+        if email is None or user_type is None:
+            raise HTTPException(status_code=401, detail="Invalid token payload")
+        
+        logger.debug(f"Decoded token payload: email={email}, user_type={user_type}")
+
         async with httpx.AsyncClient() as client:
-            response = await client.get(f"{USER_SERVICE_URL}/current_user", headers={"Authorization": f"Bearer {token}"})
-            if response.status_code == 200:
-                user_data = response.json()
-                if user_data.get("type") == "user":
-                    user = schemas.User(**user_data)
-                elif user_data.get("type") == "trainer":
-                    user = schemas.Trainer(**user_data)
-                else:
-                    raise credentials_exception
-                return user
+            headers = {"Authorization": f"Bearer {token}"}
+            if user_type == 'user':
+                response = await client.get(f"{USER_SERVICE_URL}/users/byemail/{email}", headers=headers)
+            elif user_type == 'trainer':
+                response = await client.get(f"{USER_SERVICE_URL}/trainers/byemail/{email}", headers=headers)
             else:
-                raise credentials_exception
-    except httpx.RequestError:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Failed to connect to user service"
-        )
+                logger.error(f"Invalid user_type: {user_type}")
+                raise HTTPException(status_code=400, detail="Invalid user type")
+            
+            response.raise_for_status()
+            user_data = response.json()
+            
+            # Add user_type to the user_data
+            user_data['user_type'] = user_type
+            
+            logger.info(f"User authenticated successfully: {user_data}")
+            return user_data
 
-def get_current_trainer(current_user: Union[schemas.User, schemas.Trainer] = Depends(get_current_user)):
-    if not isinstance(current_user, schemas.Trainer):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="The user doesn't have enough privileges"
-        )
-    return current_user
-
-def trainer_required(current_user: Union[schemas.User, schemas.Trainer] = Depends(get_current_user)):
-    if not isinstance(current_user, schemas.Trainer):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only trainers can perform this action"
-        )
-    return current_user
-
-async def get_user_trainer_relationship(user_id: int, trainer_id: int):
-    cache_key = f"relationship_{user_id}_{trainer_id}"
-    if cache_key in user_cache:
-        return user_cache[cache_key]
-
-    async with httpx.AsyncClient() as client:
-        response = await client.get(f"{USER_SERVICE_URL}/trainer-user-mapping/{trainer_id}/{user_id}")
-        if response.status_code != 200:
+    except PyJWTError as e:
+        logger.error(f"JWT decode error: {str(e)}")
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except httpx.HTTPStatusError as e:
+        logger.error(f"HTTP error occurred: {e}")
+        if e.response.status_code == 401:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Trainer-user relationship not found"
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials",
+                headers={"WWW-Authenticate": "Bearer"},
             )
-        relationship = response.json()
-        user_cache[cache_key] = relationship
-        return relationship
-
-# Function to clear cache for a specific user (useful when user data is updated)
-def clear_user_cache(email: str):
-    if email in user_cache:
-        del user_cache[email]
+        else:
+            raise HTTPException(status_code=e.response.status_code, detail=str(e))
+    except Exception as e:
+        logger.error(f"An unexpected error occurred: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")

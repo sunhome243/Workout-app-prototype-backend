@@ -57,6 +57,8 @@ async def update_user(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
+
 # Trainer sign up
 @router.post("/trainers/", response_model=schemas.Trainer)
 async def create_trainer(trainer: schemas.TrainerCreate, db: AsyncSession = Depends(get_db)): 
@@ -266,5 +268,34 @@ async def delete_trainers_me(
         await db.rollback()
         logging.error(f"Error deleting user: {str(e)}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to delete trainer: {str(e)}")
-
+    
+@router.get("/check-trainer-user-mapping/{trainer_id}/{user_id}")
+async def check_trainer_user_mapping(
+    trainer_id: int,
+    user_id: int,
+    current_user: Union[models.User, models.Trainer] = Depends(utils.get_current_member),
+    db: AsyncSession = Depends(utils.get_db)
+):
+    try:
+        # 현재 사용자가 trainer_id와 일치하는지 확인
+        if isinstance(current_user, models.Trainer) and current_user.trainer_id != trainer_id:
+            raise HTTPException(status_code=403, detail="Not authorized to check this mapping")
+        
+        # 매핑 확인
+        mapping = await crud.get_trainer_user_mapping(db, trainer_id, user_id)
+        
+        if mapping:
+            logging.info(f"Mapping found: {mapping}")
+            logging.info(f"Mapping status: {mapping.status}")
+            logging.info(f"Mappingstatus: {schemas.MappingStatus.accepted}")
+            exists = (str(mapping.status) == str(schemas.MappingStatus.accepted))
+            logging.info(f"Returning exists: {exists}")
+            return {"exists": exists}
+        else:
+            logging.info("No mapping found")
+            return {"exists": False}
+    except Exception as e:
+        logging.error(f"Error in check_trainer_user_mapping: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+    
 app.include_router(router)
