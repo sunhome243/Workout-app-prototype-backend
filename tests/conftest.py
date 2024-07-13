@@ -1,8 +1,8 @@
-import asyncio
 import pytest
 import pytest_asyncio
 import os
-from httpx import AsyncClient
+import logging
+from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
@@ -13,37 +13,63 @@ from backend.workout_service.database import Base as WorkoutBase, get_db as get_
 from backend.workout_service.main import app as workout_app
 from backend.user_service import models, utils
 
-@pytest_asyncio.fixture(scope="session")
-async def engine_user():
-    engine = create_async_engine(
-        os.getenv("SQLALCHEMY_DATABASE_USER_URL_TEST"),
-        poolclass=NullPool
-    )
-    yield engine
-    await engine.dispose()
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+# Use in-memory SQLite for testing
+DB_URL = os.getenv('TEST_DATABASE_URL', 'sqlite+aiosqlite:///:memory:')
+
 
 @pytest_asyncio.fixture(scope="session")
-async def engine_workout():
-    engine = create_async_engine(
-        os.getenv("SQLALCHEMY_DATABASE_WORKOUT_URL_TEST"),
-        poolclass=NullPool
-    )
-    yield engine
-    await engine.dispose()
-
-async def cleanup_database(engine):
+async def engine():
+    logger.info("Creating database engine")
+    engine = create_async_engine(DB_URL, poolclass=NullPool, echo=True)
+    
     async with engine.begin() as conn:
-        result = await conn.execute(text("""
-            SELECT table_name 
-            FROM information_schema.tables 
-            WHERE table_schema = 'public'
-        """))
-        tables = result.fetchall()
-        await conn.execute(text("SET CONSTRAINTS ALL DEFERRED"))
-        for table in tables:
-            await conn.execute(text(f"TRUNCATE TABLE {table[0]} RESTART IDENTITY CASCADE"))
-        await conn.execute(text("SET CONSTRAINTS ALL IMMEDIATE"))
-        await conn.commit()
+        logger.info("Creating tables for UserBase")
+        await conn.run_sync(UserBase.metadata.create_all)
+        logger.info("Creating tables for WorkoutBase")
+        await conn.run_sync(WorkoutBase.metadata.create_all)
+    
+    await print_schema(engine)
+    yield engine
+    await engine.dispose()
+
+async def clear_data(session: AsyncSession):
+    logger.info("Clearing data from all tables")
+    async with session.begin():
+        for table in reversed(UserBase.metadata.sorted_tables):
+            await session.execute(table.delete())
+        for table in reversed(WorkoutBase.metadata.sorted_tables):
+            await session.execute(table.delete())
+
+@pytest_asyncio.fixture(scope="function")
+async def db_session(engine):
+    logger.info("Creating new database session")
+    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async with async_session() as session:
+        await clear_data(session)
+        yield session
+        await session.rollback()
+
+@pytest_asyncio.fixture
+async def user_client(db_session):
+    async def override_get_db():
+        yield db_session
+    user_app.dependency_overrides[get_user_db] = override_get_db
+    async with AsyncClient(transport=ASGITransport(app=user_app), base_url="http://test") as client:
+        yield client
+    user_app.dependency_overrides.clear()
+
+@pytest_asyncio.fixture
+async def workout_client(db_session):
+    async def override_get_db():
+        yield db_session
+    workout_app.dependency_overrides[get_workout_db] = override_get_db
+    async with AsyncClient(transport=ASGITransport(app=workout_app), base_url="http://test") as client:
+        yield client
+    workout_app.dependency_overrides.clear()
 
 @pytest.fixture
 def mock_current_user():
@@ -65,68 +91,34 @@ def mock_current_user():
 def mock_auth_token():
     return "test_token"
 
-@pytest_asyncio.fixture(autouse=True, scope="function")
-async def session_user(engine_user):
-    async_session = sessionmaker(engine_user, class_=AsyncSession, expire_on_commit=False)
-    async with async_session() as session:
-        await cleanup_database(engine_user)
-        yield session
-        await session.close()
-        await cleanup_database(engine_user)
-
-@pytest_asyncio.fixture(autouse=True, scope="function")
-async def session_workout(engine_workout):
-    async_session = sessionmaker(engine_workout, class_=AsyncSession, expire_on_commit=False)
-    async with async_session() as session:
-        await cleanup_database(engine_workout)
-        yield session
-        await session.close()
-        await cleanup_database(engine_workout)
-
-@pytest.fixture
-def test_user_app():
-    return user_app
-
-@pytest.fixture
-def test_workout_app():
-    return workout_app
-
 @pytest_asyncio.fixture
-async def user_client(test_user_app, session_user):
-    async def override_get_db():
-        try:
-            yield session_user
-        finally:
-            await session_user.close()
-    test_user_app.dependency_overrides[get_user_db] = override_get_db
-    async with AsyncClient(app=test_user_app, base_url="http://test") as client:
-        yield client
-    test_user_app.dependency_overrides.clear()
-
-@pytest_asyncio.fixture
-async def workout_client(test_workout_app, session_workout):
-    async def override_get_db():
-        try:
-            yield session_workout
-        finally:
-            await session_workout.close()
-    test_workout_app.dependency_overrides[get_workout_db] = override_get_db
-    async with AsyncClient(app=test_workout_app, base_url="http://test") as client:
-        yield client
-    test_workout_app.dependency_overrides.clear()
-
-@pytest_asyncio.fixture
-async def authenticated_user_client(test_user_app, user_client, mock_current_user, mock_auth_token):
+async def authenticated_user_client(user_client, mock_current_user, mock_auth_token):
     async def mock_get_current_member():
         return mock_current_user
     
-    original_overrides = test_user_app.dependency_overrides.copy()
-    test_user_app.dependency_overrides[utils.get_current_member] = mock_get_current_member
-    
+    user_app.dependency_overrides[utils.get_current_member] = mock_get_current_member
     headers = user_client.headers.copy()
     headers["Authorization"] = f"Bearer {mock_auth_token}"
     
-    async with AsyncClient(app=test_user_app, base_url="http://test", headers=headers) as client:
+    async with AsyncClient(transport=ASGITransport(app=user_app), base_url="http://test", headers=headers) as client:
         yield client
     
-    test_user_app.dependency_overrides = original_overrides
+    user_app.dependency_overrides.clear()
+
+async def print_schema(engine):
+    logger.info("Printing database schema")
+    async with engine.connect() as conn:
+        result = await conn.execute(text("SELECT name FROM sqlite_master WHERE type='table';"))
+        tables = result.fetchall()
+        logger.info("Database schema:")
+        for table in tables:
+            logger.info(f"- {table[0]}")
+        
+        # Print table details
+        for table in tables:
+            table_name = table[0]
+            result = await conn.execute(text(f"PRAGMA table_info({table_name});"))
+            columns = result.fetchall()
+            logger.info(f"\nTable: {table_name}")
+            for column in columns:
+                logger.info(f"  - {column['name']} ({column['type']})")

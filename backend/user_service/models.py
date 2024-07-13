@@ -5,6 +5,11 @@ from enum import Enum as PyEnum
 
 Base = declarative_base()
 
+class UserRole(str, PyEnum):
+    user = "user"
+    trainer = "trainer"
+
+
 class User(Base, AsyncAttrs):
     __tablename__ = "users"
     user_id = Column(Integer, primary_key=True, index=True, unique=True)
@@ -18,7 +23,7 @@ class User(Base, AsyncAttrs):
     workout_goal = Column(Integer, nullable=True)
     first_name = Column(String, nullable=True)
     last_name = Column(String, nullable=True)
-    role = Column(String, default="user")
+    role = Column(String, default=UserRole.user.value)
 
     # Relationship with TrainerUserMap
     trainer_mappings = relationship("TrainerUserMap", back_populates="user")

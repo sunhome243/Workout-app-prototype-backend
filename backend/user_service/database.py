@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 load_dotenv(override=True)
-SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_USER_URL")
+SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_USER_URL", "sqlite+aiosqlite:///./test.db")
 
 if not SQLALCHEMY_DATABASE_URL:
     raise ValueError("SQLALCHEMY_DATABASE_URL is not set in the environment or .env file")
