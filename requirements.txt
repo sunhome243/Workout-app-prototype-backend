@@ -11,3 +11,4 @@ pytz
 pyjwt
 cachetools
 aiosqlite
+logger

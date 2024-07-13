@@ -358,5 +358,5 @@ async def get_trainer_user_mapping(db: AsyncSession, trainer_id: int, user_id: i
         )
         return result.scalar_one_or_none()
     except Exception as e:
-        logger.error(f"Error in get_trainer_user_mapping: {str(e)}")
+        logging.error(f"Error in get_trainer_user_mapping: {str(e)}")
         raise
