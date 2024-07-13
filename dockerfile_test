@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 
 COPY backend/user_service /app/backend/user_service
-COPY backend/workout_service /app/backend/user_service
+COPY backend/workout_service /app/backend/workout_service
 COPY pytest.ini /app/pytest.ini
 COPY tests /app/tests
 
