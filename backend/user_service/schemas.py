@@ -1,8 +1,11 @@
 from typing import List, Union, Optional
 from pydantic import BaseModel, Field, ConfigDict, field_validator
+from enum import Enum
 
 class UserBase(BaseModel):
     email: str
+    first_name: str
+    last_name: str
     @field_validator('email')
     def check_required_fields(cls, v):
         if v is None:
@@ -19,7 +22,6 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     user_id: int
-    hashed_password: str
     age: Optional[int] = Field(default=None)
     height: Optional[float] = Field(default=None)
     weight: Optional[float] = Field(default=None)
@@ -42,14 +44,6 @@ class UserUpdate(BaseModel):
     workout_frequency: Optional[int] = None
     workout_goal: Optional[int] = None
 
-    @field_validator('confirm_password')
-    def passwords_match(cls, v, info):
-        if 'new_password' in info.data:
-            new_password = info.data['new_password']
-            if new_password is not None and v != new_password:
-                raise ValueError('Passwords do not match')
-        return v
-
 class TrainerBase(BaseModel):
     email: str
     first_name: str
@@ -71,25 +65,59 @@ class TrainerCreate(TrainerBase):
 class Trainer(TrainerBase):
     trainer_id: int
     hashed_password: str
-
-class TrainerUpdate(TrainerBase):
+    role: str
+    
+class TrainerUpdate(BaseModel):
     current_password: Optional[str] = None
     new_password: Optional[str] = None
     confirm_password: Optional[str] = None
 
-class TrainerUserMapBase(BaseModel):
-    trainer_id: int
+class ConnectedUserInfo(BaseModel):
     user_id: int
-
-class TrainerUserMapCreate(TrainerUserMapBase):
-    pass
-
-class TrainerUserMap(TrainerUserMapBase):
-    trainer: Trainer
-    user: User
+    age: Optional[int]
+    height: Optional[float]
+    weight: Optional[float]
+    workout_duration: Optional[int]
+    workout_frequency: Optional[int]
+    workout_goal: Optional[int]
+    first_name: Optional[str]
+    last_name: Optional[str]
 
     class ConfigDict(ConfigDict):
         from_attributes = True
+    
+class MappingStatus(str, Enum):
+    pending = "pending"
+    accepted = "accepted"
+
+class UserMappingInfo(BaseModel):
+    user_id: int
+    user_email: str
+    user_first_name: str
+    user_last_name: str
+    status: MappingStatus
+
+class TrainerMappingInfo(BaseModel):
+    trainer_id: int
+    trainer_email: str
+    trainer_first_name: str
+    trainer_last_name: str
+    status: MappingStatus
+
+class CreateTrainerUserMapping(BaseModel):
+    other_id: int
+
+class TrainerUserMappingResponse(BaseModel):
+    id: int
+    trainer_id: int
+    user_id: int
+    status: str
+
+class TrainerUserMappingUpdate(BaseModel):
+    new_status: str
+
+class Message(BaseModel):
+    message: str
 
 class Token(BaseModel):
     access_token: str

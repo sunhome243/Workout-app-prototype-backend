@@ -1,76 +1,124 @@
-import asyncio
 import pytest
 import pytest_asyncio
 import os
+import logging
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import text
-from backend.user_service.database import Base, get_db
-from backend.user_service.main import app
+from backend.user_service.database import Base as UserBase, get_db as get_user_db
+from backend.user_service.main import app as user_app
+from backend.workout_service.database import Base as WorkoutBase, get_db as get_workout_db
+from backend.workout_service.main import app as workout_app
+from backend.user_service import models, utils
 
-SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL_TEST")
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+# Use in-memory SQLite for testing
+DB_URL = os.getenv('TEST_DATABASE_URL', 'sqlite+aiosqlite:///:memory:')
+
 
 @pytest_asyncio.fixture(scope="session")
 async def engine():
-    engine = create_async_engine(
-        SQLALCHEMY_DATABASE_URL,
-        poolclass=NullPool
-    )
+    logger.info("Creating database engine")
+    engine = create_async_engine(DB_URL, poolclass=NullPool, echo=True)
+    
+    async with engine.begin() as conn:
+        logger.info("Creating tables for UserBase")
+        await conn.run_sync(UserBase.metadata.create_all)
+        logger.info("Creating tables for WorkoutBase")
+        await conn.run_sync(WorkoutBase.metadata.create_all)
+    
+    await print_schema(engine)
     yield engine
     await engine.dispose()
 
-async def cleanup_database(engine):
-    async with engine.begin() as conn:
-        # 모든 테이블 목록 가져오기
-        result = await conn.execute(text("""
-            SELECT table_name 
-            FROM information_schema.tables 
-            WHERE table_schema = 'public'
-        """))
-        tables = result.fetchall()
+async def clear_data(session: AsyncSession):
+    logger.info("Clearing data from all tables")
+    async with session.begin():
+        for table in reversed(UserBase.metadata.sorted_tables):
+            await session.execute(table.delete())
+        for table in reversed(WorkoutBase.metadata.sorted_tables):
+            await session.execute(table.delete())
 
-        # 외래 키 제약 조건 비활성화
-        await conn.execute(text("SET CONSTRAINTS ALL DEFERRED"))
-
-        # 모든 테이블 비우기
-        for table in tables:
-            await conn.execute(text(f"TRUNCATE TABLE {table[0]} RESTART IDENTITY CASCADE"))
-
-        # 외래 키 제약 조건 다시 활성화
-        await conn.execute(text("SET CONSTRAINTS ALL IMMEDIATE"))
-
-        await conn.commit()
-
-@pytest_asyncio.fixture(autouse=True, scope="function")
-async def session(engine):
+@pytest_asyncio.fixture(scope="function")
+async def db_session(engine):
+    logger.info("Creating new database session")
     async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
     async with async_session() as session:
-        await cleanup_database(engine)  # 세션 시작 전 데이터베이스 정리
+        await clear_data(session)
         yield session
-        await session.close()
-        await cleanup_database(engine)  # 세션 종료 후 데이터베이스 정리
-
-@pytest.fixture
-def test_app():
-    return app
+        await session.rollback()
 
 @pytest_asyncio.fixture
-async def client(test_app, session):
+async def user_client(db_session):
     async def override_get_db():
-        try:
-            yield session
-        finally:
-            await session.close()
-
-    test_app.dependency_overrides[get_db] = override_get_db
-    transport = ASGITransport(app=test_app) 
-    async with AsyncClient(transport=transport, base_url="http://test") as client: 
+        yield db_session
+    user_app.dependency_overrides[get_user_db] = override_get_db
+    async with AsyncClient(transport=ASGITransport(app=user_app), base_url="http://test") as client:
         yield client
-    test_app.dependency_overrides.clear()
+    user_app.dependency_overrides.clear()
 
-class BaseTestRouter:
-    @pytest.fixture
-    def app(self):
-        raise NotImplementedError("Subclasses must implement this method")
+@pytest_asyncio.fixture
+async def workout_client(db_session):
+    async def override_get_db():
+        yield db_session
+    workout_app.dependency_overrides[get_workout_db] = override_get_db
+    async with AsyncClient(transport=ASGITransport(app=workout_app), base_url="http://test") as client:
+        yield client
+    workout_app.dependency_overrides.clear()
+
+@pytest.fixture
+def mock_current_user():
+    return models.User(
+        user_id=1,
+        email="test@example.com",
+        first_name="Test",
+        last_name="User",
+        role="user",
+        age=30,
+        height=180.5,
+        weight=75.0,
+        workout_duration=60,
+        workout_frequency=3,
+        workout_goal=1
+    )
+
+@pytest.fixture
+def mock_auth_token():
+    return "test_token"
+
+@pytest_asyncio.fixture
+async def authenticated_user_client(user_client, mock_current_user, mock_auth_token):
+    async def mock_get_current_member():
+        return mock_current_user
+    
+    user_app.dependency_overrides[utils.get_current_member] = mock_get_current_member
+    headers = user_client.headers.copy()
+    headers["Authorization"] = f"Bearer {mock_auth_token}"
+    
+    async with AsyncClient(transport=ASGITransport(app=user_app), base_url="http://test", headers=headers) as client:
+        yield client
+    
+    user_app.dependency_overrides.clear()
+
+async def print_schema(engine):
+    logger.info("Printing database schema")
+    async with engine.connect() as conn:
+        result = await conn.execute(text("SELECT name FROM sqlite_master WHERE type='table';"))
+        tables = result.fetchall()
+        logger.info("Database schema:")
+        for table in tables:
+            logger.info(f"- {table[0]}")
+        
+        # Print table details
+        for table in tables:
+            table_name = table[0]
+            result = await conn.execute(text(f"PRAGMA table_info({table_name});"))
+            columns = result.fetchall()
+            logger.info(f"\nTable: {table_name}")
+            for column in columns:
+                logger.info(f"  - {column['name']} ({column['type']})")
