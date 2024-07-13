@@ -29,7 +29,7 @@ async def create_user(db: AsyncSession, user: schemas.UserCreate):
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), salt)
     after_hashed_password = hashed_password.decode('utf-8')
-    db_user = models.User(email=user.email, hashed_password=after_hashed_password)
+    db_user = models.User(email=user.email, hashed_password=after_hashed_password, first_name=user.first_name, last_name=user.last_name)
     db.add(db_user)
     await db.commit()
     await db.refresh(db_user)

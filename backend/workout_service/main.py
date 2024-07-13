@@ -2,8 +2,8 @@ from fastapi import FastAPI, Depends, HTTPException, Request, Header
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
 from sqlalchemy.ext.asyncio import AsyncSession
-from .database import get_db
-from . import crud, schemas, utils
+from backend.workout_service.database import get_db
+from backend.workout_service import crud, schemas, utils
 from datetime import datetime
 import logging
 import httpx
@@ -57,7 +57,7 @@ async def check_trainer_user_mapping(trainer_id: int, user_id: int, token: str):
         try:
             response = await client.get(f"{USER_SERVICE_URL}/check-trainer-user-mapping/{trainer_id}/{user_id}", headers=headers)
             response.raise_for_status()
-            result = response.json()
+            result = await response.json()
             logger.debug(f"Trainer-user mapping check result: {result}")
             return result.get("exists", False)
         except httpx.HTTPStatusError as e:
@@ -66,7 +66,6 @@ async def check_trainer_user_mapping(trainer_id: int, user_id: int, token: str):
         except Exception as e:
             logger.error(f"Unexpected error occurred while checking trainer-user mapping: {str(e)}")
             raise HTTPException(status_code=500, detail="Unexpected error occurred")
-
 
 @app.post("/create_session", response_model=schemas.SessionIDMap)
 async def create_session(
@@ -106,13 +105,12 @@ async def create_session(
             user_id = current_user.get('user_id')
             is_pt = "N"
 
-
-        session_data = {
-            "workout_date": datetime.now().strftime("%Y-%m-%d"),
-            "user_id": user_id,
-            "trainer_id": current_user.get('trainer_id') if current_user['user_type'] == 'trainer' else None,
-            "is_pt": is_pt
-        }
+        session_data = schemas.SessionCreate(
+            workout_date=datetime.now().strftime("%Y-%m-%d"),
+            user_id=user_id,
+            trainer_id=current_user.get('trainer_id') if current_user['user_type'] == 'trainer' else None,
+            is_pt=is_pt
+        )
 
         logger.debug(f"Attempting to create session with data: {session_data}")
         new_session = await crud.create_session(db, session_data)
@@ -127,6 +125,7 @@ async def create_session(
     except Exception as e:
         logger.error(f"Error creating session: {str(e)}")
         raise HTTPException(status_code=500, detail="Error creating session")
+    
     
 @app.get("/test")
 async def test_endpoint(

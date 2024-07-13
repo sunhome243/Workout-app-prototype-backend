@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from . import models, schemas
+from backend.workout_service import models, schemas
 import logging
 
 logger = logging.getLogger(__name__)

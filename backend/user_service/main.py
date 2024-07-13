@@ -140,46 +140,48 @@ async def request_trainer_user_mapping(
     current_user: Union[models.User, models.Trainer] = Depends(utils.get_current_member),
     db: AsyncSession = Depends(utils.get_db)
 ):
-    logging.info(f"Received request to create trainer-user mapping with other_id: {mapping.other_id}")
-    logging.info(f"Current user: {current_user}")
-    
-    is_trainer = isinstance(current_user, models.Trainer)
-    logging.info(f"Is trainer: {is_trainer}")
-    
     try:
+        is_trainer = isinstance(current_user, models.Trainer)
         current_user_id = current_user.trainer_id if is_trainer else current_user.user_id
         
-        new_mapping = await crud.create_trainer_user_mapping_request(
+        db_mapping = await crud.create_trainer_user_mapping_request(
             db, 
             current_user_id,
             mapping.other_id,
             is_trainer
         )
-        logging.info(f"New mapping request created: {new_mapping}")
-        return new_mapping
+        return schemas.TrainerUserMappingResponse(
+            id=db_mapping.id,
+            trainer_id=db_mapping.trainer_id,
+            user_id=db_mapping.user_id,
+            status=db_mapping.status
+        )
     except ValueError as e:
-        logging.warning(str(e))
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logging.error(f"Error creating mapping request: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to create mapping request")
 
 @router.put("/trainer-user-mapping/{mapping_id}/status", response_model=schemas.TrainerUserMappingResponse)
 async def update_trainer_user_mapping_status(
     mapping_id: int,
-    new_status: schemas.MappingStatus,
+    status_update: schemas.TrainerUserMappingUpdate,
     current_user: Union[models.User, models.Trainer] = Depends(utils.get_current_member),
     db: AsyncSession = Depends(utils.get_db)
 ):
     try:
+        new_status = schemas.MappingStatus(status_update.new_status)
         current_user_id = current_user.trainer_id if isinstance(current_user, models.Trainer) else current_user.user_id
-        updated_mapping = await crud.update_trainer_user_mapping_status(db, mapping_id, current_user_id, new_status)
-        return updated_mapping
+        db_mapping = await crud.update_trainer_user_mapping_status(db, mapping_id, current_user_id, new_status)
+        return schemas.TrainerUserMappingResponse(
+            id=db_mapping.id,
+            trainer_id=db_mapping.trainer_id,
+            user_id=db_mapping.user_id,
+            status=db_mapping.status.value
+        )
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=f"Invalid status: {str(e)}")
     except Exception as e:
-        logging.error(f"Error updating mapping status: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to update mapping status")
+        raise HTTPException(status_code=500, detail=f"Failed to update mapping status: {str(e)}")
 
 @router.get("/my-mappings/", response_model=List[Union[schemas.UserMappingInfo, schemas.TrainerMappingInfo]])
 async def read_my_mappings(

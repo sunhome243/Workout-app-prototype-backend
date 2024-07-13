@@ -22,7 +22,6 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     user_id: int
-    hashed_password: str
     age: Optional[int] = Field(default=None)
     height: Optional[float] = Field(default=None)
     weight: Optional[float] = Field(default=None)
@@ -112,12 +111,10 @@ class TrainerUserMappingResponse(BaseModel):
     id: int
     trainer_id: int
     user_id: int
-
-    class ConfigDict(ConfigDict):
-        from_attributes = True
+    status: str
 
 class TrainerUserMappingUpdate(BaseModel):
-    accept: bool
+    new_status: str
 
 class Message(BaseModel):
     message: str

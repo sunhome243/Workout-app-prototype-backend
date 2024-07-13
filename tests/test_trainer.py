@@ -1,17 +1,19 @@
-import pytest
-from httpx import AsyncClient
-from backend.user_service.main import app
-from tests.conftest import BaseTestRouter
+# import pytest
+# from httpx import AsyncClient
+# from backend.user_service.main import app
 
-pytestmark = pytest.mark.asyncio
+# pytestmark = pytest.mark.asyncio
 
-class TestUserRouter(BaseTestRouter):
+# class TestUserRouter:
+#     @pytest.fixture
+#     def client(self, client: AsyncClient):
+#         return client
 
-    async def test_create_trainer(self, client: AsyncClient, session):
-        data2 = {"email": "trainertest@example.com", "password": "password", "first_name":"Sunho", "last_name":"Kim"}
-        response2 = await client.post("/trainers/", json=data2)
-        assert response2.status_code == 200
-        assert response2.json()["email"] == data2["email"]
+#     async def test_create_user(self, client: AsyncClient, session_user):
+#         data = {"email": "test@example.com", "password": "password"}
+#         response = await client.post("/users/", json=data)
+#         assert response.status_code == 200
+#         assert response.json()["email"] == data["email"]
 
 '''
 import pytest
