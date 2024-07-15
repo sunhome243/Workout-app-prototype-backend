@@ -23,7 +23,9 @@ class TestUserRouter:
         assert response.json()["email"] == data["email"]
     
     @pytest.mark.asyncio
-    async def test_login_user(self, user_client: AsyncClient, db_session, monkeypatch):
+    async def test_login_user(self, user_client, db_session, monkeypatch):
+        print(f"Type of user_client: {type(user_client)}")
+        print(f"Attributes of user_client: {dir(user_client)}")
         mock_user = models.User(
             user_id=1,
             email="login_test@example.com",
@@ -31,23 +33,24 @@ class TestUserRouter:
             last_name="Test",
             role="user"
         )
-        mock_authenticate = AsyncMock(return_value=mock_user)
+        mock_authenticate = AsyncMock(return_value=(mock_user, "user"))
         mock_create_token = MagicMock(return_value="mocked_access_token")
         monkeypatch.setattr(utils, "authenticate_member", mock_authenticate)
         monkeypatch.setattr(utils, "create_access_token", mock_create_token)
 
         login_data = {"username": "login_test@example.com", "password": "password"}
         response = await user_client.post("/login", data=login_data)
-        
+
         assert response.status_code == 200
-        assert "access_token" in response.json()
-        assert response.json()["access_token"] == "mocked_access_token"
-        assert response.json()["token_type"] == "bearer"
+        response_json = response.json()
+        assert "access_token" in response_json
+        assert response_json["access_token"] == "mocked_access_token"
+        assert response_json["token_type"] == "bearer"
 
         mock_authenticate.assert_awaited_once_with(db_session, "login_test@example.com", "password")
         mock_create_token.assert_called_once()
         call_args = mock_create_token.call_args[1]
-        assert call_args["data"] == {"sub": "login_test@example.com", "role": "user"}
+        assert call_args["data"] == {"sub": str(mock_user.user_id), "type": "user"}
         assert "expires_delta" in call_args
         
     @pytest.mark.asyncio

@@ -40,31 +40,24 @@ async def get_current_member(token: str = Depends(oauth2_scheme), db: AsyncSessi
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
+        id: str = payload.get("sub")
         user_type: str = payload.get("type")
-        if email is None or user_type is None:
-            logging.error("Email or user_type is None in the token payload")
+        if id is None or user_type is None:
             raise credentials_exception
-    except PyJWTError as e:
-        logging.error(f"JWT decode error: {str(e)}")
+    except JWTError:
         raise credentials_exception
 
-    logging.info(f"Token decoded successfully. Email: {email}, User Type: {user_type}")
-
     if user_type == 'user':
-        user = await crud.get_user_by_email(db, email)
+        user = await crud.get_user_by_id(db, int(id))
     elif user_type == 'trainer':
-        user = await crud.get_trainer_by_email(db, email)
+        user = await crud.get_trainer_by_id(db, int(id))
     else:
-        logging.error(f"Invalid user_type: {user_type}")
         raise credentials_exception
 
     if user is None:
-        logging.error(f"User not found for email: {email}")
         raise credentials_exception
-
-    logging.info(f"User authenticated successfully: {user}")
     return user
+
 
 def verify_password(plain_password, hashed_password):
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
@@ -75,11 +68,13 @@ async def authenticate_member(db: AsyncSession, email: str, password: str):
     user = user_result.scalar_one_or_none()
     if user and verify_password(password, user.hashed_password):
         return user, 'user'
+    
     # Check trainer table
     trainer_result = await db.execute(select(models.Trainer).filter(models.Trainer.email == email))
     trainer = trainer_result.scalar_one_or_none()
     if trainer and verify_password(password, trainer.hashed_password):
         return trainer, 'trainer'
+    
     return None, None
 
 async def admin_required(current_user: schemas.User = Depends(get_current_member)):

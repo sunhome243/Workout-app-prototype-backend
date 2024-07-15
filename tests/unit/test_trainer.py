@@ -24,32 +24,35 @@ class TestTrainerRouter:
         assert response.json()["role"] == "trainer"
     
     @pytest.mark.asyncio
-    async def test_login_trainer(self, user_client: AsyncClient, db_session, monkeypatch):
+    async def test_login_trainer(self, user_client, db_session, monkeypatch):
+        print(f"Type of user_client: {type(user_client)}")
+        print(f"Attributes of user_client: {dir(user_client)}")
+        
         mock_trainer = models.Trainer(
             trainer_id=1,
-            email="login_trainer@example.com",
-            first_name="Login",
-            last_name="Trainer",
-            role="trainer",
-            hashed_password="hashed_password"
+            email="trainer_test@example.com",
+            first_name="Trainer",
+            last_name="Test",
+            role="trainer"
         )
-        mock_authenticate = AsyncMock(return_value=mock_trainer)
-        mock_create_token = MagicMock(return_value="mocked_access_token")
+        mock_authenticate = AsyncMock(return_value=(mock_trainer, "trainer"))
+        mock_create_token = MagicMock(return_value="mocked_trainer_access_token")
         monkeypatch.setattr(utils, "authenticate_member", mock_authenticate)
         monkeypatch.setattr(utils, "create_access_token", mock_create_token)
 
-        login_data = {"username": "login_trainer@example.com", "password": "password"}
+        login_data = {"username": "trainer_test@example.com", "password": "trainerpassword"}
         response = await user_client.post("/login", data=login_data)
-        
-        assert response.status_code == 200
-        assert "access_token" in response.json()
-        assert response.json()["access_token"] == "mocked_access_token"
-        assert response.json()["token_type"] == "bearer"
 
-        mock_authenticate.assert_awaited_once_with(db_session, "login_trainer@example.com", "password")
+        assert response.status_code == 200
+        response_json = response.json()
+        assert "access_token" in response_json
+        assert response_json["access_token"] == "mocked_trainer_access_token"
+        assert response_json["token_type"] == "bearer"
+
+        mock_authenticate.assert_awaited_once_with(db_session, "trainer_test@example.com", "trainerpassword")
         mock_create_token.assert_called_once()
         call_args = mock_create_token.call_args[1]
-        assert call_args["data"] == {"sub": "login_trainer@example.com", "role": "trainer"}
+        assert call_args["data"] == {"sub": str(mock_trainer.trainer_id), "type": "trainer"}
         assert "expires_delta" in call_args
 
     @pytest.mark.asyncio

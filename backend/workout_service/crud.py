@@ -24,7 +24,19 @@ async def check_trainer_user_mapping(db: AsyncSession, trainer_id: int, user_id:
 
 async def create_session(db: AsyncSession, session_data: dict):
     try:
-        new_session = models.SessionIDMap(**session_data)
+        # Ensure session_type_id is in the session_data
+        if 'session_type_id' not in session_data:
+            raise ValueError("session_type_id is required")
+
+        # Create a new SessionIDMap instance
+        new_session = models.SessionIDMap(
+            session_type=session_data['session_type_id'],
+            workout_date=session_data['workout_date'],
+            user_id=session_data['user_id'],
+            trainer_id=session_data.get('trainer_id'),  # trainer_id might be optional
+            is_pt=session_data['is_pt']
+        )
+
         db.add(new_session)
         await db.commit()
         await db.refresh(new_session)

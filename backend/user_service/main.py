@@ -24,8 +24,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 # Login for both trainer + member
 @router.post("/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
-    user = await utils.authenticate_member(db, form_data.username, form_data.password)
-    if not user:
+    member, role = await utils.authenticate_member(db, form_data.username, form_data.password)
+    if not member:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -33,8 +33,8 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = utils.create_access_token(
-        data={"sub": user.email, "role": user.role},  # Include user's role instead of user_type
-        expires_delta=access_token_expires
+        data={"sub": str(member.user_id if role == 'user' else member.trainer_id), "type": role},
+        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
