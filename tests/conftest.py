@@ -122,3 +122,28 @@ async def print_schema(engine):
             logger.info(f"\nTable: {table_name}")
             for column in columns:
                 logger.info(f"  - {column['name']} ({column['type']})")
+                
+@pytest.fixture
+def mock_current_trainer():
+    return models.Trainer(
+        trainer_id=1,
+        email="trainer@example.com",
+        first_name="John",
+        last_name="Doe",
+        role="trainer",
+        hashed_password="hashed_password"
+    )
+
+@pytest_asyncio.fixture
+async def authenticated_trainer_client(user_client, mock_current_trainer, mock_auth_token):
+    async def mock_get_current_member():
+        return mock_current_trainer
+    
+    user_app.dependency_overrides[utils.get_current_member] = mock_get_current_member
+    headers = user_client.headers.copy()
+    headers["Authorization"] = f"Bearer {mock_auth_token}"
+    
+    async with AsyncClient(transport=ASGITransport(app=user_app), base_url="http://test", headers=headers) as client:
+        yield client
+    
+    user_app.dependency_overrides.clear()
