@@ -1,235 +1,140 @@
-# import pytest
-# from httpx import AsyncClient
-# from backend.user_service.main import app
-
-# pytestmark = pytest.mark.asyncio
-
-# class TestUserRouter:
-#     @pytest.fixture
-#     def client(self, client: AsyncClient):
-#         return client
-
-#     async def test_create_user(self, client: AsyncClient, session_user):
-#         data = {"email": "test@example.com", "password": "password"}
-#         response = await client.post("/users/", json=data)
-#         assert response.status_code == 200
-#         assert response.json()["email"] == data["email"]
-
-'''
 import pytest
-from fastapi.testclient import TestClient
-from fastapi import HTTPException
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
-from .database import Base, get_db
-from . import main, crud, models
-import os
+from httpx import AsyncClient
+from unittest.mock import AsyncMock, MagicMock
+from backend.user_service import schemas, models, crud, utils
 
-# Override database URL for testing
-SQLALCHEMY_DATABASE_URL = os.getenv("SQLALCHEMY_DATABASE_URL_TEST")
-
-# Create an engine and a SessionLocal class with a temporary database
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Dependency for overriding the session
-@pytest.fixture(scope="function")
-def testing_session():
-    connection = engine.connect()
-    transaction = connection.begin()
-    session = Session(bind=connection)
-
-    # Clean up existing data
-    cleanup_existing_data(session)
-
-    yield session
-
-    # Rollback transaction to clear data after test
-    session.close()
-    transaction.rollback()
-    connection.close()
-
-# Function to clean up existing data
-def cleanup_existing_data(session):
-    # Perform cleanup tasks here based on your application's requirements
-    # For example, delete all users before running tests
-    session.query(models.User).delete()
-    session.commit()
-
-# Define the client fixture
-@pytest.fixture(scope="function")
-def client(testing_session):
-    def override_get_db():
-        try:
-            yield testing_session
-        finally:
-            testing_session.close()
-
-    main.app.dependency_overrides[get_db] = override_get_db
-    with TestClient(main.app) as c:
-        yield c
-    main.app.dependency_overrides = {}
-
-# Test CRUD operations
-def test_create_trainer(client: TestClient, testing_session: Session):
-    # Create test data
-    trainer_data = {
-        "email": "test123@example.com",
-        "password": "password",
-        "first_name": "Sunho",
-        "last_name": "Kim"
-    }
-    # Make a POST request to create the trainer
-    response = client.post("/trainers/", json=trainer_data)
+class TestTrainerRouter:
+    @pytest.mark.asyncio
+    async def test_create_trainer(self, user_client: AsyncClient, db_session, monkeypatch):
+        mock_trainer = models.Trainer(
+            trainer_id=1, 
+            email="trainer@example.com", 
+            first_name="John", 
+            last_name="Doe",
+            role="trainer",
+            hashed_password="hashed_password"
+        )
+        mock_create_trainer = AsyncMock(return_value=mock_trainer)
+        monkeypatch.setattr(crud, "create_trainer", mock_create_trainer)
+        
+        data = {"email": "trainer@example.com", "password": "password", "first_name": "John", "last_name": "Doe"}
+        response = await user_client.post("/trainers/", json=data)
+        assert response.status_code == 200
+        assert response.json()["email"] == data["email"]
+        assert response.json()["role"] == "trainer"
     
-    # Assert the response
-    assert response.status_code == 200
-    created_trainer = response.json()
-    assert created_trainer["email"] == trainer_data["email"]
-    assert "trainer_id" in created_trainer
+    @pytest.mark.asyncio
+    async def test_login_trainer(self, user_client: AsyncClient, db_session, monkeypatch):
+        mock_trainer = models.Trainer(
+            trainer_id=1,
+            email="login_trainer@example.com",
+            first_name="Login",
+            last_name="Trainer",
+            role="trainer",
+            hashed_password="hashed_password"
+        )
+        mock_authenticate = AsyncMock(return_value=mock_trainer)
+        mock_create_token = MagicMock(return_value="mocked_access_token")
+        monkeypatch.setattr(utils, "authenticate_member", mock_authenticate)
+        monkeypatch.setattr(utils, "create_access_token", mock_create_token)
 
-def test_get_trainer_byid(client: TestClient, testing_session: Session):
-    # Create a trainer
-    trainer_data = {
-        "email": "test@example.com",
-        "password": "password",
-        "first_name": "itme",
-        "last_name": "games"
-    }
-    response = client.post("/trainers/", json=trainer_data)
-    assert response.status_code == 200
-    created_trainer = response.json()
+        login_data = {"username": "login_trainer@example.com", "password": "password"}
+        response = await user_client.post("/login", data=login_data)
+        
+        assert response.status_code == 200
+        assert "access_token" in response.json()
+        assert response.json()["access_token"] == "mocked_access_token"
+        assert response.json()["token_type"] == "bearer"
 
-    # Test GET operation to retrieve the trainer
-    response = client.get(f"/trainers/byid/{created_trainer['trainer_id']}")
-    assert response.status_code == 200
-    retrieved_trainer = response.json()
-    assert retrieved_trainer["email"] == trainer_data["email"]
-    assert retrieved_trainer["first_name"] == trainer_data["first_name"]
-    assert retrieved_trainer["last_name"] == trainer_data["last_name"]
+        mock_authenticate.assert_awaited_once_with(db_session, "login_trainer@example.com", "password")
+        mock_create_token.assert_called_once()
+        call_args = mock_create_token.call_args[1]
+        assert call_args["data"] == {"sub": "login_trainer@example.com", "role": "trainer"}
+        assert "expires_delta" in call_args
 
-def test_get_trainer_byemail(client: TestClient, testing_session: Session):
-    trainer_data = {
-        "email": "test_trainer@example.com",
-        "password": "password",
-        "first_name": "John",
-        "last_name": "Doe"
-    }
-    response = client.post("/trainers/", json=trainer_data)
-    assert response.status_code == 200
-    created_trainer = response.json()
+    @pytest.mark.asyncio
+    async def test_update_trainer(self, authenticated_trainer_client: AsyncClient, db_session, monkeypatch):
+        update_data = {"first_name": "Updated", "last_name": "Trainer"}
+        mock_updated_trainer = models.Trainer(
+            trainer_id=1,  
+            **update_data,
+            email="trainer@example.com",
+            role="trainer",
+            hashed_password="hashed_password"
+        )
+        mock_update_trainer = AsyncMock(return_value=mock_updated_trainer)
+        monkeypatch.setattr(crud, "update_trainer", mock_update_trainer)
 
-    response = client.get(f"/trainers/byemail/{trainer_data['email']}")
-    assert response.status_code == 200
+        response = await authenticated_trainer_client.patch("/trainers/me", json=update_data)
+        assert response.status_code == 200
+        assert response.json()["first_name"] == update_data["first_name"]
+        assert response.json()["last_name"] == update_data["last_name"]
 
-    trainer = response.json()
-    assert trainer["email"] == trainer_data["email"]
-    assert trainer["first_name"] == trainer_data["first_name"]
-    assert trainer["last_name"] == trainer_data["last_name"]
+    @pytest.mark.asyncio
+    async def test_read_specific_connected_user_info(self, authenticated_trainer_client: AsyncClient, db_session, monkeypatch):
+        mock_user_info = schemas.ConnectedUserInfo(
+            user_id=2,
+            email="user@example.com",
+            first_name="Test",
+            last_name="User",
+            age=30,
+            height=180.5,
+            weight=75.0,
+            workout_duration=60,
+            workout_frequency=3,
+            workout_goal=1
+        )
+        
+        mock_get_info = AsyncMock(return_value=mock_user_info)
+        monkeypatch.setattr(crud, "get_specific_connected_user_info", mock_get_info)
 
-    response = client.get("/trainers/byemail/non_existent_email@example.com")
-    assert response.status_code == 404
-    assert response.json() == {"detail": "Trainer not found"}
+        response = await authenticated_trainer_client.get("/trainer/connected-users/2")
 
-# def test_get_trainers(client: TestClient, testing_session: Session):
-#     # Create multiple trainers
-#     trainer_data1 = {
-#         "email": "test1@example.com",
-#         "password": "password",
-#         "first_name": "itme",
-#         "last_name": "games"
-#     }
-#     trainer_data2 = {
-#         "email": "test2@example.com",
-#         "password": "password",
-#         "first_name": "itme",
-#         "last_name": "games"
-#     }
-#     client.post("/trainers/", json=trainer_data1)
-#     client.post("/trainers/", json=trainer_data2)
+        assert response.status_code == 200
+        response_data = response.json()
 
-#     # Test GET operation to retrieve trainers
-#     response = client.get("/trainers/")
-#     assert response.status_code == 200
-#     trainers = response.json()
-#     assert len(trainers) == 2
+        expected_fields = [
+            "user_id", "first_name", "last_name", "age", "height", "weight",
+            "workout_duration", "workout_frequency", "workout_goal"
+        ]
+        for field in expected_fields:
+            assert field in response_data, f"Field '{field}' is missing in the response"
+            assert response_data[field] == getattr(mock_user_info, field), f"Mismatch in field '{field}'"
 
-def test_update_trainer(client: TestClient, testing_session: Session):
-    # Create a trainer to update
-    trainer_data = {
-        "email": "test@example.com",
-        "password": "password",
-        "first_name": "itme",
-        "last_name": "games"
-    }
-    response = client.post("/trainers/", json=trainer_data)
-    assert response.status_code == 200
-    created_trainer = response.json()
+        if "email" in response_data:
+            assert response_data["email"] == mock_user_info.email
+        else:
+            print("Note: 'email' field is not present in the API response")
+        
+    @pytest.mark.asyncio
+    async def test_check_trainer_user_mapping(self, authenticated_trainer_client: AsyncClient, db_session, monkeypatch):
+        mock_mapping = AsyncMock()
+        mock_mapping.status = models.MappingStatus.accepted
+        mock_get_mapping = AsyncMock(return_value=mock_mapping)
+        monkeypatch.setattr(crud, "get_trainer_user_mapping", mock_get_mapping)
+        
+        response = await authenticated_trainer_client.get("/check-trainer-user-mapping/1/2")
+        
+        assert response.status_code == 200
+        assert response.json() == {"exists": True}
 
-    # Define update data
-    trainer_update_data = {
-        "email": "test@example.com",
-        "password": "newpassword",
-        "first_name": "itme",
-        "last_name": "games"
-    }
-
-    # Make a PUT request to update the trainer
-    update_response = client.put(f"/trainers/{created_trainer['trainer_id']}", json=trainer_update_data)
-    assert update_response.status_code == 200
-
-    # Test GET operation to retrieve the updated trainer
-    response = client.get(f"/trainers/byid/{created_trainer['trainer_id']}")
-    assert response.status_code == 200
-    updated_trainer = response.json()
-    assert updated_trainer["email"] == trainer_data["email"]
-    
-
-def test_trainer_user_map(client: TestClient, testing_session: Session):
-    # Creating error
-    mapping_data = {
-        "trainer_id": 1,
-        "user_id": 1
-    }
-    
-    response = client.post("/trainer-user-mapping/", json=mapping_data)
-    assert response.status_code == 404
-    
-    trainer_data = {
-        "email": "test@example.com",
-        "password": "password",
-        "first_name": "itme",
-        "last_name": "games"
-    }
-    response = client.post("/trainers/", json=trainer_data)
-    assert response.status_code == 200
-    created_trainer = response.json()
-    
-    user_data = {
-        "email": "test23@example.com",
-        "password": "password",
-    }
-    response = client.post("/users/", json=user_data)
-    assert response.status_code == 200
-    created_user = response.json()
-
-    trainer_id = created_trainer['trainer_id']
-    user_id = created_user['user_id']
-    
-    mapping_data = {
-        "trainer_id": trainer_id,
-        "user_id": user_id
-    }
-    
-    # Make POST request to create mapping
-    response = client.post("/trainer-user-mapping/", json=mapping_data)
-    
-    # Assert response status code
-    assert response.status_code == 200
-    
-    # Assert response data matches expected schema (schemas.TrainerUserMap)
-    created_mapping = response.json()
-    assert created_mapping["trainer_id"] == mapping_data["trainer_id"]
-    assert created_mapping["user_id"] == mapping_data["user_id"]
-    
-'''
+    @pytest.mark.asyncio
+    async def test_update_trainer_user_mapping_status(self, authenticated_trainer_client: AsyncClient, db_session, monkeypatch):
+        mock_db_mapping = AsyncMock()
+        mock_db_mapping.id = 1
+        mock_db_mapping.trainer_id = 1
+        mock_db_mapping.user_id = 2
+        mock_db_mapping.status = models.MappingStatus.accepted
+        mock_update_mapping = AsyncMock(return_value=mock_db_mapping)
+        monkeypatch.setattr(crud, "update_trainer_user_mapping_status", mock_update_mapping)
+        
+        status_data = {"new_status": "accepted"}
+        response = await authenticated_trainer_client.put("/trainer-user-mapping/1/status", json=status_data)
+        
+        assert response.status_code == 200
+        assert response.json() == {
+            "id": 1,
+            "trainer_id": 1,
+            "user_id": 2,
+            "status": "accepted"
+        }
