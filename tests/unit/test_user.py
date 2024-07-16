@@ -18,7 +18,7 @@ class TestUserRouter:
         monkeypatch.setattr(crud, "create_user", mock_create_user)
         
         data = {"user_id": "AAAAA", "email": "test@example.com", "password": "password", "first_name": "Sunho", "last_name": "Kim"}
-        response = await user_client.post("/users/", json=data)
+        response = await user_client.post("/api/users/", json=data)
         assert response.status_code == 200
         assert response.json()["email"] == data["email"]
         assert response.json()["email"] == data["email"]
@@ -40,7 +40,7 @@ class TestUserRouter:
         monkeypatch.setattr(utils, "create_access_token", mock_create_token)
 
         login_data = {"username": "login_test@example.com", "password": "password"}
-        response = await user_client.post("/login", data=login_data)
+        response = await user_client.post("/api/login", data=login_data)
 
         assert response.status_code == 200
         response_json = response.json()
@@ -68,7 +68,7 @@ class TestUserRouter:
         mock_update_user = AsyncMock(return_value=mock_updated_user)
         monkeypatch.setattr(crud, "update_user", mock_update_user)
 
-        response = await authenticated_user_client.patch("/users/me", json=update_data)
+        response = await authenticated_user_client.patch("/api/users/me", json=update_data)
         assert response.status_code == 200
         assert response.json()["age"] == update_data["age"]
         assert response.json()["height"] == update_data["height"]
@@ -76,7 +76,7 @@ class TestUserRouter:
 
     @pytest.mark.asyncio
     async def test_read_users_me(self, authenticated_user_client: AsyncClient, db_session):
-        response = await authenticated_user_client.get("/users/me/")
+        response = await authenticated_user_client.get("/api/users/me/")
         assert response.status_code == 200
         assert response.json()["email"] == "test@example.com"
 
@@ -86,7 +86,7 @@ class TestUserRouter:
         mock_get_user_by_id = AsyncMock(return_value=mock_user)
         monkeypatch.setattr(crud, "get_user_by_id", mock_get_user_by_id)
 
-        response = await user_client.get("/users/byid/AAAAA")
+        response = await user_client.get("/api/users/byid/AAAAA")
         assert response.status_code == 200
         assert response.json()["email"] == "test@example.com"
     
@@ -96,7 +96,7 @@ class TestUserRouter:
         mock_get_user_by_email = AsyncMock(return_value=mock_user)
         monkeypatch.setattr(crud, "get_user_by_email", mock_get_user_by_email)
 
-        response = await user_client.get("/users/byemail/test@example.com")
+        response = await user_client.get("/api/users/byemail/test@example.com")
         assert response.status_code == 200
         assert response.json()["email"] == "test@example.com"
 
@@ -105,7 +105,7 @@ class TestUserRouter:
         mock_delete_user = AsyncMock(return_value=None)
         monkeypatch.setattr(crud, "delete_user", mock_delete_user)
 
-        response = await authenticated_user_client.delete("/users/me/")
+        response = await authenticated_user_client.delete("/api/users/me/")
         assert response.status_code == 200
         assert "email" in response.json()
 
@@ -120,7 +120,7 @@ class TestUserRouter:
         monkeypatch.setattr(crud, "create_trainer_user_mapping_request", mock_create_mapping)
         
         mapping_data = {"other_id": "AAAAA"}
-        response = await authenticated_user_client.post("/trainer-user-mapping/request", json=mapping_data)
+        response = await authenticated_user_client.post("/api/trainer-user-mapping/request", json=mapping_data)
         
         assert response.status_code == 200
         assert response.json() == {
@@ -141,7 +141,7 @@ class TestUserRouter:
         monkeypatch.setattr(crud, "update_trainer_user_mapping_status", mock_update_mapping)
         
         status_data = {"new_status": "accepted"}
-        response = await authenticated_user_client.put("/trainer-user-mapping/1/status", json=status_data)
+        response = await authenticated_user_client.put("/api/trainer-user-mapping/1/status", json=status_data)
         
         assert response.status_code == 200
         assert response.json() == {
@@ -156,6 +156,6 @@ class TestUserRouter:
         mock_remove_mapping = AsyncMock(return_value=True)
         monkeypatch.setattr(crud, "remove_specific_mapping", mock_remove_mapping)
 
-        response = await authenticated_user_client.delete("/trainer-user-mapping/2")
+        response = await authenticated_user_client.delete("/api/trainer-user-mapping/2")
         assert response.status_code == 200
         assert "message" in response.json()

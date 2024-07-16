@@ -53,7 +53,7 @@ async def get_documentation():
 async def get_openapi_json():
     return app.openapi()
 
-@app.post("/create_session", response_model=schemas.SessionIDMap)
+@app.post("/api/create_session", response_model=schemas.SessionIDMap)
 async def create_session(
     request: Request,
     session_type_id: str,
@@ -114,7 +114,7 @@ async def create_session(
         raise HTTPException(status_code=500, detail="Error creating session")
 
 
-@app.post("/record_set", response_model=schemas.Session)
+@app.post("/api/record_set", response_model=schemas.Session)
 async def record_set_endpoint(
     session_id: int,
     workout_key: int,
@@ -149,7 +149,7 @@ async def record_set_endpoint(
 
 
 
-@app.get("/get_sessions/{member_id}", response_model=list[schemas.SessionWithSets])
+@app.get("/api/get_sessions/{member_id}", response_model=list[schemas.SessionWithSets])
 async def get_sessions(
     member_id: str = Path(..., title="The ID of the member to get sessions for"),
     db: AsyncSession = Depends(get_db),
@@ -199,7 +199,7 @@ async def get_sessions(
         raise HTTPException(status_code=500, detail="Error fetching sessions")
 
 
-@app.post("/create_quest", response_model=schemas.Quest)
+@app.post("/api/create_quest", response_model=schemas.Quest)
 async def create_quest_endpoint(
     quest_data: schemas.QuestCreate,
     db: AsyncSession = Depends(get_db),
@@ -228,7 +228,7 @@ async def create_quest_endpoint(
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
     
     
-@app.get("/quests", response_model=List[schemas.Quest])
+@app.get("/api/quests", response_model=List[schemas.Quest])
 async def read_quests(
     db: AsyncSession = Depends(get_db),
     authorization: str = Header(None)
@@ -250,7 +250,7 @@ async def read_quests(
         logger.error(f"Error reading quests: {str(e)}")
         raise HTTPException(status_code=500, detail="Error reading quests")
 
-@app.get("/quests/{user_id}", response_model=List[schemas.Quest])
+@app.get("/api/quests/{user_id}", response_model=List[schemas.Quest])
 async def read_quests_for_user(
     user_id: str,
     db: AsyncSession = Depends(get_db),
@@ -280,7 +280,7 @@ async def read_quests_for_user(
         logger.error(f"Error reading quests for user: {str(e)}")
         raise HTTPException(status_code=500, detail="Error reading quests for user")
 
-@app.patch("/quests/{quest_id}/status", response_model=schemas.Quest)
+@app.patch("/api/quests/{quest_id}/status", response_model=schemas.Quest)
 async def update_quest_status(
     quest_id: int = Path(..., title="The ID of the quest to update"),
     status: bool = Query(..., title="The new status of the quest"),
@@ -313,7 +313,7 @@ async def update_quest_status(
         logger.error(f"Error updating quest status: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error updating quest status: {str(e)}")
     
-@app.delete("/quests/{quest_id}", status_code=204)
+@app.delete("/api/quests/{quest_id}", status_code=204)
 async def delete_quest(
     quest_id: int = Path(..., title="The ID of the quest to delete"),
     db: AsyncSession = Depends(get_db),
@@ -348,7 +348,7 @@ async def delete_quest(
         logger.error(f"Error deleting quest: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error deleting quest: {str(e)}")
     
-@app.get("/workout-records/{workout_key}", response_model=Dict[int, schemas.QuestWorkoutRecord])
+@app.get("/api/workout-records/{workout_key}", response_model=Dict[int, schemas.QuestWorkoutRecord])
 async def get_workout_records(
     workout_key: int = Path(..., title="The workout key of the workout"),
     db: AsyncSession = Depends(get_db),
@@ -369,7 +369,7 @@ async def get_workout_records(
         logger.error(f"Error retrieving workout records: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error retrieving workout records: {str(e)}")
 
-@app.get("/workout-name/{workout_key}", response_model=schemas.WorkoutName)
+@app.get("/api/workout-name/{workout_key}", response_model=schemas.WorkoutName)
 async def get_workout_name(
     workout_key: int = Path(..., title="The workout key"),
     db: AsyncSession = Depends(get_db),
@@ -393,7 +393,7 @@ async def get_workout_name(
         raise HTTPException(status_code=500, detail=f"Error retrieving workout name: {str(e)}")
     
     
-@app.get("/workouts-by-part", response_model=Dict[str, List[schemas.WorkoutInfo]])
+@app.get("/api/workouts-by-part", response_model=Dict[str, List[schemas.WorkoutInfo]])
 async def get_workouts_by_part(
     workout_part_id: int = Query(None, description="Optional: Filter by specific workout part ID"),
     db: AsyncSession = Depends(get_db),

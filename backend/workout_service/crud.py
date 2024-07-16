@@ -29,7 +29,7 @@ async def check_trainer_user_mapping(trainer_id: str, user_id: str, token: str):
     async with httpx.AsyncClient() as client:
         headers = {"Authorization": token}
         try:
-            url = f"{USER_SERVICE_URL}/check-trainer-user-mapping/{trainer_id}/{user_id}"
+            url = f"{USER_SERVICE_URL}/api/check-trainer-user-mapping/{trainer_id}/{user_id}"
             logger.debug(f"Sending request to: {url}")
             response = await client.get(url, headers=headers)
             response.raise_for_status()

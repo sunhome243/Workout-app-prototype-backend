@@ -22,7 +22,7 @@ async def test_create_session_user(mock_create_session, mock_get_current_member,
     mock_create_session.return_value.trainer_id = None
     mock_create_session.return_value.is_pt = "N"
     
-    response = await workout_client.post("/create_session?session_type_id=2", headers={"Authorization": "Bearer mock_token"})
+    response = await workout_client.post("/api/create_session?session_type_id=2", headers={"Authorization": "Bearer mock_token"})
     
     assert response.status_code == 200
     assert response.json() == {
@@ -54,7 +54,7 @@ async def test_create_session_trainer(mock_check_mapping, mock_create_session, m
 
     mock_check_mapping.return_value = True
 
-    response = await workout_client.post("/create_session?session_type_id=3&user_id=user1", headers={"Authorization": "Bearer mock_token"})
+    response = await workout_client.post("/api/create_session?session_type_id=3&user_id=user1", headers={"Authorization": "Bearer mock_token"})
     
     assert response.status_code == 200
     assert response.json() == {
@@ -68,7 +68,7 @@ async def test_create_session_trainer(mock_check_mapping, mock_create_session, m
 
 @pytest.mark.asyncio
 async def test_create_session_no_auth(workout_client):
-    response = await workout_client.post("/create_session?session_type_id=2")
+    response = await workout_client.post("/api/create_session?session_type_id=2")
     assert response.status_code == 401
     assert response.json() == {"detail": "Authorization header is missing"}
 
@@ -90,7 +90,7 @@ async def test_record_set(mock_record_set, mock_get_current_member, workout_clie
     mock_record_set.return_value.rest_time = 60
 
     response = await workout_client.post(
-        "/record_set?session_id=1&workout_key=1&set_num=1&weight=50.0&reps=10&rest_time=60",
+        "/api/record_set?session_id=1&workout_key=1&set_num=1&weight=50.0&reps=10&rest_time=60",
         headers={"Authorization": "Bearer mock_token"}
     )
 
@@ -123,7 +123,7 @@ async def test_get_sessions(mock_check_mapping, mock_get_sets, mock_get_sessions
     ]
     mock_check_mapping.return_value = True
 
-    response = await workout_client.get("/get_sessions/user1", headers={"Authorization": "Bearer mock_token"})
+    response = await workout_client.get("/api/get_sessions/user1", headers={"Authorization": "Bearer mock_token"})
 
     assert response.status_code == 200
     assert response.json() == [{
@@ -203,7 +203,7 @@ async def test_create_quest(mock_check_mapping, mock_create_quest, mock_get_curr
     }
 
     # Send request
-    response = await workout_client.post("/create_quest", json=quest_data, headers={"Authorization": "Bearer mock_token"})
+    response = await workout_client.post("/api/create_quest", json=quest_data, headers={"Authorization": "Bearer mock_token"})
 
     # Assert response
     assert response.status_code == 200
@@ -271,7 +271,7 @@ async def test_read_quests_trainer(mock_get_quests, mock_get_current_member, wor
         )
     ]
 
-    response = await workout_client.get("/quests", headers={"Authorization": "Bearer mock_token"})
+    response = await workout_client.get("/api/quests", headers={"Authorization": "Bearer mock_token"})
 
     assert response.status_code == 200
     assert response.json() == [{
@@ -335,7 +335,7 @@ async def test_read_quests_for_user(mock_check_mapping, mock_get_quests, mock_ge
         )
     ]
 
-    response = await workout_client.get("/quests/user1", headers={"Authorization": "Bearer mock_token"})
+    response = await workout_client.get("/api/quests/user1", headers={"Authorization": "Bearer mock_token"})
 
     assert response.status_code == 200
     assert response.json() == [{
@@ -394,7 +394,7 @@ async def test_update_quest_status(mock_update_status, mock_get_quest, mock_get_
     mock_update_status.return_value = mock_quest
     mock_update_status.return_value.status = True
 
-    response = await workout_client.patch("/quests/1/status?status=true", headers={"Authorization": "Bearer mock_token"})
+    response = await workout_client.patch("/api/quests/1/status?status=true", headers={"Authorization": "Bearer mock_token"})
 
     assert response.status_code == 200
     assert response.json()["status"] == True
@@ -422,7 +422,7 @@ async def test_delete_quest(mock_delete_quest, mock_get_quest, mock_get_current_
     )
     mock_delete_quest.return_value = True
 
-    response = await workout_client.delete("/quests/1", headers={"Authorization": "Bearer mock_token"})
+    response = await workout_client.delete("/api/quests/1", headers={"Authorization": "Bearer mock_token"})
 
     assert response.status_code == 204
 
@@ -449,7 +449,7 @@ async def test_get_workout_records(mock_get_records, mock_get_current_member, wo
         }
     }
 
-    response = await workout_client.get("/workout-records/1", headers={"Authorization": "Bearer mock_token"})
+    response = await workout_client.get("/api/workout-records/1", headers={"Authorization": "Bearer mock_token"})
 
     assert response.status_code == 200
     assert response.json() == {
@@ -477,7 +477,7 @@ async def test_get_workout_name(mock_get_workout_name, mock_get_current_member, 
     mock_get_current_member.return_value = mock_current_user
     mock_get_workout_name.return_value = "Bench Press"
 
-    response = await workout_client.get("/workout-name/1", headers={"Authorization": "Bearer mock_token"})
+    response = await workout_client.get("/api/workout-name/1", headers={"Authorization": "Bearer mock_token"})
 
     assert response.status_code == 200
     assert response.json() == {
@@ -513,7 +513,7 @@ async def test_get_workouts_by_part(mock_get_workouts_by_part, mock_get_current_
         ]
     }
 
-    response = await workout_client.get("/workouts-by-part", headers={"Authorization": "Bearer mock_token"})
+    response = await workout_client.get("/api/workouts-by-part", headers={"Authorization": "Bearer mock_token"})
 
     assert response.status_code == 200
     assert response.json() == {
@@ -539,7 +539,7 @@ async def test_get_workouts_by_part(mock_get_workouts_by_part, mock_get_current_
 
 @pytest.mark.asyncio
 async def test_create_session_invalid_session_type(workout_client):
-    response = await workout_client.post("/create_session", headers={"Authorization": "Bearer mock_token"})
+    response = await workout_client.post("/api/create_session", headers={"Authorization": "Bearer mock_token"})
     assert response.status_code == 422
 
 @pytest.mark.asyncio
@@ -556,7 +556,7 @@ async def test_update_quest_status_unauthorized(mock_get_quest, mock_get_current
     mock_quest.user_id = "user1"
     mock_get_quest.return_value = mock_quest
 
-    response = await workout_client.patch("/quests/1/status?status=true", headers={"Authorization": "Bearer mock_token"})
+    response = await workout_client.patch("/api/quests/1/status?status=true", headers={"Authorization": "Bearer mock_token"})
 
     assert response.status_code == 403
     assert response.json() == {"detail": "Not authorized to update this quest"}
@@ -568,17 +568,17 @@ async def test_update_quest_status_unauthorized(mock_get_quest, mock_get_current
 async def test_delete_quest_unauthorized(mock_get_quest, mock_get_current_member, workout_client):
     mock_get_current_member.return_value = {"id": "user1", "user_type": "user"}
     mock_get_quest.return_value = AsyncMock(trainer_id="trainer1")
-    response = await workout_client.delete("/quests/1", headers={"Authorization": "Bearer mock_token"})
+    response = await workout_client.delete("/api/quests/1", headers={"Authorization": "Bearer mock_token"})
     assert response.status_code == 403
 
 @pytest.mark.asyncio
 async def test_get_workout_name_not_found(workout_client, mock_auth):
     with patch("backend.workout_service.crud.get_workout_name", return_value=None):
-        response = await workout_client.get("/workout-name/9999", headers={"Authorization": "Bearer mock_token"})
+        response = await workout_client.get("/api/workout-name/9999", headers={"Authorization": "Bearer mock_token"})
     assert response.status_code == 404
 
 @pytest.mark.asyncio
 async def test_get_workouts_by_part_with_filter(workout_client, mock_auth):
     with patch("backend.workout_service.crud.get_workouts_by_part", return_value={}):
-        response = await workout_client.get("/workouts-by-part?workout_part_id=1", headers={"Authorization": "Bearer mock_token"})
+        response = await workout_client.get("/api/workouts-by-part?workout_part_id=1", headers={"Authorization": "Bearer mock_token"})
     assert response.status_code == 200

@@ -18,7 +18,7 @@ class TestTrainerRouter:
         monkeypatch.setattr(crud, "create_trainer", mock_create_trainer)
         
         data = {"trainer_id": "AAAAA", "email": "trainer@example.com", "password": "password", "first_name": "John", "last_name": "Doe"}
-        response = await user_client.post("/trainers/", json=data)
+        response = await user_client.post("/api/trainers/", json=data)
         assert response.status_code == 200
         assert response.json()["email"] == data["email"]
         assert response.json()["role"] == "trainer"
@@ -41,7 +41,7 @@ class TestTrainerRouter:
         monkeypatch.setattr(utils, "create_access_token", mock_create_token)
 
         login_data = {"username": "trainer_test@example.com", "password": "trainerpassword"}
-        response = await user_client.post("/login", data=login_data)
+        response = await user_client.post("/api/login", data=login_data)
 
         assert response.status_code == 200
         response_json = response.json()
@@ -68,7 +68,7 @@ class TestTrainerRouter:
         mock_update_trainer = AsyncMock(return_value=mock_updated_trainer)
         monkeypatch.setattr(crud, "update_trainer", mock_update_trainer)
 
-        response = await authenticated_trainer_client.patch("/trainers/me", json=update_data)
+        response = await authenticated_trainer_client.patch("/api/trainers/me", json=update_data)
         assert response.status_code == 200
         assert response.json()["first_name"] == update_data["first_name"]
         assert response.json()["last_name"] == update_data["last_name"]
@@ -91,7 +91,7 @@ class TestTrainerRouter:
         mock_get_info = AsyncMock(return_value=mock_user_info)
         monkeypatch.setattr(crud, "get_specific_connected_user_info", mock_get_info)
 
-        response = await authenticated_trainer_client.get("/trainer/connected-users/2")
+        response = await authenticated_trainer_client.get("/api/trainer/connected-users/2")
 
         assert response.status_code == 200
         response_data = response.json()
@@ -116,7 +116,7 @@ class TestTrainerRouter:
         mock_get_mapping = AsyncMock(return_value=mock_mapping)
         monkeypatch.setattr(crud, "get_trainer_user_mapping", mock_get_mapping)
         
-        response = await authenticated_trainer_client.get("/check-trainer-user-mapping/AAAAA/AAAAA")
+        response = await authenticated_trainer_client.get("/api/check-trainer-user-mapping/AAAAA/AAAAA")
         
         assert response.status_code == 200
         assert response.json() == {"exists": True}
@@ -132,7 +132,7 @@ class TestTrainerRouter:
         monkeypatch.setattr(crud, "update_trainer_user_mapping_status", mock_update_mapping)
         
         status_data = {"new_status": "accepted"}
-        response = await authenticated_trainer_client.put("/trainer-user-mapping/1/status", json=status_data)
+        response = await authenticated_trainer_client.put("/api/trainer-user-mapping/1/status", json=status_data)
         
         assert response.status_code == 200
         assert response.json() == {
