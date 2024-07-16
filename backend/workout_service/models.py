@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum, Boolean, DateTime, UniqueConstraint, ForeignKeyConstraint
 from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy.sql import func
 
 Base = declarative_base()
 
@@ -54,3 +55,43 @@ class Session(Base):
     # Relationships
     session_id_map = relationship('SessionIDMap', back_populates='sessions')
     workout_key_name_map = relationship('WorkoutKeyNameMap', back_populates='sessions')
+    
+class Quest(Base):
+    __tablename__ = 'quests'
+    quest_id = Column(Integer, primary_key=True, autoincrement=True)
+    trainer_id = Column(String, nullable=False)
+    user_id = Column(String, nullable=False)
+    status = Column(Boolean, default=False)  # False for incomplete, True for complete
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    # Relationship
+    exercises = relationship('QuestExercise', back_populates='quest', cascade="all, delete-orphan")
+
+class QuestExercise(Base):
+    __tablename__ = 'quest_exercises'
+    quest_id = Column(Integer, ForeignKey('quests.quest_id'), primary_key=True)
+    workout_key = Column(Integer, ForeignKey('workout_key_name_map.workout_key_id'), primary_key=True)
+    # Relationships
+    quest = relationship('Quest', back_populates='exercises')
+    workout_key_name_map = relationship('WorkoutKeyNameMap')
+    sets = relationship('QuestExerciseSet', back_populates='exercise', cascade="all, delete-orphan")
+
+    __table_args__ = (UniqueConstraint('quest_id', 'workout_key', name='uq_quest_exercise'),)
+
+class QuestExerciseSet(Base):
+    __tablename__ = 'quest_exercise_sets'
+    quest_id = Column(Integer, primary_key=True)
+    workout_key = Column(Integer, primary_key=True)
+    set_number = Column(Integer, primary_key=True)
+    weight = Column(Float, nullable=False)
+    reps = Column(Integer, nullable=False)
+    rest_time = Column(Integer, nullable=False)
+    # Relationship
+    exercise = relationship('QuestExercise', back_populates='sets')
+
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ['quest_id', 'workout_key'],
+            ['quest_exercises.quest_id', 'quest_exercises.workout_key'],
+            name='fk_quest_exercise_set_exercise'
+        ),
+    )

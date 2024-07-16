@@ -4,6 +4,7 @@ from fastapi.openapi.utils import get_openapi
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.workout_service.database import get_db
 from backend.workout_service import crud, schemas, utils
+from typing import List
 from datetime import datetime
 import logging
 import httpx
@@ -195,3 +196,142 @@ async def get_sessions(
     except Exception as e:
         logger.error(f"Error fetching sessions: {str(e)}")
         raise HTTPException(status_code=500, detail="Error fetching sessions")
+
+def orm_to_dict(orm_object):
+    return {c.key: getattr(orm_object, c.key) for c in orm_object.__table__.columns}
+
+    
+@app.post("/create_quest", response_model=schemas.Quest)
+async def create_quest_endpoint(
+    quest_data: schemas.QuestCreate,
+    db: AsyncSession = Depends(get_db),
+    authorization: str = Header(None)
+):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header is missing")
+    
+    try:
+        current_user = await utils.get_current_member(authorization)
+        if current_user['user_type'] != 'trainer':
+            raise HTTPException(status_code=403, detail="Only trainers can create quests")
+        
+        mapping_exists = await crud.check_trainer_user_mapping(current_user['id'], quest_data.user_id, authorization)
+        if not mapping_exists:
+            raise HTTPException(status_code=403, detail="Trainer is not associated with this user")
+        
+        new_quest = await crud.create_quest(db, quest_data, current_user['id'])
+        
+        # Convert ORM object to dict, then to Pydantic model
+        quest_dict = orm_to_dict(new_quest)
+        quest_dict['exercises'] = [
+            {
+                **orm_to_dict(exercise),
+                'sets': [orm_to_dict(set) for set in exercise.sets]
+            }
+            for exercise in new_quest.exercises
+        ]
+        
+        return schemas.Quest(**quest_dict)
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logger.error(f"Error creating quest: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error creating quest")
+
+
+@app.get("/quests", response_model=List[schemas.Quest])
+async def read_quests(
+    db: AsyncSession = Depends(get_db),
+    authorization: str = Header(None)
+):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header is missing")
+    
+    try:
+        current_user = await utils.get_current_member(authorization)
+        logger.debug(f"Current user: {current_user}")
+
+        if current_user['user_type'] == 'trainer':
+            quests = await crud.get_quests_by_trainer(db, current_user['id'])
+        else:  # user
+            quests = await crud.get_quests_by_user(db, current_user['id'])
+        
+        return quests
+    except Exception as e:
+        logger.error(f"Error reading quests: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error reading quests")
+
+@app.get("/quests/{user_id}", response_model=List[schemas.Quest])
+async def read_quests_for_user(
+    user_id: str,
+    db: AsyncSession = Depends(get_db),
+    authorization: str = Header(None)
+):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header is missing")
+    
+    try:
+        current_user = await utils.get_current_member(authorization)
+        logger.debug(f"Current user: {current_user}")
+
+        if current_user['user_type'] != 'trainer':
+            raise HTTPException(status_code=403, detail="Only trainers can access this endpoint")
+
+        # Check trainer-user mapping
+        mapping_exists = await crud.check_trainer_user_mapping(current_user['id'], user_id, authorization)
+        if not mapping_exists:
+            raise HTTPException(status_code=403, detail="Trainer is not associated with this user")
+
+        quests = await crud.get_quests_by_trainer_and_user(db, current_user['id'], user_id)
+        
+        return quests
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logger.error(f"Error reading quests for user: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error reading quests for user")
+
+@app.put("/quests/{quest_id}/status", response_model=schemas.Quest)
+async def update_quest_status(
+    quest_id: int = Path(..., title="The ID of the quest to update"),
+    db: AsyncSession = Depends(get_db),
+    authorization: str = Header(None)
+):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header is missing")
+    
+    try:
+        current_user = await utils.get_current_member(authorization)
+        
+        # Fetch the quest to check permissions
+        quest = await crud.get_quest_by_id(db, quest_id)
+        if not quest:
+            raise HTTPException(status_code=404, detail="Quest not found")
+        
+        # Check if the user has permission to update this quest
+        if current_user['user_type'] == 'trainer' and quest.trainer_id != current_user['id']:
+            raise HTTPException(status_code=403, detail="Not authorized to update this quest")
+        elif current_user['user_type'] == 'user' and quest.user_id != current_user['id']:
+            raise HTTPException(status_code=403, detail="Not authorized to update this quest")
+        
+        # Update the quest status
+        updated_quest = await crud.update_quest_status(db, quest_id, True)
+        if not updated_quest:
+            raise HTTPException(status_code=404, detail="Quest not found")
+        
+        # Convert ORM object to dict, then to Pydantic model
+        quest_dict = orm_to_dict(updated_quest)
+        quest_dict['exercises'] = [
+            {
+                **orm_to_dict(exercise),
+                'sets': [orm_to_dict(set) for set in exercise.sets]
+            }
+            for exercise in updated_quest.exercises
+        ]
+        
+        return schemas.Quest(**quest_dict)
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logger.error(f"Error updating quest status: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error updating quest status")
