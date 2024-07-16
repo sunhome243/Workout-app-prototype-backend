@@ -4,7 +4,8 @@ from fastapi.openapi.utils import get_openapi
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.workout_service.database import get_db
 from backend.workout_service import crud, schemas, utils
-from typing import List
+from unittest.mock import AsyncMock
+from typing import List, Dict
 from datetime import datetime
 import logging
 import httpx
@@ -197,10 +198,7 @@ async def get_sessions(
         logger.error(f"Error fetching sessions: {str(e)}")
         raise HTTPException(status_code=500, detail="Error fetching sessions")
 
-def orm_to_dict(orm_object):
-    return {c.key: getattr(orm_object, c.key) for c in orm_object.__table__.columns}
 
-    
 @app.post("/create_quest", response_model=schemas.Quest)
 async def create_quest_endpoint(
     quest_data: schemas.QuestCreate,
@@ -220,25 +218,16 @@ async def create_quest_endpoint(
             raise HTTPException(status_code=403, detail="Trainer is not associated with this user")
         
         new_quest = await crud.create_quest(db, quest_data, current_user['id'])
-        
-        # Convert ORM object to dict, then to Pydantic model
-        quest_dict = orm_to_dict(new_quest)
-        quest_dict['exercises'] = [
-            {
-                **orm_to_dict(exercise),
-                'sets': [orm_to_dict(set) for set in exercise.sets]
-            }
-            for exercise in new_quest.exercises
-        ]
-        
-        return schemas.Quest(**quest_dict)
+        return new_quest
+    except ValueError as ve:
+        raise HTTPException(status_code=422, detail=str(ve))
     except HTTPException as he:
         raise he
     except Exception as e:
-        logger.error(f"Error creating quest: {str(e)}")
-        raise HTTPException(status_code=500, detail="Error creating quest")
-
-
+        logger.error(f"Unexpected error in create_quest: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+    
+    
 @app.get("/quests", response_model=List[schemas.Quest])
 async def read_quests(
     db: AsyncSession = Depends(get_db),
@@ -291,9 +280,42 @@ async def read_quests_for_user(
         logger.error(f"Error reading quests for user: {str(e)}")
         raise HTTPException(status_code=500, detail="Error reading quests for user")
 
-@app.put("/quests/{quest_id}/status", response_model=schemas.Quest)
+@app.patch("/quests/{quest_id}/status", response_model=schemas.Quest)
 async def update_quest_status(
     quest_id: int = Path(..., title="The ID of the quest to update"),
+    status: bool = Query(..., title="The new status of the quest"),
+    db: AsyncSession = Depends(get_db),
+    authorization: str = Header(None)
+):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header is missing")
+    
+    try:
+        current_user = await utils.get_current_member(authorization)
+        
+        quest = await crud.get_quest_by_id(db, quest_id)
+        if not quest:
+            raise HTTPException(status_code=404, detail="Quest not found")
+        
+        if current_user['user_type'] == 'trainer' and quest.trainer_id != current_user['id']:
+            raise HTTPException(status_code=403, detail="Not authorized to update this quest")
+        elif current_user['user_type'] == 'user' and quest.user_id != current_user['id']:
+            raise HTTPException(status_code=403, detail="Not authorized to update this quest")
+        
+        updated_quest = await crud.update_quest_status(db, quest_id, status)
+        if not updated_quest:
+            raise HTTPException(status_code=404, detail="Quest not found")
+        
+        return updated_quest
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logger.error(f"Error updating quest status: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error updating quest status: {str(e)}")
+    
+@app.delete("/quests/{quest_id}", status_code=204)
+async def delete_quest(
+    quest_id: int = Path(..., title="The ID of the quest to delete"),
     db: AsyncSession = Depends(get_db),
     authorization: str = Header(None)
 ):
@@ -308,30 +330,85 @@ async def update_quest_status(
         if not quest:
             raise HTTPException(status_code=404, detail="Quest not found")
         
-        # Check if the user has permission to update this quest
+        # Check if the user has permission to delete this quest
         if current_user['user_type'] == 'trainer' and quest.trainer_id != current_user['id']:
-            raise HTTPException(status_code=403, detail="Not authorized to update this quest")
+            raise HTTPException(status_code=403, detail="Not authorized to delete this quest")
         elif current_user['user_type'] == 'user' and quest.user_id != current_user['id']:
-            raise HTTPException(status_code=403, detail="Not authorized to update this quest")
+            raise HTTPException(status_code=403, detail="Users are not allowed to delete quests")
         
-        # Update the quest status
-        updated_quest = await crud.update_quest_status(db, quest_id, True)
-        if not updated_quest:
+        # Delete the quest
+        deleted = await crud.delete_quest(db, quest_id)
+        if not deleted:
             raise HTTPException(status_code=404, detail="Quest not found")
         
-        # Convert ORM object to dict, then to Pydantic model
-        quest_dict = orm_to_dict(updated_quest)
-        quest_dict['exercises'] = [
-            {
-                **orm_to_dict(exercise),
-                'sets': [orm_to_dict(set) for set in exercise.sets]
-            }
-            for exercise in updated_quest.exercises
-        ]
-        
-        return schemas.Quest(**quest_dict)
+        return None  # 204 No Content
     except HTTPException as he:
         raise he
     except Exception as e:
-        logger.error(f"Error updating quest status: {str(e)}")
-        raise HTTPException(status_code=500, detail="Error updating quest status")
+        logger.error(f"Error deleting quest: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error deleting quest: {str(e)}")
+    
+@app.get("/workout-records/{workout_key}", response_model=Dict[int, schemas.QuestWorkoutRecord])
+async def get_workout_records(
+    workout_key: int = Path(..., title="The workout key of the workout"),
+    db: AsyncSession = Depends(get_db),
+    authorization: str = Header(None)
+):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header is missing")
+    
+    try:
+        current_user = await utils.get_current_member(authorization)
+        
+        records = await crud.get_workout_records(db, current_user['id'], workout_key)
+        
+        return records
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logger.error(f"Error retrieving workout records: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error retrieving workout records: {str(e)}")
+
+@app.get("/workout-name/{workout_key}", response_model=schemas.WorkoutName)
+async def get_workout_name(
+    workout_key: int = Path(..., title="The workout key"),
+    db: AsyncSession = Depends(get_db),
+    authorization: str = Header(None)
+):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header is missing")
+    
+    try:
+        await utils.get_current_member(authorization)  # Just to verify the user is authenticated
+        
+        workout_name = await crud.get_workout_name(db, workout_key)
+        if workout_name is None:
+            raise HTTPException(status_code=404, detail="Workout not found")
+        
+        return {"workout_key": workout_key, "workout_name": workout_name}
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logger.error(f"Error retrieving workout name: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error retrieving workout name: {str(e)}")
+    
+    
+@app.get("/workouts-by-part", response_model=Dict[str, List[schemas.WorkoutInfo]])
+async def get_workouts_by_part(
+    workout_part_id: int = Query(None, description="Optional: Filter by specific workout part ID"),
+    db: AsyncSession = Depends(get_db),
+    authorization: str = Header(None)
+):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header is missing")
+    
+    try:
+        await utils.get_current_member(authorization)  # Just to verify the user is authenticated
+        
+        workouts_by_part = await crud.get_workouts_by_part(db, workout_part_id)
+        return workouts_by_part
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logger.error(f"Error retrieving workouts by part: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error retrieving workouts by part: {str(e)}")

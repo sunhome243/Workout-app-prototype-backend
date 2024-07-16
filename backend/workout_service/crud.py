@@ -1,13 +1,15 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload, joinedload
-from sqlalchemy import update
+from sqlalchemy import update, delete, and_
 from backend.workout_service import models, schemas
 import logging
 import httpx
 from datetime import datetime
 from aiocache import cached, caches
 from aiocache.serializers import JsonSerializer
+from collections import defaultdict
+from fastapi import HTTPException
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +40,8 @@ async def check_trainer_user_mapping(trainer_id: str, user_id: str, token: str):
             return mapping_exists
         except httpx.HTTPStatusError as e:
             logger.error(f"HTTP error occurred while checking trainer-user mapping: {e.response.status_code} - {e.response.text}")
+            if e.response.status_code == 404:
+                return False
             raise HTTPException(status_code=e.response.status_code, detail=f"Error checking trainer-user mapping: {e.response.text}")
         except Exception as e:
             logger.error(f"Unexpected error occurred while checking trainer-user mapping: {str(e)}")
@@ -135,18 +139,18 @@ async def create_quest(db: AsyncSession, quest_data: schemas.QuestCreate, traine
         db.add(new_quest)
         await db.flush()
 
-        for exercise_data in quest_data.exercises:
-            new_exercise = models.QuestExercise(
+        for workout_data in quest_data.workouts:
+            new_workout = models.QuestWorkout(
                 quest_id=new_quest.quest_id,
-                workout_key=exercise_data.workout_key,
+                workout_key=workout_data.workout_key,
             )
-            db.add(new_exercise)
+            db.add(new_workout)
             await db.flush()
 
-            for set_data in exercise_data.sets:
-                new_set = models.QuestExerciseSet(
+            for set_data in workout_data.sets:
+                new_set = models.QuestWorkoutSet(
                     quest_id=new_quest.quest_id,
-                    workout_key=new_exercise.workout_key,
+                    workout_key=new_workout.workout_key,
                     set_number=set_data.set_number,
                     weight=set_data.weight,
                     reps=set_data.reps,
@@ -158,7 +162,7 @@ async def create_quest(db: AsyncSession, quest_data: schemas.QuestCreate, traine
 
         # Reload the quest with all related data
         stmt = select(models.Quest).options(
-            selectinload(models.Quest.exercises).selectinload(models.QuestExercise.sets)
+            selectinload(models.Quest.workouts).selectinload(models.QuestWorkout.sets)
         ).where(models.Quest.quest_id == new_quest.quest_id)
         result = await db.execute(stmt)
         loaded_quest = result.scalar_one()
@@ -173,28 +177,28 @@ async def create_quest(db: AsyncSession, quest_data: schemas.QuestCreate, traine
 
 async def get_quests_by_trainer(db: AsyncSession, trainer_id: str):
     stmt = select(models.Quest).options(
-        selectinload(models.Quest.exercises).selectinload(models.QuestExercise.sets)
+        selectinload(models.Quest.workouts).selectinload(models.QuestWorkout.sets)
     ).filter(models.Quest.trainer_id == trainer_id)
     result = await db.execute(stmt)
     return result.unique().scalars().all()
 
 async def get_quests_by_user(db: AsyncSession, user_id: str):
     stmt = select(models.Quest).options(
-        selectinload(models.Quest.exercises).selectinload(models.QuestExercise.sets)
+        selectinload(models.Quest.workouts).selectinload(models.QuestWorkout.sets)
     ).filter(models.Quest.user_id == user_id)
     result = await db.execute(stmt)
     return result.scalars().all()
 
 async def get_quests_by_trainer_and_user(db: AsyncSession, trainer_id: str, user_id: str):
     stmt = select(models.Quest).options(
-        selectinload(models.Quest.exercises).selectinload(models.QuestExercise.sets)
+        selectinload(models.Quest.workouts).selectinload(models.QuestWorkout.sets)
     ).filter(models.Quest.trainer_id == trainer_id, models.Quest.user_id == user_id)
     result = await db.execute(stmt)
     return result.scalars().all()
 
 async def get_quest_by_id(db: AsyncSession, quest_id: int):
     stmt = select(models.Quest).options(
-        selectinload(models.Quest.exercises).selectinload(models.QuestExercise.sets)
+        selectinload(models.Quest.workouts).selectinload(models.QuestWorkout.sets)
     ).filter(models.Quest.quest_id == quest_id)
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
@@ -207,7 +211,7 @@ async def update_quest_status(db: AsyncSession, quest_id: int, new_status: bool)
 
         # Fetch the updated quest
         stmt = select(models.Quest).options(
-            selectinload(models.Quest.exercises).selectinload(models.QuestExercise.sets)
+            selectinload(models.Quest.workouts).selectinload(models.QuestWorkout.sets)
         ).where(models.Quest.quest_id == quest_id)
         result = await db.execute(stmt)
         updated_quest = result.scalar_one_or_none()
@@ -221,4 +225,113 @@ async def update_quest_status(db: AsyncSession, quest_id: int, new_status: bool)
     except Exception as e:
         logger.error(f"Error updating quest status: {str(e)}")
         await db.rollback()
+        raise
+    
+async def delete_quest(db: AsyncSession, quest_id: int):
+    try:
+        # Delete associated QuestworkoutSets
+        await db.execute(delete(models.QuestWorkoutSet).where(models.QuestWorkoutSet.quest_id == quest_id))
+
+        # Delete associated Questworkouts
+        await db.execute(delete(models.QuestWorkout).where(models.QuestWorkout.quest_id == quest_id))
+
+        # Delete the Quest
+        result = await db.execute(delete(models.Quest).where(models.Quest.quest_id == quest_id))
+        await db.commit()
+
+        if result.rowcount == 0:
+            logger.info(f"No quest found with id {quest_id}")
+            return False
+
+        logger.info(f"Quest deleted: id={quest_id}")
+        return True
+    except Exception as e:
+        logger.error(f"Error deleting quest: {str(e)}", exc_info=True)
+        await db.rollback()
+        raise
+    
+async def get_workout_records(db: AsyncSession, user_id: str, workout_key: int):
+    try:
+        stmt = select(models.Quest, models.QuestWorkoutSet).join(
+            models.QuestWorkout,
+            and_(
+                models.QuestWorkoutSet.quest_id == models.QuestWorkout.quest_id,
+                models.QuestWorkoutSet.workout_key == models.QuestWorkout.workout_key
+            )
+        ).join(
+            models.Quest,
+            models.QuestWorkout.quest_id == models.Quest.quest_id
+        ).where(
+            and_(
+                models.Quest.user_id == user_id,
+                models.QuestWorkoutSet.workout_key == workout_key
+            )
+        ).order_by(models.Quest.created_at.desc(), models.QuestWorkoutSet.set_number)
+
+        result = await db.execute(stmt)
+        records = result.all()
+
+        structured_records = defaultdict(lambda: {"date": None, "sets": []})
+        
+        for quest, workout_set in records:
+            quest_id = quest.quest_id
+            structured_records[quest_id]["date"] = quest.created_at
+            structured_records[quest_id]["sets"].append({
+                "set_number": workout_set.set_number,
+                "weight": workout_set.weight,
+                "reps": workout_set.reps,
+                "rest_time": workout_set.rest_time
+            })
+
+        logger.info(f"Retrieved workout records for user {user_id} and workout key {workout_key}")
+        return dict(structured_records)
+    except Exception as e:
+        logger.error(f"Error retrieving workout records: {str(e)}", exc_info=True)
+        raise
+    
+async def get_workout_name(db: AsyncSession, workout_key: int):
+    try:
+        stmt = select(models.WorkoutKeyNameMap).options(
+            joinedload(models.WorkoutKeyNameMap.workout)
+        ).where(models.WorkoutKeyNameMap.workout_key_id == workout_key)
+        
+        result = await db.execute(stmt)
+        workout_key_map = result.scalar_one_or_none()
+        
+        if workout_key_map and workout_key_map.workout:
+            return workout_key_map.workout.workout_name
+        else:
+            logger.warning(f"No workout found for workout_key: {workout_key}")
+            return None
+    except Exception as e:
+        logger.error(f"Error retrieving workout name: {str(e)}", exc_info=True)
+        raise
+    
+async def get_workouts_by_part(db: AsyncSession, workout_part_id: int = None):
+    try:
+        stmt = select(models.WorkoutParts).options(
+            joinedload(models.WorkoutParts.workout_keys).joinedload(models.WorkoutKeyNameMap.workout)
+        )
+        
+        if workout_part_id:
+            stmt = stmt.where(models.WorkoutParts.workout_part_id == workout_part_id)
+        
+        result = await db.execute(stmt)
+        workout_parts = result.unique().scalars().all()
+        
+        workouts_by_part = {}
+        for part in workout_parts:
+            workouts = [
+                {
+                    "workout_key": key.workout_key_id,
+                    "workout_name": key.workout.workout_name
+                }
+                for key in part.workout_keys
+            ]
+            workouts_by_part[part.workout_part_name] = workouts
+        
+        logger.info(f"Retrieved workouts by part{'s' if not workout_part_id else ''}")
+        return workouts_by_part
+    except Exception as e:
+        logger.error(f"Error retrieving workouts by part: {str(e)}", exc_info=True)
         raise

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-from typing import Optional, List
+from typing import Optional, List, Dict
 from datetime import date, datetime
 
 class SessionIDMap(BaseModel):
@@ -42,28 +42,28 @@ class SessionResponse(SessionCreate):
 class SessionWithSets(SessionResponse):
     sets: list[SetResponse]
     
-class QuestExerciseSetCreate(BaseModel):
+class QuestWorkoutSetCreate(BaseModel):
     set_number: int
     weight: float
     reps: int
     rest_time: int
 
-class QuestExerciseCreate(BaseModel):
+class QuestWorkoutCreate(BaseModel):
     workout_key: int
-    sets: List[QuestExerciseSetCreate]
+    sets: List[QuestWorkoutSetCreate]
 
 class QuestCreate(BaseModel):
     user_id: str
-    exercises: List[QuestExerciseCreate]
+    workouts: List[QuestWorkoutCreate]
 
-class QuestExerciseSet(QuestExerciseSetCreate):
+class QuestWorkoutSet(QuestWorkoutSetCreate):
     quest_id: int
     workout_key: int
 
-class QuestExercise(BaseModel):
+class QuestWorkout(BaseModel):
     quest_id: int
     workout_key: int
-    sets: List[QuestExerciseSet]
+    sets: List[QuestWorkoutSet]
 
 class Quest(BaseModel):
     quest_id: int
@@ -71,7 +71,28 @@ class Quest(BaseModel):
     user_id: str
     status: bool
     created_at: datetime
-    exercises: List[QuestExercise]
+    workouts: List[QuestWorkout]
 
     class ConfigDict(ConfigDict):
         from_attributes = True
+        
+class workoutSet(BaseModel):
+    set_number: int
+    weight: float
+    reps: int
+    rest_time: int
+
+class QuestWorkoutRecord(BaseModel):
+    date: datetime
+    sets: List[workoutSet]
+
+class WorkoutName(BaseModel):
+    workout_key: int
+    workout_name: str
+    
+class WorkoutInfo(BaseModel):
+    workout_key: int
+    workout_name: str
+
+class WorkoutsByPart(BaseModel):
+    RootModel: Dict[str, List[WorkoutInfo]]

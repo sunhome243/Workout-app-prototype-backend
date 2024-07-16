@@ -12,6 +12,7 @@ from backend.user_service.main import app as user_app
 from backend.workout_service.database import Base as WorkoutBase, get_db as get_workout_db
 from backend.workout_service.main import app as workout_app
 from backend.user_service import models, utils
+from unittest.mock import patch
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -147,3 +148,9 @@ async def authenticated_trainer_client(user_client, mock_current_trainer, mock_a
         yield client
     
     user_app.dependency_overrides.clear()
+    
+@pytest.fixture
+def mock_auth():
+    with patch("backend.workout_service.utils.get_current_member") as mock:
+        mock.return_value = {"id": "user1", "user_type": "user"}
+        yield mock
