@@ -15,24 +15,23 @@ from . import crud
 import os
 import logging
 import re
-import datetime
+import datetime as dt  # Renamed datetime to dt to avoid conflict with datetime module
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 100
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.datetime.now(datetime.timezone.utc) + expires_delta
+        expire = dt.datetime.now(dt.timezone.utc) + expires_delta
     else:
-        expire = datetime.datetime.now(datetime.timezone.utc) + timedelta(minutes=15)
+        expire = dt.datetime.now(dt.timezone.utc) + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-async def get_current_member(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
+async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -41,33 +40,32 @@ async def get_current_member(token: str = Depends(oauth2_scheme), db: AsyncSessi
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         id: str = payload.get("sub")
-        user_type: str = payload.get("type")
-        if id is None or user_type is None:
+        member_type: str = payload.get("type")
+        if id is None or member_type is None:
             raise credentials_exception
     except JWTError:
         raise credentials_exception
 
-    if user_type == 'user':
-        user = await crud.get_user_by_id(db, str(id))
-    elif user_type == 'trainer':
-        user = await crud.get_trainer_by_id(db, str(id))
+    if member_type == 'member':
+        member = await crud.get_member_by_id(db, str(id))
+    elif member_type == 'trainer':
+        trainer = await crud.get_trainer_by_id(db, str(id))
     else:
         raise credentials_exception
 
-    if user is None:
+    if member is None and trainer is None:
         raise credentials_exception
-    return user
-
+    return member or trainer
 
 def verify_password(plain_password, hashed_password):
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
 async def authenticate_member(db: AsyncSession, email: str, password: str):
-    # Check user table
-    user_result = await db.execute(select(models.User).filter(models.User.email == email))
-    user = user_result.scalar_one_or_none()
-    if user and verify_password(password, user.hashed_password):
-        return user, 'user'
+    # Check member table
+    member_result = await db.execute(select(models.Member).filter(models.Member.email == email))
+    member = member_result.scalar_one_or_none()
+    if member and verify_password(password, member.hashed_password):
+        return member, 'member'
     
     # Check trainer table
     trainer_result = await db.execute(select(models.Trainer).filter(models.Trainer.email == email))
@@ -77,10 +75,10 @@ async def authenticate_member(db: AsyncSession, email: str, password: str):
     
     return None, None
 
-async def admin_required(current_user: schemas.User = Depends(get_current_member)):
-    if current_user.role != "admin":
+async def admin_required(current_member: schemas.Member = Depends(get_current_user)):
+    if current_member.role != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
-    return current_user
+    return current_member
 
 def validate_password(password: str):
     if len(password) < 8:

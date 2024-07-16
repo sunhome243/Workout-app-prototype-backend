@@ -24,33 +24,33 @@ caches.set_config({
     }
 })
 
-@cached(ttl=3000, key="trainer_user_mapping:{trainer_id}:{user_id}")
-async def check_trainer_user_mapping(trainer_id: str, user_id: str, token: str):
+@cached(ttl=3000, key="trainer_member_mapping:{trainer_id}:{member_id}")
+async def check_trainer_member_mapping(trainer_id: str, member_id: str, token: str):
     async with httpx.AsyncClient() as client:
         headers = {"Authorization": token}
         try:
-            url = f"{USER_SERVICE_URL}/api/check-trainer-user-mapping/{trainer_id}/{user_id}"
+            url = f"{USER_SERVICE_URL}/api/check-trainer-member-mapping/{trainer_id}/{member_id}"
             logger.debug(f"Sending request to: {url}")
             response = await client.get(url, headers=headers)
             response.raise_for_status()
             result = response.json()
-            logger.debug(f"Trainer-user mapping check result: {result}")
+            logger.debug(f"Trainer-member mapping check result: {result}")
             mapping_exists = result.get("exists", False)
-            logger.info(f"Mapping exists for trainer {trainer_id} and user {user_id}: {mapping_exists}")
+            logger.info(f"Mapping exists for trainer {trainer_id} and member {member_id}: {mapping_exists}")
             return mapping_exists
         except httpx.HTTPStatusError as e:
-            logger.error(f"HTTP error occurred while checking trainer-user mapping: {e.response.status_code} - {e.response.text}")
+            logger.error(f"HTTP error occurred while checking trainer-member mapping: {e.response.status_code} - {e.response.text}")
             if e.response.status_code == 404:
                 return False
-            raise HTTPException(status_code=e.response.status_code, detail=f"Error checking trainer-user mapping: {e.response.text}")
+            raise HTTPException(status_code=e.response.status_code, detail=f"Error checking trainer-member mapping: {e.response.text}")
         except Exception as e:
-            logger.error(f"Unexpected error occurred while checking trainer-user mapping: {str(e)}")
+            logger.error(f"Unexpected error occurred while checking trainer-member mapping: {str(e)}")
             raise HTTPException(status_code=500, detail="Unexpected error occurred")
 
-async def create_session(db: AsyncSession, session_data: dict, current_user: dict):
+async def create_session(db: AsyncSession, session_data: dict, current_member: dict):
     try:
         # Ensure required fields are in the session_data
-        required_fields = ['session_type_id', 'user_id', 'is_pt']
+        required_fields = ['session_type_id', 'member_id', 'is_pt']
         for field in required_fields:
             if field not in session_data:
                 raise ValueError(f"{field} is required")
@@ -64,8 +64,8 @@ async def create_session(db: AsyncSession, session_data: dict, current_user: dic
         # Create session data
         session_data_to_create = {
             "workout_date": session_data.get('workout_date', datetime.now().strftime("%Y-%m-%d")),
-            "user_id": session_data['user_id'],
-            "trainer_id": current_user.get('id'),
+            "member_id": session_data['member_id'],
+            "trainer_id": current_member.get('id'),
             "is_pt": session_data['is_pt'],
             "session_type_id": session_type_id
         }
@@ -119,8 +119,8 @@ async def record_set(db: AsyncSession, session_id: int, workout_key: int, set_nu
         await db.rollback()
         raise
     
-async def get_sessions_by_user(db: AsyncSession, user_id: str):
-    query = select(models.SessionIDMap).filter_by(user_id=user_id)
+async def get_sessions_by_member(db: AsyncSession, member_id: str):
+    query = select(models.SessionIDMap).filter_by(member_id=member_id)
     result = await db.execute(query)
     return result.scalars().all()
 
@@ -133,7 +133,7 @@ async def create_quest(db: AsyncSession, quest_data: schemas.QuestCreate, traine
     try:
         new_quest = models.Quest(
             trainer_id=trainer_id,
-            user_id=quest_data.user_id,
+            member_id=quest_data.member_id,
             status=False
         )
         db.add(new_quest)
@@ -182,17 +182,17 @@ async def get_quests_by_trainer(db: AsyncSession, trainer_id: str):
     result = await db.execute(stmt)
     return result.unique().scalars().all()
 
-async def get_quests_by_user(db: AsyncSession, user_id: str):
+async def get_quests_by_member(db: AsyncSession, member_id: str):
     stmt = select(models.Quest).options(
         selectinload(models.Quest.workouts).selectinload(models.QuestWorkout.sets)
-    ).filter(models.Quest.user_id == user_id)
+    ).filter(models.Quest.member_id == member_id)
     result = await db.execute(stmt)
     return result.scalars().all()
 
-async def get_quests_by_trainer_and_user(db: AsyncSession, trainer_id: str, user_id: str):
+async def get_quests_by_trainer_and_member(db: AsyncSession, trainer_id: str, member_id: str):
     stmt = select(models.Quest).options(
         selectinload(models.Quest.workouts).selectinload(models.QuestWorkout.sets)
-    ).filter(models.Quest.trainer_id == trainer_id, models.Quest.user_id == user_id)
+    ).filter(models.Quest.trainer_id == trainer_id, models.Quest.member_id == member_id)
     result = await db.execute(stmt)
     return result.scalars().all()
 
@@ -250,7 +250,7 @@ async def delete_quest(db: AsyncSession, quest_id: int):
         await db.rollback()
         raise
     
-async def get_workout_records(db: AsyncSession, user_id: str, workout_key: int):
+async def get_workout_records(db: AsyncSession, member_id: str, workout_key: int):
     try:
         stmt = select(models.Quest, models.QuestWorkoutSet).join(
             models.QuestWorkout,
@@ -263,7 +263,7 @@ async def get_workout_records(db: AsyncSession, user_id: str, workout_key: int):
             models.QuestWorkout.quest_id == models.Quest.quest_id
         ).where(
             and_(
-                models.Quest.user_id == user_id,
+                models.Quest.member_id == member_id,
                 models.QuestWorkoutSet.workout_key == workout_key
             )
         ).order_by(models.Quest.created_at.desc(), models.QuestWorkoutSet.set_number)
@@ -283,7 +283,7 @@ async def get_workout_records(db: AsyncSession, user_id: str, workout_key: int):
                 "rest_time": workout_set.rest_time
             })
 
-        logger.info(f"Retrieved workout records for user {user_id} and workout key {workout_key}")
+        logger.info(f"Retrieved workout records for member {member_id} and workout key {workout_key}")
         return dict(structured_records)
     except Exception as e:
         logger.error(f"Error retrieving workout records: {str(e)}", exc_info=True)

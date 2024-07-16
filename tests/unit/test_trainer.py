@@ -74,12 +74,12 @@ class TestTrainerRouter:
         assert response.json()["last_name"] == update_data["last_name"]
 
     @pytest.mark.asyncio
-    async def test_read_specific_connected_user_info(self, authenticated_trainer_client: AsyncClient, db_session, monkeypatch):
-        mock_user_info = schemas.ConnectedUserInfo(
-            user_id="AAAAA",
-            email="user@example.com",
+    async def test_read_specific_connected_member_info(self, authenticated_trainer_client: AsyncClient, db_session, monkeypatch):
+        mock_member_info = schemas.ConnectedMemberInfo(
+            member_id="AAAAA",
+            email="member@example.com",
             first_name="Test",
-            last_name="User",
+            last_name="Member",
             age=30,
             height=180.5,
             weight=75.0,
@@ -88,56 +88,56 @@ class TestTrainerRouter:
             workout_goal=1
         )
         
-        mock_get_info = AsyncMock(return_value=mock_user_info)
-        monkeypatch.setattr(crud, "get_specific_connected_user_info", mock_get_info)
+        mock_get_info = AsyncMock(return_value=mock_member_info)
+        monkeypatch.setattr(crud, "get_specific_connected_member_info", mock_get_info)
 
-        response = await authenticated_trainer_client.get("/api/trainer/connected-users/2")
+        response = await authenticated_trainer_client.get("/api/trainer/connected-members/2")
 
         assert response.status_code == 200
         response_data = response.json()
 
         expected_fields = [
-            "user_id", "first_name", "last_name", "age", "height", "weight",
+            "member_id", "first_name", "last_name", "age", "height", "weight",
             "workout_duration", "workout_frequency", "workout_goal"
         ]
         for field in expected_fields:
             assert field in response_data, f"Field '{field}' is missing in the response"
-            assert response_data[field] == getattr(mock_user_info, field), f"Mismatch in field '{field}'"
+            assert response_data[field] == getattr(mock_member_info, field), f"Mismatch in field '{field}'"
 
         if "email" in response_data:
-            assert response_data["email"] == mock_user_info.email
+            assert response_data["email"] == mock_member_info.email
         else:
             print("Note: 'email' field is not present in the API response")
         
     @pytest.mark.asyncio
-    async def test_check_trainer_user_mapping(self, authenticated_trainer_client: AsyncClient, db_session, monkeypatch):
+    async def test_check_trainer_member_mapping(self, authenticated_trainer_client: AsyncClient, db_session, monkeypatch):
         mock_mapping = AsyncMock()
         mock_mapping.status = models.MappingStatus.accepted
         mock_get_mapping = AsyncMock(return_value=mock_mapping)
-        monkeypatch.setattr(crud, "get_trainer_user_mapping", mock_get_mapping)
+        monkeypatch.setattr(crud, "get_trainer_member_mapping", mock_get_mapping)
         
-        response = await authenticated_trainer_client.get("/api/check-trainer-user-mapping/AAAAA/AAAAA")
+        response = await authenticated_trainer_client.get("/api/check-trainer-member-mapping/AAAAA/AAAAA")
         
         assert response.status_code == 200
         assert response.json() == {"exists": True}
 
     @pytest.mark.asyncio
-    async def test_update_trainer_user_mapping_status(self, authenticated_trainer_client: AsyncClient, db_session, monkeypatch):
+    async def test_update_trainer_member_mapping_status(self, authenticated_trainer_client: AsyncClient, db_session, monkeypatch):
         mock_db_mapping = AsyncMock()
         mock_db_mapping.id = 1
         mock_db_mapping.trainer_id = "AAAAA"
-        mock_db_mapping.user_id = "AAAAA"
+        mock_db_mapping.member_id = "AAAAA"
         mock_db_mapping.status = models.MappingStatus.accepted
         mock_update_mapping = AsyncMock(return_value=mock_db_mapping)
-        monkeypatch.setattr(crud, "update_trainer_user_mapping_status", mock_update_mapping)
+        monkeypatch.setattr(crud, "update_trainer_member_mapping_status", mock_update_mapping)
         
         status_data = {"new_status": "accepted"}
-        response = await authenticated_trainer_client.put("/api/trainer-user-mapping/1/status", json=status_data)
+        response = await authenticated_trainer_client.put("/api/trainer-member-mapping/1/status", json=status_data)
         
         assert response.status_code == 200
         assert response.json() == {
             "id": 1,
             "trainer_id": "AAAAA",
-            "user_id": "AAAAA",
+            "member_id": "AAAAA",
             "status": "accepted"
         }

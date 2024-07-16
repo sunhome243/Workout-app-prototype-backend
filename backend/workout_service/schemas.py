@@ -5,14 +5,14 @@ from datetime import date, datetime
 class SessionIDMap(BaseModel):
     session_id: int
     workout_date: date
-    user_id: str
+    member_id: str
     trainer_id: Optional[str]
     is_pt: str
     session_type_id: int
 
 class SessionCreate(BaseModel):
     workout_date: date
-    user_id: str
+    member_id: str
     trainer_id: str | None
     is_pt: str
     session_type_id: int
@@ -53,7 +53,7 @@ class QuestWorkoutCreate(BaseModel):
     sets: List[QuestWorkoutSetCreate]
 
 class QuestCreate(BaseModel):
-    user_id: str
+    member_id: str
     workouts: List[QuestWorkoutCreate]
 
 class QuestWorkoutSet(QuestWorkoutSetCreate):
@@ -68,7 +68,7 @@ class QuestWorkout(BaseModel):
 class Quest(BaseModel):
     quest_id: int
     trainer_id: str
-    user_id: str
+    member_id: str
     status: bool
     created_at: datetime
     workouts: List[QuestWorkout]

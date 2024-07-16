@@ -2,7 +2,7 @@ from typing import List, Union, Optional
 from pydantic import BaseModel, Field, ConfigDict, field_validator
 from enum import Enum
 
-class UserBase(BaseModel):
+class MemberBase(BaseModel):
     email: str
     first_name: str
     last_name: str
@@ -12,7 +12,7 @@ class UserBase(BaseModel):
             raise ValueError(f'{cls.__name__} is a required field')
         return v
 
-class UserCreate(UserBase):
+class MemberCreate(MemberBase):
     password: str
     @field_validator('password')
     def check_required_fields(cls, v):
@@ -20,8 +20,8 @@ class UserCreate(UserBase):
             raise ValueError(f'{cls.__name__} is a required field')
         return v
 
-class User(UserBase):
-    user_id: str
+class Member(MemberBase):
+    member_id: str
     age: Optional[int] = Field(default=None)
     height: Optional[float] = Field(default=None)
     weight: Optional[float] = Field(default=None)
@@ -33,7 +33,7 @@ class User(UserBase):
     class ConfigDict(ConfigDict):
         from_attributes = True
 
-class UserUpdate(BaseModel):
+class MemberUpdate(BaseModel):
     current_password: Optional[str] = None
     new_password: Optional[str] = None
     confirm_password: Optional[str] = None
@@ -72,8 +72,8 @@ class TrainerUpdate(BaseModel):
     new_password: Optional[str] = None
     confirm_password: Optional[str] = None
 
-class ConnectedUserInfo(BaseModel):
-    user_id: str
+class ConnectedMemberInfo(BaseModel):
+    member_id: str
     age: Optional[int]
     height: Optional[float]
     weight: Optional[float]
@@ -90,11 +90,11 @@ class MappingStatus(str, Enum):
     pending = "pending"
     accepted = "accepted"
 
-class UserMappingInfo(BaseModel):
-    user_id: str
-    user_email: str
-    user_first_name: str
-    user_last_name: str
+class MemberMappingInfo(BaseModel):
+    member_id: str
+    member_email: str
+    member_first_name: str
+    member_last_name: str
     status: MappingStatus
 
 class TrainerMappingInfo(BaseModel):
@@ -104,16 +104,16 @@ class TrainerMappingInfo(BaseModel):
     trainer_last_name: str
     status: MappingStatus
 
-class CreateTrainerUserMapping(BaseModel):
+class CreateTrainerMemberMapping(BaseModel):
     other_id: str
 
-class TrainerUserMappingResponse(BaseModel):
+class TrainerMemberMappingResponse(BaseModel):
     id: int
     trainer_id: str
-    user_id: str
+    member_id: str
     status: str
 
-class TrainerUserMappingUpdate(BaseModel):
+class TrainerMemberMappingUpdate(BaseModel):
     new_status: str
 
 class Message(BaseModel):

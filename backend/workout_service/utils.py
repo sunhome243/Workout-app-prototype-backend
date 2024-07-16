@@ -10,7 +10,7 @@ ALGORITHM = "HS256"
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-async def get_current_member(token: str):
+async def get_current_user(token: str):
     try:
         # Remove 'Bearer ' prefix if present
         if token.startswith('Bearer '):
@@ -21,22 +21,22 @@ async def get_current_member(token: str):
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         logger.debug(f"Successfully decoded token. Payload: {payload}")
 
-        user_id: str = payload.get("sub")
+        member_id: str = payload.get("sub")
         role: str = payload.get("type")  # Changed to 'role' as per your token structure
 
-        if user_id is None or role is None:
-            logger.error(f"Invalid token payload: user_id={user_id}, role={role}")
+        if member_id is None or role is None:
+            logger.error(f"Invalid token payload: member_id={member_id}, role={role}")
             raise HTTPException(status_code=401, detail="Invalid token payload")
 
-        logger.debug(f"Extracted from token: user_id={user_id}, role={role}")
+        logger.debug(f"Extracted from token: member_id={member_id}, role={role}")
 
-        user_data = {
-            "id": str(user_id),  # Convert to int as it's stored as string in the token
-            "user_type": role
+        member_data = {
+            "id": str(member_id),  # Convert to int as it's stored as string in the token
+            "member_type": role
         }
 
-        logger.info(f"User authenticated successfully: {user_data}")
-        return user_data
+        logger.info(f"Member authenticated successfully: {member_data}")
+        return member_data
 
     except ExpiredSignatureError:
         logger.error("Token has expired")
@@ -49,7 +49,7 @@ async def get_current_member(token: str):
         raise HTTPException(status_code=401, detail="Could not validate credentials")
     except ValueError as e:
         logger.error(f"Value error: {str(e)}")
-        raise HTTPException(status_code=400, detail="Invalid user ID format")
+        raise HTTPException(status_code=400, detail="Invalid member ID format")
     except Exception as e:
         logger.error(f"An unexpected error occurred: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")

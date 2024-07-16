@@ -33,7 +33,7 @@ class SessionIDMap(Base):
     session_id = Column(Integer, primary_key=True, index=True)
     session_type_id = Column(Integer, ForeignKey("session_type_map.session_type_id"))
     workout_date = Column(String, nullable=False)
-    user_id = Column(String, nullable=False)
+    member_id = Column(String, nullable=False)
     trainer_id = Column(String, nullable=True)
     is_pt = Column(String, nullable=False)
     # Relationship
@@ -60,7 +60,7 @@ class Quest(Base):
     __tablename__ = 'quests'
     quest_id = Column(Integer, primary_key=True, autoincrement=True)
     trainer_id = Column(String, nullable=False)
-    user_id = Column(String, nullable=False)
+    member_id = Column(String, nullable=False)
     status = Column(Boolean, default=False)  # False for incomplete, True for complete
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     # Relationship
