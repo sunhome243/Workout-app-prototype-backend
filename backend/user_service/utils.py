@@ -48,9 +48,9 @@ async def get_current_member(token: str = Depends(oauth2_scheme), db: AsyncSessi
         raise credentials_exception
 
     if user_type == 'user':
-        user = await crud.get_user_by_id(db, int(id))
+        user = await crud.get_user_by_id(db, str(id))
     elif user_type == 'trainer':
-        user = await crud.get_trainer_by_id(db, int(id))
+        user = await crud.get_trainer_by_id(db, str(id))
     else:
         raise credentials_exception
 

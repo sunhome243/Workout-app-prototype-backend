@@ -6,6 +6,16 @@ from . import models, schemas
 import bcrypt
 import logging
 from . import utils
+import random
+import string
+
+async def generate_unique_id(db: AsyncSession, length: int = 5) -> str:
+    while True:
+        new_id = ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
+        user_result = await db.execute(select(models.User).filter(models.User.user_id == new_id))
+        trainer_result = await db.execute(select(models.Trainer).filter(models.Trainer.trainer_id == new_id))
+        if not user_result.scalar_one_or_none() and not trainer_result.scalar_one_or_none():
+            return new_id
 
 async def is_email_unique(db: AsyncSession, email: str) -> bool:
     # Check user table
@@ -29,7 +39,8 @@ async def create_user(db: AsyncSession, user: schemas.UserCreate):
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), salt)
     after_hashed_password = hashed_password.decode('utf-8')
-    db_user = models.User(email=user.email, hashed_password=after_hashed_password, first_name=user.first_name, last_name=user.last_name, role=models.UserRole.user.value)
+    unique_id = await generate_unique_id(db)
+    db_user = models.User(user_id=unique_id,email=user.email, hashed_password=after_hashed_password, first_name=user.first_name, last_name=user.last_name, role=models.UserRole.user.value)
     db.add(db_user)
     await db.commit()
     await db.refresh(db_user)
@@ -42,19 +53,20 @@ async def create_trainer(db: AsyncSession, trainer: schemas.TrainerCreate):
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(trainer.password.encode('utf-8'), salt)
     after_hashed_password = hashed_password.decode('utf-8')
-    db_user = models.Trainer(email=trainer.email, hashed_password=after_hashed_password, first_name=trainer.first_name, last_name=trainer.last_name)
+    unique_id = await generate_unique_id(db)
+    db_user = models.Trainer(trainer_id=unique_id, email=trainer.email, hashed_password=after_hashed_password, first_name=trainer.first_name, last_name=trainer.last_name)
     db.add(db_user)
     await db.commit()
     await db.refresh(db_user)
     return db_user
 
 # Call user with ID
-async def get_user_by_id(db: AsyncSession, user_id: int):
+async def get_user_by_id(db: AsyncSession, user_id: str):
     result = await db.execute(select(models.User).filter(models.User.user_id == user_id))
     return result.scalar_one_or_none()
 
 # Call trainer with ID
-async def get_trainer_by_id(db: AsyncSession, trainer_id: int):
+async def get_trainer_by_id(db: AsyncSession, trainer_id: str):
     result = await db.execute(select(models.Trainer).filter(models.Trainer.trainer_id == trainer_id))
     return result.scalar_one_or_none()
 
@@ -163,15 +175,14 @@ async def update_trainer(db: AsyncSession, current_trainer: models.Trainer, trai
     return db_trainer
 
 
-async def create_trainer_user_mapping_request(db: AsyncSession, current_user_id: int, other_id: int, is_trainer: bool):
+async def create_trainer_user_mapping_request(db: AsyncSession, current_user_id: str, other_id: str, is_trainer: bool):
     try:
         if is_trainer:
             trainer_id, user_id = current_user_id, other_id
         else:
             trainer_id, user_id = other_id, current_user_id
-
-        logging.debug(f"Attempting to create mapping: trainer_id={trainer_id}, user_id={user_id}")
-
+        logging.debug(f"Attempting to create mapping: trainer_id={trainer_id}, user_id={user_id}, is_trainer={is_trainer}")
+        
         # Check if mapping already exists
         existing_mapping = await db.execute(
             select(models.TrainerUserMap).where(
@@ -181,17 +192,15 @@ async def create_trainer_user_mapping_request(db: AsyncSession, current_user_id:
         )
         if existing_mapping.scalar_one_or_none():
             raise ValueError("This mapping already exists")
-
+        
         new_status = models.MappingStatus.pending
         logging.debug(f"Creating new mapping with status: {new_status.value}")
-        
         db_mapping = models.TrainerUserMap(
-            trainer_id=trainer_id, 
-            user_id=user_id, 
+            trainer_id=trainer_id,
+            user_id=user_id,
             status=new_status,
-            requester_id=current_user_id  # Add the requester_id
+            requester_id=current_user_id
         )
-        
         logging.debug(f"New mapping object created: {db_mapping.__dict__}")
         db.add(db_mapping)
         logging.debug("Added mapping to session")
@@ -212,7 +221,7 @@ async def create_trainer_user_mapping_request(db: AsyncSession, current_user_id:
         logging.error(f"Unexpected error occurred: {str(e)}")
         raise
 
-async def update_trainer_user_mapping_status(db: AsyncSession, mapping_id: int, current_user_id: int, new_status: models.MappingStatus):
+async def update_trainer_user_mapping_status(db: AsyncSession, mapping_id: int, current_user_id: str, new_status: models.MappingStatus):
     try:
         # Fetch the mapping
         mapping = await db.execute(select(models.TrainerUserMap).where(models.TrainerUserMap.id == mapping_id))
@@ -246,7 +255,7 @@ async def update_trainer_user_mapping_status(db: AsyncSession, mapping_id: int, 
         logging.error(f"Unexpected error occurred: {str(e)}")
         raise
 
-async def get_user_mappings(db: AsyncSession, user_id: int, is_trainer: bool):
+async def get_user_mappings(db: AsyncSession, user_id: str, is_trainer: bool):
     if is_trainer:
         query = select(models.TrainerUserMap).where(models.TrainerUserMap.trainer_id == user_id)
     else:
@@ -279,7 +288,7 @@ async def get_user_mappings(db: AsyncSession, user_id: int, is_trainer: bool):
     
     return mapping_data
 
-async def remove_specific_mapping(db: AsyncSession, current_user_id: int, other_id: int, is_trainer: bool) -> bool:
+async def remove_specific_mapping(db: AsyncSession, current_user_id: str, other_id: str, is_trainer: bool) -> bool:
     try:
         if is_trainer:
             query = select(models.TrainerUserMap).where(
@@ -320,7 +329,7 @@ async def delete_trainer(db: AsyncSession, trainer: models.Trainer):
     await db.delete(trainer)
     await db.commit()
 
-async def get_specific_connected_user_info(db: AsyncSession, trainer_id: int, user_id: int):
+async def get_specific_connected_user_info(db: AsyncSession, trainer_id: str, user_id: str):
     query = select(models.User).join(
         models.TrainerUserMap,
         and_(
@@ -348,7 +357,7 @@ async def get_specific_connected_user_info(db: AsyncSession, trainer_id: int, us
         }
     return None
 
-async def get_trainer_user_mapping(db: AsyncSession, trainer_id: int, user_id: int):
+async def get_trainer_user_mapping(db: AsyncSession, trainer_id: str, user_id: str):
     try:
         result = await db.execute(
             select(models.TrainerUserMap).filter(

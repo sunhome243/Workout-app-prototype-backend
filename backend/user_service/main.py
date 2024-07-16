@@ -104,7 +104,7 @@ async def read_trainers(
 
 # Getting a user with id
 @router.get("/users/byid/{user_id}", response_model=schemas.User)
-async def read_user(user_id: int, db: AsyncSession = Depends(get_db)):
+async def read_user(user_id: str, db: AsyncSession = Depends(get_db)):
     db_user = await crud.get_user_by_id(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
@@ -112,7 +112,7 @@ async def read_user(user_id: int, db: AsyncSession = Depends(get_db)):
 
 #Getting a trainer with id
 @router.get("/trainers/byid/{trainer_id}", response_model=schemas.Trainer)
-async def read_trainer(trainer_id: int, db: AsyncSession = Depends(get_db)):
+async def read_trainer(trainer_id: str, db: AsyncSession = Depends(get_db)):
     db_user = await crud.get_trainer_by_id(db, trainer_id=trainer_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="Trainer not found")
@@ -197,7 +197,7 @@ async def read_my_mappings(
 
 @router.delete("/trainer-user-mapping/{other_id}", response_model=schemas.Message)
 async def remove_specific_mapping(
-    other_id: int,
+    other_id: str,
     current_user: Union[models.User, models.Trainer] = Depends(utils.get_current_member),
     db: AsyncSession = Depends(utils.get_db)
 ):
@@ -230,7 +230,7 @@ async def read_trainer_me(
 
 @router.get("/trainer/connected-users/{user_id}", response_model=Optional[schemas.ConnectedUserInfo])
 async def read_specific_connected_user_info(
-    user_id: int,
+    user_id: str,
     current_user: models.Trainer = Depends(utils.get_current_member),
     db: AsyncSession = Depends(utils.get_db)
 ):
@@ -274,8 +274,8 @@ async def delete_trainers_me(
     
 @router.get("/check-trainer-user-mapping/{trainer_id}/{user_id}")
 async def check_trainer_user_mapping(
-    trainer_id: int,
-    user_id: int,
+    trainer_id: str,
+    user_id: str,
     current_user: Union[models.User, models.Trainer] = Depends(utils.get_current_member),
     db: AsyncSession = Depends(utils.get_db)
 ):

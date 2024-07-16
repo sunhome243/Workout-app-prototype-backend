@@ -31,7 +31,7 @@ async def get_current_member(token: str):
         logger.debug(f"Extracted from token: user_id={user_id}, role={role}")
 
         user_data = {
-            "id": int(user_id),  # Convert to int as it's stored as string in the token
+            "id": str(user_id),  # Convert to int as it's stored as string in the token
             "user_type": role
         }
 

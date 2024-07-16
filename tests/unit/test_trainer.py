@@ -7,7 +7,7 @@ class TestTrainerRouter:
     @pytest.mark.asyncio
     async def test_create_trainer(self, user_client: AsyncClient, db_session, monkeypatch):
         mock_trainer = models.Trainer(
-            trainer_id=1, 
+            trainer_id="AAAAA", 
             email="trainer@example.com", 
             first_name="John", 
             last_name="Doe",
@@ -17,7 +17,7 @@ class TestTrainerRouter:
         mock_create_trainer = AsyncMock(return_value=mock_trainer)
         monkeypatch.setattr(crud, "create_trainer", mock_create_trainer)
         
-        data = {"email": "trainer@example.com", "password": "password", "first_name": "John", "last_name": "Doe"}
+        data = {"trainer_id": "AAAAA", "email": "trainer@example.com", "password": "password", "first_name": "John", "last_name": "Doe"}
         response = await user_client.post("/trainers/", json=data)
         assert response.status_code == 200
         assert response.json()["email"] == data["email"]
@@ -29,7 +29,7 @@ class TestTrainerRouter:
         print(f"Attributes of user_client: {dir(user_client)}")
         
         mock_trainer = models.Trainer(
-            trainer_id=1,
+            trainer_id="AAAAA",
             email="trainer_test@example.com",
             first_name="Trainer",
             last_name="Test",
@@ -59,7 +59,7 @@ class TestTrainerRouter:
     async def test_update_trainer(self, authenticated_trainer_client: AsyncClient, db_session, monkeypatch):
         update_data = {"first_name": "Updated", "last_name": "Trainer"}
         mock_updated_trainer = models.Trainer(
-            trainer_id=1,  
+            trainer_id="AAAAA",  
             **update_data,
             email="trainer@example.com",
             role="trainer",
@@ -76,7 +76,7 @@ class TestTrainerRouter:
     @pytest.mark.asyncio
     async def test_read_specific_connected_user_info(self, authenticated_trainer_client: AsyncClient, db_session, monkeypatch):
         mock_user_info = schemas.ConnectedUserInfo(
-            user_id=2,
+            user_id="AAAAA",
             email="user@example.com",
             first_name="Test",
             last_name="User",
@@ -116,7 +116,7 @@ class TestTrainerRouter:
         mock_get_mapping = AsyncMock(return_value=mock_mapping)
         monkeypatch.setattr(crud, "get_trainer_user_mapping", mock_get_mapping)
         
-        response = await authenticated_trainer_client.get("/check-trainer-user-mapping/1/2")
+        response = await authenticated_trainer_client.get("/check-trainer-user-mapping/AAAAA/AAAAA")
         
         assert response.status_code == 200
         assert response.json() == {"exists": True}
@@ -125,8 +125,8 @@ class TestTrainerRouter:
     async def test_update_trainer_user_mapping_status(self, authenticated_trainer_client: AsyncClient, db_session, monkeypatch):
         mock_db_mapping = AsyncMock()
         mock_db_mapping.id = 1
-        mock_db_mapping.trainer_id = 1
-        mock_db_mapping.user_id = 2
+        mock_db_mapping.trainer_id = "AAAAA"
+        mock_db_mapping.user_id = "AAAAA"
         mock_db_mapping.status = models.MappingStatus.accepted
         mock_update_mapping = AsyncMock(return_value=mock_db_mapping)
         monkeypatch.setattr(crud, "update_trainer_user_mapping_status", mock_update_mapping)
@@ -137,7 +137,7 @@ class TestTrainerRouter:
         assert response.status_code == 200
         assert response.json() == {
             "id": 1,
-            "trainer_id": 1,
-            "user_id": 2,
+            "trainer_id": "AAAAA",
+            "user_id": "AAAAA",
             "status": "accepted"
         }

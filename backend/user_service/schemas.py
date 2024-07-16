@@ -21,7 +21,7 @@ class UserCreate(UserBase):
         return v
 
 class User(UserBase):
-    user_id: int
+    user_id: str
     age: Optional[int] = Field(default=None)
     height: Optional[float] = Field(default=None)
     weight: Optional[float] = Field(default=None)
@@ -63,7 +63,7 @@ class TrainerCreate(TrainerBase):
         return v
 
 class Trainer(TrainerBase):
-    trainer_id: int
+    trainer_id: str
     hashed_password: str
     role: str
     
@@ -73,7 +73,7 @@ class TrainerUpdate(BaseModel):
     confirm_password: Optional[str] = None
 
 class ConnectedUserInfo(BaseModel):
-    user_id: int
+    user_id: str
     age: Optional[int]
     height: Optional[float]
     weight: Optional[float]
@@ -91,26 +91,26 @@ class MappingStatus(str, Enum):
     accepted = "accepted"
 
 class UserMappingInfo(BaseModel):
-    user_id: int
+    user_id: str
     user_email: str
     user_first_name: str
     user_last_name: str
     status: MappingStatus
 
 class TrainerMappingInfo(BaseModel):
-    trainer_id: int
+    trainer_id: str
     trainer_email: str
     trainer_first_name: str
     trainer_last_name: str
     status: MappingStatus
 
 class CreateTrainerUserMapping(BaseModel):
-    other_id: int
+    other_id: str
 
 class TrainerUserMappingResponse(BaseModel):
     id: int
-    trainer_id: int
-    user_id: int
+    trainer_id: str
+    user_id: str
     status: str
 
 class TrainerUserMappingUpdate(BaseModel):

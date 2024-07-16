@@ -16,7 +16,7 @@ async def test_create_session_user(mock_create_session, mock_get_current_member,
     mock_create_session.return_value.session_id = 1
     mock_create_session.return_value.session_type_id = 2
     mock_create_session.return_value.workout_date = date(2024, 7, 10)
-    mock_create_session.return_value.user_id = 1
+    mock_create_session.return_value.user_id = "AAAAA"
     mock_create_session.return_value.trainer_id = None
     mock_create_session.return_value.is_pt = "N"
     
@@ -27,7 +27,7 @@ async def test_create_session_user(mock_create_session, mock_get_current_member,
         "session_id": 1,
         "session_type_id": 2,
         "workout_date": "2024-07-10",
-        "user_id": 1,
+        "user_id": "AAAAA",
         "trainer_id": None,
         "is_pt": "N"
     }
@@ -46,8 +46,8 @@ async def test_create_session_trainer(mock_check_mapping, mock_create_session, m
     mock_create_session.return_value.session_id = 1
     mock_create_session.return_value.session_type_id = 3
     mock_create_session.return_value.workout_date = date(2024, 7, 10)
-    mock_create_session.return_value.user_id = 2
-    mock_create_session.return_value.trainer_id = 1
+    mock_create_session.return_value.user_id = "AAAAA"
+    mock_create_session.return_value.trainer_id = "AAAAA"
     mock_create_session.return_value.is_pt = "Y"
 
     mock_check_mapping.return_value = True
@@ -59,8 +59,8 @@ async def test_create_session_trainer(mock_check_mapping, mock_create_session, m
         "session_id": 1,
         "session_type_id": 3,
         "workout_date": "2024-07-10",
-        "user_id": 2,
-        "trainer_id": 1,
+        "user_id": "AAAAA",
+        "trainer_id": "AAAAA",
         "is_pt": "Y"
     }
 
