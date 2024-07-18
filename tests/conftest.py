@@ -83,7 +83,7 @@ def mock_current_member():
         age=30,
         height=180.5,
         weight=75.0,
-        workout_duration=60,
+        workout_level=60,
         workout_frequency=3,
         workout_goal=1
     )

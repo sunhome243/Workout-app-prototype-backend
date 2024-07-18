@@ -1,8 +1,14 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum, Boolean, DateTime, UniqueConstraint, ForeignKeyConstraint
 from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy.sql import func
+from enum import Enum as PyEnum
 
 Base = declarative_base()
+
+class QuestStatus(PyEnum):
+    NOT_STARTED = "Not started"
+    COMPLETED = "Completed"
+    DEADLINE_PASSED = "Deadline passed"
 
 class Workouts(Base):
     __tablename__ = 'workouts'
@@ -35,7 +41,7 @@ class SessionIDMap(Base):
     workout_date = Column(String, nullable=False)
     member_id = Column(String, nullable=False)
     trainer_id = Column(String, nullable=True)
-    is_pt = Column(String, nullable=False)
+    is_pt = Column(Boolean, nullable=False)
     # Relationship
     sessions = relationship('Session', back_populates='session_id_map')
 
@@ -61,10 +67,11 @@ class Quest(Base):
     quest_id = Column(Integer, primary_key=True, autoincrement=True)
     trainer_id = Column(String, nullable=False)
     member_id = Column(String, nullable=False)
-    status = Column(Boolean, default=False)  # False for incomplete, True for complete
+    status = Column(Enum(QuestStatus), default=QuestStatus.NOT_STARTED) 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     # Relationship
     workouts = relationship('QuestWorkout', back_populates='quest', cascade="all, delete-orphan")
+
 
 class QuestWorkout(Base):
     __tablename__ = 'quest_workouts'

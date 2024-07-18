@@ -22,7 +22,7 @@ router = APIRouter()  # Create an APIRouter
 ACCESS_TOKEN_EXPIRE_MINUTES = 100
 
 # Login for both trainer + member
-@router.post("/api/login")
+@router.post("/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     member, role = await utils.authenticate_member(db, form_data.username, form_data.password)
     if not member:
@@ -162,7 +162,7 @@ async def request_trainer_member_mapping(
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed to create mapping request")
 
-@router.put("/api/trainer-member-mapping/{mapping_id}/status", response_model=schemas.TrainerMemberMappingResponse)
+@router.patch("/api/trainer-member-mapping/{mapping_id}/status", response_model=schemas.TrainerMemberMappingResponse)
 async def update_trainer_member_mapping_status(
     mapping_id: int,
     status_update: schemas.TrainerMemberMappingUpdate,
@@ -195,26 +195,27 @@ async def read_my_mappings(
     mappings = await crud.get_member_mappings(db, member_id, is_trainer)
     return mappings
 
+
 @router.delete("/api/trainer-member-mapping/{other_id}", response_model=schemas.Message)
 async def remove_specific_mapping(
     other_id: str,
     current_member: Union[models.Member, models.Trainer] = Depends(utils.get_current_user),
     db: AsyncSession = Depends(utils.get_db)
 ):
-    # Check if the current member is a trainer or a regular member
-    is_trainer = isinstance(current_member, models.Trainer)
+    try:
+        is_trainer = isinstance(current_member, models.Trainer)
+        current_member_id = current_member.trainer_id if is_trainer else current_member.member_id
+        
+        removed = await crud.remove_specific_mapping(db, current_member_id, other_id, is_trainer)
     
-    # Determine the correct ID to use
-    current_member_id = current_member.trainer_id if is_trainer else current_member.member_id
-    
-    # Remove the specific mapping
-    removed = await crud.remove_specific_mapping(db, current_member_id, other_id, is_trainer)
-    
-    if removed:
-        return {"message": f"Successfully removed the trainer-member mapping"}
-    else:
-        return {"message": "No trainer-member mapping found to remove"}
-
+        if removed:
+            return {"message": "Successfully removed the trainer-member mapping"}
+        else:
+            raise HTTPException(status_code=404, detail="No trainer-member mapping found to remove")
+    except ValueError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error occurred: {str(e)}")
 
 @router.get("/api/members/me/", response_model=schemas.Member)
 async def read_members_me(

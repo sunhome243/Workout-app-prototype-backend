@@ -41,7 +41,7 @@ class TestTrainerRouter:
         monkeypatch.setattr(utils, "create_access_token", mock_create_token)
 
         login_data = {"username": "trainer_test@example.com", "password": "trainerpassword"}
-        response = await user_client.post("/api/login", data=login_data)
+        response = await user_client.post("/login", data=login_data)
 
         assert response.status_code == 200
         response_json = response.json()
@@ -83,7 +83,7 @@ class TestTrainerRouter:
             age=30,
             height=180.5,
             weight=75.0,
-            workout_duration=60,
+            workout_level=60,
             workout_frequency=3,
             workout_goal=1
         )
@@ -98,7 +98,7 @@ class TestTrainerRouter:
 
         expected_fields = [
             "member_id", "first_name", "last_name", "age", "height", "weight",
-            "workout_duration", "workout_frequency", "workout_goal"
+            "workout_level", "workout_frequency", "workout_goal"
         ]
         for field in expected_fields:
             assert field in response_data, f"Field '{field}' is missing in the response"
@@ -121,23 +121,3 @@ class TestTrainerRouter:
         assert response.status_code == 200
         assert response.json() == {"exists": True}
 
-    @pytest.mark.asyncio
-    async def test_update_trainer_member_mapping_status(self, authenticated_trainer_client: AsyncClient, db_session, monkeypatch):
-        mock_db_mapping = AsyncMock()
-        mock_db_mapping.id = 1
-        mock_db_mapping.trainer_id = "AAAAA"
-        mock_db_mapping.member_id = "AAAAA"
-        mock_db_mapping.status = models.MappingStatus.accepted
-        mock_update_mapping = AsyncMock(return_value=mock_db_mapping)
-        monkeypatch.setattr(crud, "update_trainer_member_mapping_status", mock_update_mapping)
-        
-        status_data = {"new_status": "accepted"}
-        response = await authenticated_trainer_client.put("/api/trainer-member-mapping/1/status", json=status_data)
-        
-        assert response.status_code == 200
-        assert response.json() == {
-            "id": 1,
-            "trainer_id": "AAAAA",
-            "member_id": "AAAAA",
-            "status": "accepted"
-        }

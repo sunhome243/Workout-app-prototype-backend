@@ -49,19 +49,16 @@ async def check_trainer_member_mapping(trainer_id: str, member_id: str, token: s
 
 async def create_session(db: AsyncSession, session_data: dict, current_member: dict):
     try:
-        # Ensure required fields are in the session_data
         required_fields = ['session_type_id', 'member_id', 'is_pt']
         for field in required_fields:
             if field not in session_data:
                 raise ValueError(f"{field} is required")
 
-        # Validate and convert session_type_id to integer
         try:
             session_type_id = int(session_data['session_type_id'])
         except ValueError:
             raise ValueError("session_type_id must be a valid integer")
 
-        # Create session data
         session_data_to_create = {
             "workout_date": session_data.get('workout_date', datetime.now().strftime("%Y-%m-%d")),
             "member_id": session_data['member_id'],
@@ -70,7 +67,6 @@ async def create_session(db: AsyncSession, session_data: dict, current_member: d
             "session_type_id": session_type_id
         }
 
-        # Create a new SessionIDMap instance
         new_session = models.SessionIDMap(**session_data_to_create)
 
         db.add(new_session)
@@ -134,7 +130,7 @@ async def create_quest(db: AsyncSession, quest_data: schemas.QuestCreate, traine
         new_quest = models.Quest(
             trainer_id=trainer_id,
             member_id=quest_data.member_id,
-            status=False
+            status=models.QuestStatus.NOT_STARTED 
         )
         db.add(new_quest)
         await db.flush()
@@ -203,7 +199,7 @@ async def get_quest_by_id(db: AsyncSession, quest_id: int):
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
-async def update_quest_status(db: AsyncSession, quest_id: int, new_status: bool):
+async def update_quest_status(db: AsyncSession, quest_id: int, new_status: models.QuestStatus):
     try:
         stmt = update(models.Quest).where(models.Quest.quest_id == quest_id).values(status=new_status)
         await db.execute(stmt)
@@ -226,7 +222,23 @@ async def update_quest_status(db: AsyncSession, quest_id: int, new_status: bool)
         logger.error(f"Error updating quest status: {str(e)}")
         await db.rollback()
         raise
-    
+
+async def update_quests_status(db: AsyncSession, member_id: str):
+    try:
+        stmt = update(models.Quest).where(
+            (models.Quest.member_id == member_id) & 
+            (models.Quest.status == models.QuestStatus.NOT_STARTED)
+        ).values(status=models.QuestStatus.DEADLINE_PASSED)
+        
+        result = await db.execute(stmt)
+        await db.commit()
+        
+        logger.info(f"Updated {result.rowcount} quests to 'Deadline passed' for member {member_id}")
+    except Exception as e:
+        logger.error(f"Error updating quests status: {str(e)}")
+        await db.rollback()
+        raise
+
 async def delete_quest(db: AsyncSession, quest_id: int):
     try:
         # Delete associated QuestworkoutSets

@@ -21,7 +21,7 @@ class Member(Base, AsyncAttrs):
     age = Column(Integer, nullable=True)
     height = Column(Float, nullable=True)
     weight = Column(Float, nullable=True)
-    workout_duration = Column(Integer, nullable=True)
+    workout_level = Column(Integer, nullable=True)
     workout_frequency = Column(Integer, nullable=True)
     workout_goal = Column(Integer, nullable=True)
     first_name = Column(String, nullable=True)
@@ -54,10 +54,10 @@ class WorkoutGoalMap(Base):
     workout_goal = Column(Integer, primary_key=True, index=True)
     workout_goal_name = Column(String, index=True)
 
-class WorkoutDurationMap(Base):
-    __tablename__ = "workout_duration_mapping"
-    workout_duration = Column(Integer, primary_key=True, index=True)
-    workout_duration_name = Column(String, index=True)
+class WorkoutlevelMap(Base):
+    __tablename__ = "workout_level_mapping"
+    workout_level = Column(Integer, primary_key=True, index=True)
+    workout_level_name = Column(String, index=True)
 
 class WorkoutFrequencyMap(Base):
     __tablename__ = "workout_frequency_mapping"

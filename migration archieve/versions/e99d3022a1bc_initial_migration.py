@@ -37,20 +37,20 @@ def upgrade() -> None:
     sa.Column('age', sa.Integer(), nullable=True),
     sa.Column('height', sa.Double(), nullable=True),
     sa.Column('weight', sa.Double(), nullable=True),
-    sa.Column('workout_duration', sa.Integer(), nullable=True),
+    sa.Column('workout_level', sa.Integer(), nullable=True),
     sa.Column('workout_frequency', sa.Integer(), nullable=True),
     sa.Column('workout_goal', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('user_id')
     )
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
     op.create_index(op.f('ix_users_user_id'), 'users', ['user_id'], unique=True)
-    op.create_table('workout_duration_mapping',
-    sa.Column('workout_duration', sa.Integer(), nullable=False),
-    sa.Column('workout_duration_name', sa.String(), nullable=True),
-    sa.PrimaryKeyConstraint('workout_duration')
+    op.create_table('workout_level_mapping',
+    sa.Column('workout_level', sa.Integer(), nullable=False),
+    sa.Column('workout_level_name', sa.String(), nullable=True),
+    sa.PrimaryKeyConstraint('workout_level')
     )
-    op.create_index(op.f('ix_workout_duration_mapping_workout_duration'), 'workout_duration_mapping', ['workout_duration'], unique=False)
-    op.create_index(op.f('ix_workout_duration_mapping_workout_duration_name'), 'workout_duration_mapping', ['workout_duration_name'], unique=False)
+    op.create_index(op.f('ix_workout_level_mapping_workout_level'), 'workout_level_mapping', ['workout_level'], unique=False)
+    op.create_index(op.f('ix_workout_level_mapping_workout_level_name'), 'workout_level_mapping', ['workout_level_name'], unique=False)
     op.create_table('workout_frequency_mapping',
     sa.Column('workout_frequency', sa.Integer(), nullable=False),
     sa.Column('workout_frequency_name', sa.String(), nullable=True),
@@ -84,9 +84,9 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_workout_frequency_mapping_workout_frequency_name'), table_name='workout_frequency_mapping')
     op.drop_index(op.f('ix_workout_frequency_mapping_workout_frequency'), table_name='workout_frequency_mapping')
     op.drop_table('workout_frequency_mapping')
-    op.drop_index(op.f('ix_workout_duration_mapping_workout_duration_name'), table_name='workout_duration_mapping')
-    op.drop_index(op.f('ix_workout_duration_mapping_workout_duration'), table_name='workout_duration_mapping')
-    op.drop_table('workout_duration_mapping')
+    op.drop_index(op.f('ix_workout_level_mapping_workout_level_name'), table_name='workout_level_mapping')
+    op.drop_index(op.f('ix_workout_level_mapping_workout_level'), table_name='workout_level_mapping')
+    op.drop_table('workout_level_mapping')
     op.drop_index(op.f('ix_users_user_id'), table_name='users')
     op.drop_index(op.f('ix_users_email'), table_name='users')
     op.drop_table('users')

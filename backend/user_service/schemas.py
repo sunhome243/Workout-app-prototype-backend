@@ -25,7 +25,7 @@ class Member(MemberBase):
     age: Optional[int] = Field(default=None)
     height: Optional[float] = Field(default=None)
     weight: Optional[float] = Field(default=None)
-    workout_duration: Optional[int] = Field(default=None)
+    workout_level: Optional[int] = Field(default=None)
     workout_frequency: Optional[int] = Field(default=None)
     workout_goal: Optional[int] = Field(default=None)
     role: str
@@ -40,7 +40,7 @@ class MemberUpdate(BaseModel):
     age: Optional[int] = None
     height: Optional[float] = None
     weight: Optional[float] = None
-    workout_duration: Optional[int] = None
+    workout_level: Optional[int] = None
     workout_frequency: Optional[int] = None
     workout_goal: Optional[int] = None
 
@@ -77,7 +77,7 @@ class ConnectedMemberInfo(BaseModel):
     age: Optional[int]
     height: Optional[float]
     weight: Optional[float]
-    workout_duration: Optional[int]
+    workout_level: Optional[int]
     workout_frequency: Optional[int]
     workout_goal: Optional[int]
     first_name: Optional[str]

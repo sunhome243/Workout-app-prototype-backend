@@ -1,20 +1,27 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional, List, Dict
 from datetime import date, datetime
+from enum import Enum
+
+class QuestStatus(str, Enum):
+    NOT_STARTED = "Not started"
+    COMPLETED = "Completed"
+    DEADLINE_PASSED = "Deadline passed"
+
 
 class SessionIDMap(BaseModel):
     session_id: int
     workout_date: date
     member_id: str
     trainer_id: Optional[str]
-    is_pt: str
+    is_pt: bool
     session_type_id: int
 
 class SessionCreate(BaseModel):
     workout_date: date
     member_id: str
     trainer_id: str | None
-    is_pt: str
+    is_pt: bool
     session_type_id: int
 
 class SetCreate(BaseModel):
@@ -69,7 +76,7 @@ class Quest(BaseModel):
     quest_id: int
     trainer_id: str
     member_id: str
-    status: bool
+    status: QuestStatus
     created_at: datetime
     workouts: List[QuestWorkout]
 

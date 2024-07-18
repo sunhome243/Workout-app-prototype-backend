@@ -20,7 +20,7 @@ async def test_create_session_member(mock_create_session, mock_get_current_user,
     mock_create_session.return_value.workout_date = date(2024, 7, 10)
     mock_create_session.return_value.member_id = "member1"
     mock_create_session.return_value.trainer_id = None
-    mock_create_session.return_value.is_pt = "N"
+    mock_create_session.return_value.is_pt = False
     
     response = await workout_client.post("/api/create_session?session_type_id=2", headers={"Authorization": "Bearer mock_token"})
     
@@ -31,7 +31,7 @@ async def test_create_session_member(mock_create_session, mock_get_current_user,
         "workout_date": "2024-07-10",
         "member_id": "member1",
         "trainer_id": None,
-        "is_pt": "N"
+        "is_pt": False
     }
 
 @pytest.mark.asyncio
@@ -50,7 +50,7 @@ async def test_create_session_trainer(mock_check_mapping, mock_create_session, m
     mock_create_session.return_value.workout_date = date(2024, 7, 10)
     mock_create_session.return_value.member_id = "member1"
     mock_create_session.return_value.trainer_id = "trainer1"
-    mock_create_session.return_value.is_pt = "Y"
+    mock_create_session.return_value.is_pt = True
 
     mock_check_mapping.return_value = True
 
@@ -63,7 +63,7 @@ async def test_create_session_trainer(mock_check_mapping, mock_create_session, m
         "workout_date": "2024-07-10",
         "member_id": "member1",
         "trainer_id": "trainer1",
-        "is_pt": "Y"
+        "is_pt": True
     }
 
 @pytest.mark.asyncio
@@ -116,7 +116,7 @@ async def test_get_sessions(mock_check_mapping, mock_get_sets, mock_get_sessions
     }
     mock_get_current_user.return_value = mock_current_member
     mock_get_sessions.return_value = [
-        AsyncMock(session_id=1, workout_date=date(2024, 7, 10), member_id="member1", trainer_id=None, is_pt="N", session_type_id=2)
+        AsyncMock(session_id=1, workout_date=date(2024, 7, 10), member_id="member1", trainer_id=None, is_pt=False, session_type_id=2)
     ]
     mock_get_sets.return_value = [
         AsyncMock(session_id=1, workout_key=1, set_num=1, weight=50.0, reps=10, rest_time=60)
@@ -131,7 +131,7 @@ async def test_get_sessions(mock_check_mapping, mock_get_sets, mock_get_sessions
         "workout_date": "2024-07-10",
         "member_id": "member1",
         "trainer_id": None,
-        "is_pt": "N",
+        "is_pt": False,
         "session_type_id": 2,
         "sets": [{
             "session_id": 1,
@@ -211,7 +211,7 @@ async def test_create_quest(mock_check_mapping, mock_create_quest, mock_get_curr
         "quest_id": 1,
         "trainer_id": "trainer1",
         "member_id": "member1",
-        "status": False,
+        "status": "Not started",
         "created_at": "2024-07-10T12:00:00",
         "workouts": [
             {
@@ -250,7 +250,7 @@ async def test_read_quests_trainer(mock_get_quests, mock_get_current_user, worko
             quest_id=1,
             trainer_id="trainer1",
             member_id="member1",
-            status=False,
+            status="Not started",
             created_at=datetime(2024, 7, 10, 12, 0, 0),
             workouts=[
                 AsyncMock(
@@ -377,7 +377,7 @@ async def test_update_quest_status(mock_update_status, mock_get_quest, mock_get_
     mock_quest.quest_id = 1
     mock_quest.trainer_id = "trainer1"
     mock_quest.member_id = "member1"
-    mock_quest.status = False
+    mock_quest.status = "Not Started"
     mock_quest.created_at = datetime(2024, 7, 10, 12, 0, 0)
     mock_quest.workouts = [MagicMock()]
     mock_quest.workouts[0].quest_id = 1
@@ -392,7 +392,7 @@ async def test_update_quest_status(mock_update_status, mock_get_quest, mock_get_
 
     mock_get_quest.return_value = mock_quest
     mock_update_status.return_value = mock_quest
-    mock_update_status.return_value.status = True
+    mock_update_status.return_value.status = "Not Started"
 
     response = await workout_client.patch("/api/quests/1/status?status=true", headers={"Authorization": "Bearer mock_token"})
 

@@ -46,16 +46,17 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
     except JWTError:
         raise credentials_exception
 
+    user = None
     if member_type == 'member':
-        member = await crud.get_member_by_id(db, str(id))
+        user = await crud.get_member_by_id(db, str(id))
     elif member_type == 'trainer':
-        trainer = await crud.get_trainer_by_id(db, str(id))
+        user = await crud.get_trainer_by_id(db, str(id))
     else:
         raise credentials_exception
 
-    if member is None and trainer is None:
+    if user is None:
         raise credentials_exception
-    return member or trainer
+    return user
 
 def verify_password(plain_password, hashed_password):
     return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))

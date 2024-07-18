@@ -56,7 +56,7 @@ async def get_openapi_json():
 @app.post("/api/create_session", response_model=schemas.SessionIDMap)
 async def create_session(
     request: Request,
-    session_type_id: str,
+    session_type_id: int,
     member_id: str = Query(None),
     db: AsyncSession = Depends(get_db),
     authorization: str = Header(None)
@@ -64,34 +64,22 @@ async def create_session(
     if not authorization:
         raise HTTPException(status_code=401, detail="Authorization header is missing")
     
-    logger.debug(f"Received request headers for create_session: {request.headers}")
-    logger.debug(f"Attempting to authenticate with token: {authorization[:10]}...")
-    
-    utils.print_token_contents(authorization)
-    
     try:
         current_member = await utils.get_current_user(authorization)
-        logger.debug(f"Authentication successful. Current member: {current_member}")
-    except HTTPException as e:
-        logger.error(f"Authentication error: {e.detail}")
-        raise e
-    
-    try:
+        
         if current_member['member_type'] == 'trainer':
             if not member_id:
                 raise HTTPException(status_code=400, detail="member_id is required for trainers")
             
-            logger.debug(f"Checking trainer-member mapping for trainer_id={current_member.get('id')} and member_id={member_id}")
             mapping_exists = await crud.check_trainer_member_mapping(current_member.get('id'), member_id, authorization)
-            logger.debug(f"Mapping exists: {mapping_exists}")
             if not mapping_exists:
                 raise HTTPException(status_code=403, detail="Trainer is not associated with this member")
-            is_pt = "Y"
+            is_pt = True
         else:  # member
             if member_id and member_id != current_member.get('id'):
                 raise HTTPException(status_code=403, detail="Member can only create sessions for themselves")
             member_id = current_member.get('id')
-            is_pt = "N"
+            is_pt = False
         
         session_data = {
             "member_id": member_id,
@@ -99,9 +87,12 @@ async def create_session(
             "session_type_id": session_type_id
         }
         
-        logger.debug(f"Attempting to create session with data: {session_data}")
         new_session = await crud.create_session(db, session_data, current_member)
-        logger.info(f"Session created successfully: {new_session.session_id}")
+        
+        # Check if session_type_id is 3 and is_pt is True
+        if session_type_id == 3 and is_pt:
+            await crud.update_quests_status(db, member_id)
+        
         return new_session
     except ValueError as ve:
         logger.error(f"Validation error in create_session: {str(ve)}")
@@ -283,7 +274,7 @@ async def read_quests_for_member(
 @app.patch("/api/quests/{quest_id}/status", response_model=schemas.Quest)
 async def update_quest_status(
     quest_id: int = Path(..., title="The ID of the quest to update"),
-    status: bool = Query(..., title="The new status of the quest"),
+    status: schemas.QuestStatus = Query(..., title="The new status of the quest"),
     db: AsyncSession = Depends(get_db),
     authorization: str = Header(None)
 ):
@@ -312,7 +303,8 @@ async def update_quest_status(
     except Exception as e:
         logger.error(f"Error updating quest status: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error updating quest status: {str(e)}")
-    
+
+
 @app.delete("/api/quests/{quest_id}", status_code=204)
 async def delete_quest(
     quest_id: int = Path(..., title="The ID of the quest to delete"),
