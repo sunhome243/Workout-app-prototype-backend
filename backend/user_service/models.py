@@ -46,8 +46,9 @@ class TrainerMemberMap(Base):
     member_id = Column(String, ForeignKey("members.member_id")) 
     status = Column(SQLAlchemyEnum(MappingStatus), default=MappingStatus.pending)
     requester_id = Column(String) 
+    remaining_sessions = Column(Integer, default=0)  
     trainer = relationship("Trainer", back_populates="member_mappings")
-    member = relationship("Member", back_populates="trainer_mappings") 
+    member = relationship("Member", back_populates="trainer_mappings")  
 
 class WorkoutGoalMap(Base):
     __tablename__ = "workout_goal_mapping"

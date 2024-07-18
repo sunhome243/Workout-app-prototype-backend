@@ -32,7 +32,7 @@ async def get_current_user(token: str):
 
         member_data = {
             "id": str(member_id),  # Convert to int as it's stored as string in the token
-            "member_type": role
+            "user_type": role
         }
 
         logger.info(f"Member authenticated successfully: {member_data}")

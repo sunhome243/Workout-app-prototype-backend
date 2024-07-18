@@ -11,7 +11,7 @@ from types import SimpleNamespace
 async def test_create_session_member(mock_create_session, mock_get_current_user, workout_client):
     mock_current_member = {
         "id": "member1",
-        "member_type": "member"
+        "user_type": "member"
     }
     mock_get_current_user.return_value = mock_current_member
     mock_create_session.return_value = AsyncMock()
@@ -41,7 +41,7 @@ async def test_create_session_member(mock_create_session, mock_get_current_user,
 async def test_create_session_trainer(mock_check_mapping, mock_create_session, mock_get_current_user, workout_client):
     mock_current_trainer = {
         "id": "trainer1",
-        "member_type": "trainer"
+        "user_type": "trainer"
     }
     mock_get_current_user.return_value = mock_current_trainer
     mock_create_session.return_value = AsyncMock()
@@ -78,7 +78,7 @@ async def test_create_session_no_auth(workout_client):
 async def test_record_set(mock_record_set, mock_get_current_user, workout_client):
     mock_current_member = {
         "id": "member1",
-        "member_type": "member"
+        "user_type": "member"
     }
     mock_get_current_user.return_value = mock_current_member
     mock_record_set.return_value = AsyncMock()
@@ -112,7 +112,7 @@ async def test_record_set(mock_record_set, mock_get_current_user, workout_client
 async def test_get_sessions(mock_check_mapping, mock_get_sets, mock_get_sessions, mock_get_current_user, workout_client):
     mock_current_member = {
         "id": "member1",
-        "member_type": "member"
+        "user_type": "member"
     }
     mock_get_current_user.return_value = mock_current_member
     mock_get_sessions.return_value = [
@@ -152,7 +152,7 @@ async def test_create_quest(mock_check_mapping, mock_create_quest, mock_get_curr
     # Setup mock trainer
     mock_current_trainer = {
         "id": "trainer1",
-        "member_type": "trainer"
+        "user_type": "trainer"
     }
     mock_get_current_user.return_value = mock_current_trainer
     mock_check_mapping.return_value = True
@@ -242,7 +242,7 @@ async def test_create_quest(mock_check_mapping, mock_create_quest, mock_get_curr
 async def test_read_quests_trainer(mock_get_quests, mock_get_current_user, workout_client):
     mock_current_trainer = {
         "id": "trainer1",
-        "member_type": "trainer"
+        "user_type": "trainer"
     }
     mock_get_current_user.return_value = mock_current_trainer
     mock_get_quests.return_value = [
@@ -305,7 +305,7 @@ async def test_read_quests_trainer(mock_get_quests, mock_get_current_user, worko
 async def test_read_quests_for_member(mock_check_mapping, mock_get_quests, mock_get_current_user, workout_client):
     mock_current_trainer = {
         "id": "trainer1",
-        "member_type": "trainer"
+        "user_type": "trainer"
     }
     mock_get_current_user.return_value = mock_current_trainer
     mock_check_mapping.return_value = True
@@ -369,7 +369,7 @@ async def test_read_quests_for_member(mock_check_mapping, mock_get_quests, mock_
 async def test_update_quest_status(mock_update_status, mock_get_quest, mock_get_current_user, workout_client):
     mock_current_member = {
         "id": "member1",
-        "member_type": "member"
+        "user_type": "member"
     }
     mock_get_current_user.return_value = mock_current_member
 
@@ -411,7 +411,7 @@ async def test_update_quest_status(mock_update_status, mock_get_quest, mock_get_
 async def test_delete_quest(mock_delete_quest, mock_get_quest, mock_get_current_user, workout_client):
     mock_current_trainer = {
         "id": "trainer1",
-        "member_type": "trainer"
+        "user_type": "trainer"
     }
     mock_get_current_user.return_value = mock_current_trainer
     mock_get_quest.return_value = AsyncMock(
@@ -432,7 +432,7 @@ async def test_delete_quest(mock_delete_quest, mock_get_quest, mock_get_current_
 async def test_get_workout_records(mock_get_records, mock_get_current_user, workout_client):
     mock_current_member = {
         "id": "member1",
-        "member_type": "member"
+        "user_type": "member"
     }
     mock_get_current_user.return_value = mock_current_member
     mock_get_records.return_value = {
@@ -472,7 +472,7 @@ async def test_get_workout_records(mock_get_records, mock_get_current_user, work
 async def test_get_workout_name(mock_get_workout_name, mock_get_current_user, workout_client):
     mock_current_member = {
         "id": "member1",
-        "member_type": "member"
+        "user_type": "member"
     }
     mock_get_current_user.return_value = mock_current_member
     mock_get_workout_name.return_value = "Bench Press"
@@ -491,7 +491,7 @@ async def test_get_workout_name(mock_get_workout_name, mock_get_current_user, wo
 async def test_get_workouts_by_part(mock_get_workouts_by_part, mock_get_current_user, workout_client):
     mock_current_member = {
         "id": "member1",
-        "member_type": "member"
+        "user_type": "member"
     }
     mock_get_current_user.return_value = mock_current_member
     mock_get_workouts_by_part.return_value = {
@@ -548,7 +548,7 @@ async def test_create_session_invalid_session_type(workout_client):
 async def test_update_quest_status_unauthorized(mock_get_quest, mock_get_current_user, workout_client):
     mock_current_member = {
         "id": "member2",
-        "member_type": "member"
+        "user_type": "member"
     }
     mock_get_current_user.return_value = mock_current_member
 
@@ -566,7 +566,7 @@ async def test_update_quest_status_unauthorized(mock_get_quest, mock_get_current
 @patch("backend.workout_service.utils.get_current_user")
 @patch("backend.workout_service.crud.get_quest_by_id")
 async def test_delete_quest_unauthorized(mock_get_quest, mock_get_current_user, workout_client):
-    mock_get_current_user.return_value = {"id": "member1", "member_type": "member"}
+    mock_get_current_user.return_value = {"id": "member1", "user_type": "member"}
     mock_get_quest.return_value = AsyncMock(trainer_id="trainer1")
     response = await workout_client.delete("/api/quests/1", headers={"Authorization": "Bearer mock_token"})
     assert response.status_code == 403

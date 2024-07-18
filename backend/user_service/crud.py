@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, delete, or_, and_
+from sqlalchemy import select, delete, or_, and_, update
 from sqlalchemy.exc import SQLAlchemyError
 from fastapi import HTTPException
 from . import models, schemas
@@ -175,13 +175,12 @@ async def update_trainer(db: AsyncSession, current_trainer: models.Trainer, trai
     return db_trainer
 
 
-async def create_trainer_member_mapping_request(db: AsyncSession, current_member_id: str, other_id: str, is_trainer: bool):
+async def create_trainer_member_mapping_request(db: AsyncSession, current_member_id: str, other_id: str, is_trainer: bool, initial_sessions: int):
     try:
         if is_trainer:
             trainer_id, member_id = current_member_id, other_id
         else:
             trainer_id, member_id = other_id, current_member_id
-        logging.debug(f"Attempting to create mapping: trainer_id={trainer_id}, member_id={member_id}, is_trainer={is_trainer}")
         
         # Check if mapping already exists
         existing_mapping = await db.execute(
@@ -194,31 +193,19 @@ async def create_trainer_member_mapping_request(db: AsyncSession, current_member
             raise ValueError("This mapping already exists")
         
         new_status = models.MappingStatus.pending
-        logging.debug(f"Creating new mapping with status: {new_status.value}")
         db_mapping = models.TrainerMemberMap(
             trainer_id=trainer_id,
             member_id=member_id,
             status=new_status,
-            requester_id=current_member_id
+            requester_id=current_member_id,
+            remaining_sessions=initial_sessions
         )
-        logging.debug(f"New mapping object created: {db_mapping.__dict__}")
         db.add(db_mapping)
-        logging.debug("Added mapping to session")
         await db.commit()
-        logging.debug("Committed session")
         await db.refresh(db_mapping)
-        logging.debug(f"Refreshed mapping object: {db_mapping.__dict__}")
         return db_mapping
-    except SQLAlchemyError as e:
-        await db.rollback()
-        logging.error(f"Database error occurred: {str(e)}")
-        raise
-    except ValueError as e:
-        logging.warning(str(e))
-        raise
     except Exception as e:
         await db.rollback()
-        logging.error(f"Unexpected error occurred: {str(e)}")
         raise
 
 async def update_trainer_member_mapping_status(db: AsyncSession, mapping_id: int, current_member_id: str, new_status: models.MappingStatus):
@@ -369,3 +356,22 @@ async def get_trainer_member_mapping(db: AsyncSession, trainer_id: str, member_i
     except Exception as e:
         logging.error(f"Error in get_trainer_member_mapping: {str(e)}")
         raise
+
+async def get_remaining_sessions(db: AsyncSession, trainer_id: str, member_id: str):
+    result = await db.execute(
+        select(models.TrainerMemberMap.remaining_sessions)
+        .filter(models.TrainerMemberMap.trainer_id == trainer_id)
+        .filter(models.TrainerMemberMap.member_id == member_id)
+    )
+    return result.scalar_one_or_none()
+
+async def update_sessions(db: AsyncSession, trainer_id: str, member_id: str, sessions_to_add: int):
+    stmt = (
+        update(models.TrainerMemberMap)
+        .where(models.TrainerMemberMap.trainer_id == trainer_id)
+        .where(models.TrainerMemberMap.member_id == member_id)
+        .values(remaining_sessions=models.TrainerMemberMap.remaining_sessions + sessions_to_add)
+    )
+    await db.execute(stmt)
+    await db.commit()
+    return await get_remaining_sessions(db, trainer_id, member_id)

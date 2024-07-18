@@ -3,7 +3,7 @@ import logging
 from fastapi import FastAPI, APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from typing import List, Annotated, Union, Optional
+from typing import List, Annotated, Union, Optional, Dict
 from . import crud, models, schemas, utils
 from .database import get_db
 from fastapi.security import OAuth2PasswordRequestForm
@@ -138,29 +138,39 @@ async def read_trainer_email(email: str, db: AsyncSession = Depends(get_db)):
 @router.post("/api/trainer-member-mapping/request", response_model=schemas.TrainerMemberMappingResponse)
 async def request_trainer_member_mapping(
     mapping: schemas.CreateTrainerMemberMapping,
-    current_member: Union[models.Member, models.Trainer] = Depends(utils.get_current_user),
+    current_user: Union[models.Member, models.Trainer] = Depends(utils.get_current_user),
     db: AsyncSession = Depends(utils.get_db)
 ):
     try:
-        is_trainer = isinstance(current_member, models.Trainer)
-        current_member_id = current_member.trainer_id if is_trainer else current_member.member_id
+        is_trainer = isinstance(current_user, models.Trainer)
+        
+        logging.info(f"Attempting to create mapping: current_user={current_user}, other_id={mapping.other_id}, is_trainer={is_trainer}")
+        
+        current_user_id = current_user.trainer_id if is_trainer else current_user.member_id
         
         db_mapping = await crud.create_trainer_member_mapping_request(
             db, 
-            current_member_id,
+            current_user_id,
             mapping.other_id,
-            is_trainer
+            is_trainer,
+            mapping.initial_sessions
         )
+        logging.info(f"Mapping created successfully: {db_mapping}")
+        
         return schemas.TrainerMemberMappingResponse(
             id=db_mapping.id,
             trainer_id=db_mapping.trainer_id,
             member_id=db_mapping.member_id,
-            status=db_mapping.status
+            status=db_mapping.status,
+            remaining_sessions=db_mapping.remaining_sessions
         )
     except ValueError as e:
+        logging.error(f"ValueError in request_trainer_member_mapping: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Failed to create mapping request")
+        logging.error(f"Unexpected error in request_trainer_member_mapping: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to create mapping request: {str(e)}")
+
 
 @router.patch("/api/trainer-member-mapping/{mapping_id}/status", response_model=schemas.TrainerMemberMappingResponse)
 async def update_trainer_member_mapping_status(
@@ -301,5 +311,46 @@ async def check_trainer_member_mapping(
     except Exception as e:
         logging.error(f"Error in check_trainer_member_mapping: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+@router.get("/api/trainer-member-mapping/{other_id}/sessions", response_model=schemas.RemainingSessionsResponse)
+async def get_remaining_sessions(
+    other_id: str,
+    current_user: Union[models.Member, models.Trainer] = Depends(utils.get_current_user),
+    db: AsyncSession = Depends(utils.get_db)
+):
+    is_trainer = isinstance(current_user, models.Trainer)
+    if is_trainer:
+        trainer_id, member_id = current_user.trainer_id, other_id
+    else:
+        trainer_id, member_id = other_id, current_user.member_id
+    
+    try:
+        remaining_sessions = await crud.get_remaining_sessions(db, trainer_id, member_id)
+        if remaining_sessions is None:
+            raise HTTPException(status_code=404, detail="Trainer-Member mapping not found")
+        return {"remaining_sessions": remaining_sessions}
+    except Exception as e:
+        logging.error(f"Error getting remaining sessions: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to get remaining sessions: {str(e)}")
+
+
+@router.patch("/api/trainer-member-mapping/{other_id}/update-sessions", response_model=schemas.RemainingSessionsResponse)
+async def update_sessions(
+    other_id: str,
+    request: schemas.UpdateSessionsRequest,
+    current_user: Union[models.Member, models.Trainer] = Depends(utils.get_current_user),
+    db: AsyncSession = Depends(utils.get_db)
+):
+    if not isinstance(current_user, models.Trainer):
+        raise HTTPException(status_code=403, detail="Only trainers can update sessions")
+    
+    try:
+        new_remaining_sessions = await crud.update_sessions(db, current_user.trainer_id, other_id, request.sessions_to_add)
+        return {"remaining_sessions": new_remaining_sessions}
+    except Exception as e:
+        logging.error(f"Error updating sessions: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to update sessions: {str(e)}")
+
+
     
 app.include_router(router)

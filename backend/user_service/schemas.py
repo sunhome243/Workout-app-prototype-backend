@@ -106,6 +106,7 @@ class TrainerMappingInfo(BaseModel):
 
 class CreateTrainerMemberMapping(BaseModel):
     other_id: str
+    initial_sessions: int
 
 class TrainerMemberMappingResponse(BaseModel):
     id: int
@@ -125,3 +126,9 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: Union[str, None] = None
+    
+class RemainingSessionsResponse(BaseModel):
+    remaining_sessions: int
+
+class UpdateSessionsRequest(BaseModel):
+    sessions_to_add: int

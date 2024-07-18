@@ -152,5 +152,5 @@ async def authenticated_trainer_client(user_client, mock_current_trainer, mock_a
 @pytest.fixture
 def mock_auth():
     with patch("backend.workout_service.utils.get_current_user") as mock:
-        mock.return_value = {"id": "member1", "member_type": "member"}
+        mock.return_value = {"id": "member1", "user_type": "member"}
         yield mock

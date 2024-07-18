@@ -67,7 +67,7 @@ async def create_session(
     try:
         current_member = await utils.get_current_user(authorization)
         
-        if current_member['member_type'] == 'trainer':
+        if current_member['user_type'] == 'trainer':
             if not member_id:
                 raise HTTPException(status_code=400, detail="member_id is required for trainers")
             
@@ -151,11 +151,11 @@ async def get_sessions(
     try:
         current_member = await utils.get_current_user(authorization)
         member_id = current_member['id']
-        member_type = current_member['member_type']
-        logger.debug(f"Fetching sessions for member ID: {member_id}, current member ID: {member_id}, member type: {member_type}")
+        user_type = current_member['user_type']
+        logger.debug(f"Fetching sessions for member ID: {member_id}, current member ID: {member_id}, member type: {user_type}")
         
         if member_id != member_id:
-            if member_type != 'trainer':
+            if user_type != 'trainer':
                 raise HTTPException(status_code=403, detail="You don't have permission to access this member's sessions")
             # Check if the trainer is mapped to the requested member
             is_mapped = await crud.check_trainer_member_mapping(trainer_id=member_id, member_id=member_id, token=authorization)
@@ -201,7 +201,7 @@ async def create_quest_endpoint(
     
     try:
         current_member = await utils.get_current_user(authorization)
-        if current_member['member_type'] != 'trainer':
+        if current_member['user_type'] != 'trainer':
             raise HTTPException(status_code=403, detail="Only trainers can create quests")
         
         mapping_exists = await crud.check_trainer_member_mapping(current_member['id'], quest_data.member_id, authorization)
@@ -231,7 +231,7 @@ async def read_quests(
         current_member = await utils.get_current_user(authorization)
         logger.debug(f"Current member: {current_member}")
 
-        if current_member['member_type'] == 'trainer':
+        if current_member['user_type'] == 'trainer':
             quests = await crud.get_quests_by_trainer(db, current_member['id'])
         else:  # member
             quests = await crud.get_quests_by_member(db, current_member['id'])
@@ -254,7 +254,7 @@ async def read_quests_for_member(
         current_member = await utils.get_current_user(authorization)
         logger.debug(f"Current member: {current_member}")
 
-        if current_member['member_type'] != 'trainer':
+        if current_member['user_type'] != 'trainer':
             raise HTTPException(status_code=403, detail="Only trainers can access this endpoint")
 
         # Check trainer-member mapping
@@ -288,9 +288,9 @@ async def update_quest_status(
         if not quest:
             raise HTTPException(status_code=404, detail="Quest not found")
         
-        if current_member['member_type'] == 'trainer' and quest.trainer_id != current_member['id']:
+        if current_member['user_type'] == 'trainer' and quest.trainer_id != current_member['id']:
             raise HTTPException(status_code=403, detail="Not authorized to update this quest")
-        elif current_member['member_type'] == 'member' and quest.member_id != current_member['id']:
+        elif current_member['user_type'] == 'member' and quest.member_id != current_member['id']:
             raise HTTPException(status_code=403, detail="Not authorized to update this quest")
         
         updated_quest = await crud.update_quest_status(db, quest_id, status)
@@ -323,9 +323,9 @@ async def delete_quest(
             raise HTTPException(status_code=404, detail="Quest not found")
         
         # Check if the member has permission to delete this quest
-        if current_member['member_type'] == 'trainer' and quest.trainer_id != current_member['id']:
+        if current_member['user_type'] == 'trainer' and quest.trainer_id != current_member['id']:
             raise HTTPException(status_code=403, detail="Not authorized to delete this quest")
-        elif current_member['member_type'] == 'member' and quest.member_id != current_member['id']:
+        elif current_member['user_type'] == 'member' and quest.member_id != current_member['id']:
             raise HTTPException(status_code=403, detail="Members are not allowed to delete quests")
         
         # Delete the quest
