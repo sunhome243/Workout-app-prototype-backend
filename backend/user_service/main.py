@@ -187,7 +187,8 @@ async def update_trainer_member_mapping_status(
             id=db_mapping.id,
             trainer_id=db_mapping.trainer_id,
             member_id=db_mapping.member_id,
-            status=db_mapping.status.value
+            status=db_mapping.status,
+            remaining_sessions=db_mapping.remaining_sessions
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=f"Invalid status: {str(e)}")

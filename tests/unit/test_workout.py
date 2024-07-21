@@ -37,8 +37,9 @@ async def test_create_session_member(mock_create_session, mock_get_current_user,
 @pytest.mark.asyncio
 @patch("backend.workout_service.utils.get_current_user")
 @patch("backend.workout_service.crud.create_session")
+@patch("backend.workout_service.crud.update_quests_status")
 @patch("backend.workout_service.crud.check_trainer_member_mapping")
-async def test_create_session_trainer(mock_check_mapping, mock_create_session, mock_get_current_user, workout_client):
+async def test_create_session_trainer(mock_check_mapping, mock_update_quests, mock_create_session, mock_get_current_user, workout_client):
     mock_current_trainer = {
         "id": "trainer1",
         "user_type": "trainer"
@@ -53,8 +54,12 @@ async def test_create_session_trainer(mock_check_mapping, mock_create_session, m
     mock_create_session.return_value.is_pt = True
 
     mock_check_mapping.return_value = True
+    mock_update_quests.return_value = None  # Mocking the update_quests_status function
 
     response = await workout_client.post("/api/create_session?session_type_id=3&member_id=member1", headers={"Authorization": "Bearer mock_token"})
+    
+    print(f"Response status: {response.status_code}")
+    print(f"Response content: {response.content}")
     
     assert response.status_code == 200
     assert response.json() == {
@@ -66,6 +71,9 @@ async def test_create_session_trainer(mock_check_mapping, mock_create_session, m
         "is_pt": True
     }
 
+    mock_update_quests.assert_called_once_with(ANY, "member1")
+    
+    
 @pytest.mark.asyncio
 async def test_create_session_no_auth(workout_client):
     response = await workout_client.post("/api/create_session?session_type_id=2")
@@ -162,7 +170,7 @@ async def test_create_quest(mock_check_mapping, mock_create_quest, mock_get_curr
         "quest_id": 1,
         "trainer_id": "trainer1",
         "member_id": "member1",
-        "status": False,
+        "status": schemas.QuestStatus.NOT_STARTED,
         "created_at": datetime(2024, 7, 10, 12, 0, 0),
         "workouts": [
             {
@@ -250,7 +258,7 @@ async def test_read_quests_trainer(mock_get_quests, mock_get_current_user, worko
             quest_id=1,
             trainer_id="trainer1",
             member_id="member1",
-            status="Not started",
+            status= schemas.QuestStatus.NOT_STARTED,
             created_at=datetime(2024, 7, 10, 12, 0, 0),
             workouts=[
                 AsyncMock(
@@ -278,7 +286,7 @@ async def test_read_quests_trainer(mock_get_quests, mock_get_current_user, worko
         "quest_id": 1,
         "trainer_id": "trainer1",
         "member_id": "member1",
-        "status": False,
+        "status": schemas.QuestStatus.NOT_STARTED,
         "created_at": "2024-07-10T12:00:00",
         "workouts": [
             {
@@ -314,7 +322,7 @@ async def test_read_quests_for_member(mock_check_mapping, mock_get_quests, mock_
             quest_id=1,
             trainer_id="trainer1",
             member_id="member1",
-            status=False,
+            status= schemas.QuestStatus.NOT_STARTED,
             created_at=datetime(2024, 7, 10, 12, 0, 0),
             workouts=[
                 AsyncMock(
@@ -342,7 +350,7 @@ async def test_read_quests_for_member(mock_check_mapping, mock_get_quests, mock_
         "quest_id": 1,
         "trainer_id": "trainer1",
         "member_id": "member1",
-        "status": False,
+        "status": schemas.QuestStatus.NOT_STARTED.value,
         "created_at": "2024-07-10T12:00:00",
         "workouts": [
             {
@@ -377,7 +385,7 @@ async def test_update_quest_status(mock_update_status, mock_get_quest, mock_get_
     mock_quest.quest_id = 1
     mock_quest.trainer_id = "trainer1"
     mock_quest.member_id = "member1"
-    mock_quest.status = "Not Started"
+    mock_quest.status = schemas.QuestStatus.NOT_STARTED
     mock_quest.created_at = datetime(2024, 7, 10, 12, 0, 0)
     mock_quest.workouts = [MagicMock()]
     mock_quest.workouts[0].quest_id = 1
@@ -392,17 +400,19 @@ async def test_update_quest_status(mock_update_status, mock_get_quest, mock_get_
 
     mock_get_quest.return_value = mock_quest
     mock_update_status.return_value = mock_quest
-    mock_update_status.return_value.status = "Not Started"
+    mock_update_status.return_value.status = schemas.QuestStatus.COMPLETED
 
-    response = await workout_client.patch("/api/quests/1/status?status=true", headers={"Authorization": "Bearer mock_token"})
+    response = await workout_client.patch(f"/api/quests/1/status?status={schemas.QuestStatus.COMPLETED.value}", headers={"Authorization": "Bearer mock_token"})
+    
+    print(f"Response status: {response.status_code}")
+    print(f"Response content: {response.content}")
 
     assert response.status_code == 200
-    assert response.json()["status"] == True
+    assert response.json()["status"] == schemas.QuestStatus.COMPLETED.value
 
     mock_get_current_user.assert_called_once()
     mock_get_quest.assert_called_once_with(ANY, 1)
-    mock_update_status.assert_called_once_with(ANY, 1, True)
-
+    mock_update_status.assert_called_once_with(ANY, 1, schemas.QuestStatus.COMPLETED)
 
 @pytest.mark.asyncio
 @patch("backend.workout_service.utils.get_current_user")
@@ -556,7 +566,7 @@ async def test_update_quest_status_unauthorized(mock_get_quest, mock_get_current
     mock_quest.member_id = "member1"
     mock_get_quest.return_value = mock_quest
 
-    response = await workout_client.patch("/api/quests/1/status?status=true", headers={"Authorization": "Bearer mock_token"})
+    response = await workout_client.patch(f"/api/quests/1/status?status={schemas.QuestStatus.COMPLETED.value}", headers={"Authorization": "Bearer mock_token"})
 
     assert response.status_code == 403
     assert response.json() == {"detail": "Not authorized to update this quest"}

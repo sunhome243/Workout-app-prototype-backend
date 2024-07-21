@@ -112,7 +112,8 @@ class TrainerMemberMappingResponse(BaseModel):
     id: int
     trainer_id: str
     member_id: str
-    status: str
+    status: MappingStatus
+    remaining_sessions: int
 
 class TrainerMemberMappingUpdate(BaseModel):
     new_status: str

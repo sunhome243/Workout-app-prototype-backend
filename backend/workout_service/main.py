@@ -66,12 +66,16 @@ async def create_session(
     
     try:
         current_member = await utils.get_current_user(authorization)
+        logger.info(f"Current member: {current_member}")
         
         if current_member['user_type'] == 'trainer':
             if not member_id:
                 raise HTTPException(status_code=400, detail="member_id is required for trainers")
             
+            logger.info(f"Checking mapping for trainer {current_member.get('id')} and member {member_id}")
             mapping_exists = await crud.check_trainer_member_mapping(current_member.get('id'), member_id, authorization)
+            logger.info(f"Mapping exists: {mapping_exists}")
+            
             if not mapping_exists:
                 raise HTTPException(status_code=403, detail="Trainer is not associated with this member")
             is_pt = True
@@ -87,9 +91,10 @@ async def create_session(
             "session_type_id": session_type_id
         }
         
+        logger.info(f"Creating session with data: {session_data}")
         new_session = await crud.create_session(db, session_data, current_member)
+        logger.info(f"New session created: {new_session}")
         
-        # Check if session_type_id is 3 and is_pt is True
         if session_type_id == 3 and is_pt:
             await crud.update_quests_status(db, member_id)
         
@@ -101,9 +106,8 @@ async def create_session(
         logger.error(f"HTTP exception in create_session: {str(he)}")
         raise he
     except Exception as e:
-        logger.error(f"Error creating session: {str(e)}")
-        raise HTTPException(status_code=500, detail="Error creating session")
-
+        logger.error(f"Error creating session: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error creating session: {str(e)}")
 
 @app.post("/api/record_set", response_model=schemas.Session)
 async def record_set_endpoint(

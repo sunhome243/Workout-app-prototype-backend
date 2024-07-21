@@ -21,7 +21,6 @@ logger = logging.getLogger(__name__)
 # Use in-memory SQLite for testing
 DB_URL = os.getenv('TEST_DATABASE_URL', 'sqlite+aiosqlite:///:memory:')
 
-
 @pytest_asyncio.fixture(scope="session")
 async def engine():
     logger.info("Creating database engine")

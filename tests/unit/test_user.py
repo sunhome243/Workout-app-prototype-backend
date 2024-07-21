@@ -108,7 +108,8 @@ class TestMemberRouter:
         response = await authenticated_user_client.delete("/api/members/me/")
         assert response.status_code == 200
         assert "email" in response.json()
-
+        
+    
     @pytest.mark.asyncio
     async def test_request_trainer_member_mapping(self, authenticated_user_client: AsyncClient, db_session, monkeypatch):
         mock_db_mapping = AsyncMock()
@@ -116,10 +117,11 @@ class TestMemberRouter:
         mock_db_mapping.trainer_id = "AAAAA"
         mock_db_mapping.member_id = "AAAAA"
         mock_db_mapping.status = models.MappingStatus.pending
+        mock_db_mapping.remaining_sessions = 10
         mock_create_mapping = AsyncMock(return_value=mock_db_mapping)
         monkeypatch.setattr(crud, "create_trainer_member_mapping_request", mock_create_mapping)
         
-        mapping_data = {"other_id": "AAAAA"}
+        mapping_data = {"other_id": "AAAAA", "initial_sessions": 10}
         response = await authenticated_user_client.post("/api/trainer-member-mapping/request", json=mapping_data)
         
         assert response.status_code == 200
@@ -127,8 +129,11 @@ class TestMemberRouter:
             "id": 1,
             "trainer_id": "AAAAA",
             "member_id": "AAAAA",
-            "status": models.MappingStatus.pending.value
+            "status": models.MappingStatus.pending.value,
+            "remaining_sessions": 10
         }
+
+
         
     @pytest.mark.asyncio
     async def test_update_trainer_member_mapping_status(self, authenticated_user_client: AsyncClient, db_session, monkeypatch):
@@ -136,11 +141,12 @@ class TestMemberRouter:
         mock_db_mapping.id = 1
         mock_db_mapping.trainer_id = "AAAAA"
         mock_db_mapping.member_id = "BBBBB"
-        mock_db_mapping.status = models.MappingStatus.accepted
+        mock_db_mapping.status = schemas.MappingStatus.accepted
+        mock_db_mapping.remaining_sessions = 10
         mock_update_mapping = AsyncMock(return_value=mock_db_mapping)
         monkeypatch.setattr(crud, "update_trainer_member_mapping_status", mock_update_mapping)
         
-        status_data = {"new_status": "accepted"}
+        status_data = {"new_status": schemas.MappingStatus.accepted.value}
         response = await authenticated_user_client.patch("/api/trainer-member-mapping/1/status", json=status_data)
         
         assert response.status_code == 200
@@ -148,7 +154,8 @@ class TestMemberRouter:
             "id": 1,
             "trainer_id": "AAAAA",
             "member_id": "BBBBB",
-            "status": "accepted"
+            "status": schemas.MappingStatus.accepted.value,
+            "remaining_sessions": 10
         }
         
     @pytest.mark.asyncio
