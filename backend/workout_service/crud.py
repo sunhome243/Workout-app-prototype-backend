@@ -346,3 +346,33 @@ async def get_workouts_by_part(db: AsyncSession, workout_part_id: int = None):
     except Exception as e:
         logger.error(f"Error retrieving workouts by part: {str(e)}", exc_info=True)
         raise
+
+async def get_session_counts(db: AsyncSession, member_id: str, start_date: datetime, end_date: datetime):
+    query = select(models.SessionIDMap).where(
+        and_(
+            models.SessionIDMap.member_id == member_id,
+            models.SessionIDMap.workout_date >= start_date,
+            models.SessionIDMap.workout_date < end_date
+        )
+    )
+    result = await db.execute(query)
+    sessions = result.scalars().all()
+
+    counts = {
+        'ai_sessions': 0,
+        'custom_sessions': 0,
+        'quest_sessions': 0,
+        'pt_sessions': 0
+    }
+
+    for session in sessions:
+        if session.session_type_id == 1 and not session.is_pt:
+            counts['ai_sessions'] += 1
+        elif session.session_type_id == 3 and not session.is_pt:
+            counts['custom_sessions'] += 1
+        elif session.session_type_id == 2 and not session.is_pt:
+            counts['quest_sessions'] += 1
+        elif session.session_type_id == 3 and session.is_pt:
+            counts['pt_sessions'] += 1
+
+    return counts

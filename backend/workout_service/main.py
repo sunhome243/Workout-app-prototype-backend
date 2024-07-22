@@ -408,3 +408,32 @@ async def get_workouts_by_part(
     except Exception as e:
         logger.error(f"Error retrieving workouts by part: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error retrieving workouts by part: {str(e)}")
+
+@app.get("/api/session_counts/{member_id}", response_model=Dict[str, int])
+async def get_session_counts(
+    member_id: str,
+    start_date: datetime,
+    end_date: datetime,
+    db: AsyncSession = Depends(get_db),
+    authorization: str = Header(None)
+):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header is missing")
+    
+    try:
+        current_member = await utils.get_current_user(authorization)
+        
+        # Check if the current member is requesting their own data or if they're a trainer
+        if current_member['id'] != member_id and current_member['user_type'] != 'trainer':
+            raise HTTPException(status_code=403, detail="Not authorized to access this data")
+        
+        # If it's a trainer, check if they're mapped to the member
+        if current_member['user_type'] == 'trainer':
+            is_mapped = await crud.check_trainer_member_mapping(current_member['id'], member_id, authorization)
+            if not is_mapped:
+                raise HTTPException(status_code=403, detail="Not authorized to access this member's data")
+
+        session_counts = await crud.get_session_counts(db, member_id, start_date, end_date)
+        return session_counts
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
