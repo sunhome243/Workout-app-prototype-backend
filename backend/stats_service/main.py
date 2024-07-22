@@ -61,6 +61,23 @@ async def get_documentation():
 async def openapi():
     return app.openapi()
 
+@app.get("/api/stats/last-updated")
+async def get_last_updated(authorization: str = Header(None)):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header is missing")
+    
+    try:
+        current_user = await utils.get_current_user(authorization)
+        if current_user is None:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        
+        last_updated = await crud.get_last_session_update(current_user['id'])
+        
+        return {"last_updated": last_updated}
+    except Exception as e:
+        logger.error(f"Unexpected error occurred: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
+
 @app.get("/api/stats/weekly-progress", response_model=schemas.WeeklyProgressResponse)
 async def get_weekly_progress(authorization: str = Header(None)):
     if not authorization:

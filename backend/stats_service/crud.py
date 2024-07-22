@@ -44,3 +44,14 @@ async def get_weekly_session_counts(user_id: str, end_date: datetime, token: str
     
     logger.info(f"Calculated weekly counts: {weekly_counts}")
     return weekly_counts
+
+async def get_last_session_update(user_id: str) -> datetime:
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(f"{WORKOUT_SERVICE_URL}/api/last-session-update/{user_id}")
+            response.raise_for_status()
+            last_updated = datetime.fromisoformat(response.json()["last_updated"])
+            return last_updated
+        except Exception as e:
+            logger.error(f"Error fetching last session update: {str(e)}")
+            raise

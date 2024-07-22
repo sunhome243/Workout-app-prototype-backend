@@ -437,3 +437,22 @@ async def get_session_counts(
         return session_counts
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/api/last-session-update/{user_id}")
+async def get_last_session_update(
+    user_id: str,
+    db: AsyncSession = Depends(get_db),
+    authorization: str = Header(None)
+):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Authorization header is missing")
+    
+    try:
+        current_member = await utils.get_current_user(authorization)
+        if current_member['id'] != user_id and current_member['user_type'] != 'trainer':
+            raise HTTPException(status_code=403, detail="Not authorized to access this data")
+        
+        last_updated = await crud.get_last_session_update(db, user_id)
+        return {"last_updated": last_updated.isoformat()}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

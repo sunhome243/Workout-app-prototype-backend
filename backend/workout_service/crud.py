@@ -376,3 +376,9 @@ async def get_session_counts(db: AsyncSession, member_id: str, start_date: datet
             counts['pt_sessions'] += 1
 
     return counts
+
+async def get_last_session_update(db: AsyncSession, user_id: str) -> datetime:
+    query = select(func.max(models.SessionIDMap.workout_date)).where(models.SessionIDMap.member_id == user_id)
+    result = await db.execute(query)
+    last_updated = result.scalar_one_or_none()
+    return last_updated or datetime.min
