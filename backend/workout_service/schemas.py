@@ -11,16 +11,15 @@ class QuestStatus(str, Enum):
 
 class SessionIDMap(BaseModel):
     session_id: int
-    workout_date: date
+    workout_date: datetime
     member_id: str
     trainer_id: Optional[str]
     is_pt: bool
     session_type_id: int
 
 class SessionCreate(BaseModel):
-    workout_date: date
     member_id: str
-    trainer_id: str | None
+    trainer_id: Optional[str] = None
     is_pt: bool
     session_type_id: int
 

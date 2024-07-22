@@ -14,6 +14,10 @@ class Workouts(Base):
     __tablename__ = 'workouts'
     workout_id = Column(Integer, primary_key=True, autoincrement=True)
     workout_name = Column(String, nullable=False, unique=True)
+    low_met = Column(Float, nullable=True)
+    mid_met = Column(Float, nullable=True)
+    high_met = Column(Float, nullable=True)
+    sec_per_rep = Column(Float, nullable=True)
     # Relationship to WorkoutKeyNameMap
     workout_keys = relationship('WorkoutKeyNameMap', back_populates='workout')
 
@@ -38,7 +42,7 @@ class SessionIDMap(Base):
     __tablename__ = "session_id_mapping"
     session_id = Column(Integer, primary_key=True, index=True)
     session_type_id = Column(Integer, ForeignKey("session_type_map.session_type_id"))
-    workout_date = Column(String, nullable=False)
+    workout_date = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     member_id = Column(String, nullable=False)
     trainer_id = Column(String, nullable=True)
     is_pt = Column(Boolean, nullable=False)
@@ -68,7 +72,7 @@ class Quest(Base):
     trainer_id = Column(String, nullable=False)
     member_id = Column(String, nullable=False)
     status = Column(Enum(QuestStatus), default=QuestStatus.NOT_STARTED) 
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    workout_date = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     # Relationship
     workouts = relationship('QuestWorkout', back_populates='quest', cascade="all, delete-orphan")
 

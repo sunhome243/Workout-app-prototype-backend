@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Enum as SQLAlchemyEnum
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Enum as SQLAlchemyEnum
 from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from enum import Enum as PyEnum
@@ -47,9 +47,10 @@ class TrainerMemberMap(Base):
     status = Column(SQLAlchemyEnum(MappingStatus), default=MappingStatus.pending)
     requester_id = Column(String) 
     remaining_sessions = Column(Integer, default=0)  
+    acceptance_date = Column(DateTime, nullable=True) 
     trainer = relationship("Trainer", back_populates="member_mappings")
-    member = relationship("Member", back_populates="trainer_mappings")  
-
+    member = relationship("Member", back_populates="trainer_mappings") 
+    
 class WorkoutGoalMap(Base):
     __tablename__ = "workout_goal_mapping"
     workout_goal = Column(Integer, primary_key=True, index=True)

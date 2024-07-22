@@ -1,8 +1,8 @@
-"""bool to enum 
+"""init
 
-Revision ID: 7dd59fb669f4
+Revision ID: 7ebcbe63221b
 Revises: 
-Create Date: 2024-07-17 18:16:55.166426
+Create Date: 2024-07-22 14:10:20.946377
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '7dd59fb669f4'
+revision: str = '7ebcbe63221b'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -25,7 +25,7 @@ def upgrade() -> None:
     sa.Column('trainer_id', sa.String(), nullable=False),
     sa.Column('member_id', sa.String(), nullable=False),
     sa.Column('status', sa.Enum('NOT_STARTED', 'COMPLETED', 'DEADLINE_PASSED', name='queststatus'), nullable=True),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
+    sa.Column('workout_date', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.PrimaryKeyConstraint('quest_id')
     )
     op.create_table('session_type_map',
@@ -49,7 +49,7 @@ def upgrade() -> None:
     op.create_table('session_id_mapping',
     sa.Column('session_id', sa.Integer(), nullable=False),
     sa.Column('session_type_id', sa.Integer(), nullable=True),
-    sa.Column('workout_date', sa.String(), nullable=False),
+    sa.Column('workout_date', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('member_id', sa.String(), nullable=False),
     sa.Column('trainer_id', sa.String(), nullable=True),
     sa.Column('is_pt', sa.Boolean(), nullable=False),

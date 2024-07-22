@@ -60,7 +60,6 @@ async def create_session(db: AsyncSession, session_data: dict, current_member: d
             raise ValueError("session_type_id must be a valid integer")
 
         session_data_to_create = {
-            "workout_date": session_data.get('workout_date', datetime.now().strftime("%Y-%m-%d")),
             "member_id": session_data['member_id'],
             "trainer_id": current_member.get('id'),
             "is_pt": session_data['is_pt'],

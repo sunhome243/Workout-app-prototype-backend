@@ -31,7 +31,8 @@ async def test_create_session_member(mock_create_session, mock_get_current_user,
         "workout_date": "2024-07-10",
         "member_id": "member1",
         "trainer_id": None,
-        "is_pt": False
+        "is_pt": False,
+        'workout_date': '2024-07-10T00:00:00'
     }
 
 @pytest.mark.asyncio
@@ -68,7 +69,8 @@ async def test_create_session_trainer(mock_check_mapping, mock_update_quests, mo
         "workout_date": "2024-07-10",
         "member_id": "member1",
         "trainer_id": "trainer1",
-        "is_pt": True
+        "is_pt": True,
+        'workout_date': '2024-07-10T00:00:00'
     }
 
     mock_update_quests.assert_called_once_with(ANY, "member1")
@@ -136,7 +138,6 @@ async def test_get_sessions(mock_check_mapping, mock_get_sets, mock_get_sessions
     assert response.status_code == 200
     assert response.json() == [{
         "session_id": 1,
-        "workout_date": "2024-07-10",
         "member_id": "member1",
         "trainer_id": None,
         "is_pt": False,
@@ -148,7 +149,7 @@ async def test_get_sessions(mock_check_mapping, mock_get_sets, mock_get_sessions
             "weight": 50.0,
             "reps": 10,
             "rest_time": 60
-        }]
+        }],
     }]
 
 

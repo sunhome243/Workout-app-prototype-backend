@@ -130,7 +130,8 @@ class TestMemberRouter:
             "trainer_id": "AAAAA",
             "member_id": "AAAAA",
             "status": models.MappingStatus.pending.value,
-            "remaining_sessions": 10
+            "remaining_sessions": 10,
+            'acceptance_date': None
         }
 
 
@@ -155,7 +156,8 @@ class TestMemberRouter:
             "trainer_id": "AAAAA",
             "member_id": "BBBBB",
             "status": schemas.MappingStatus.accepted.value,
-            "remaining_sessions": 10
+            "remaining_sessions": 10,
+            'acceptance_date': '1970-01-01T00:00:01Z'
         }
         
     @pytest.mark.asyncio

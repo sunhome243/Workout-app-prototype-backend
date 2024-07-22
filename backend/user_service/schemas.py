@@ -1,6 +1,7 @@
 from typing import List, Union, Optional
 from pydantic import BaseModel, Field, ConfigDict, field_validator
 from enum import Enum
+from datetime import datetime
 
 class MemberBase(BaseModel):
     email: str
@@ -114,6 +115,7 @@ class TrainerMemberMappingResponse(BaseModel):
     member_id: str
     status: MappingStatus
     remaining_sessions: int
+    acceptance_date: Optional[datetime] = None
 
 class TrainerMemberMappingUpdate(BaseModel):
     new_status: str

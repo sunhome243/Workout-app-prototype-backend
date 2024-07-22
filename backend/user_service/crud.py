@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete, or_, and_, update
 from sqlalchemy.exc import SQLAlchemyError
 from fastapi import HTTPException
+from datetime import datetime, timedelta 
 from . import models, schemas
 import bcrypt
 import logging
@@ -227,6 +228,11 @@ async def update_trainer_member_mapping_status(db: AsyncSession, mapping_id: int
 
         # Update the status
         mapping.status = new_status
+        
+        # If the new status is 'accepted', set the acceptance_date
+        if new_status == models.MappingStatus.accepted:
+            mapping.acceptance_date = datetime.utcnow()
+
         await db.commit()
         await db.refresh(mapping)
         return mapping

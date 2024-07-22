@@ -8,9 +8,17 @@ from . import crud, models, schemas, utils
 from .database import get_db
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
-from datetime import timedelta
+from datetime import datetime, timedelta 
 
 app = FastAPI()  # Create the main FastAPI application
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust this in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO,
@@ -188,12 +196,14 @@ async def update_trainer_member_mapping_status(
             trainer_id=db_mapping.trainer_id,
             member_id=db_mapping.member_id,
             status=db_mapping.status,
-            remaining_sessions=db_mapping.remaining_sessions
+            remaining_sessions=db_mapping.remaining_sessions,
+            acceptance_date=db_mapping.acceptance_date
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=f"Invalid status: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to update mapping status: {str(e)}")
+
 
 @router.get("/api/my-mappings/", response_model=List[Union[schemas.MemberMappingInfo, schemas.TrainerMappingInfo]])
 async def read_my_mappings(
