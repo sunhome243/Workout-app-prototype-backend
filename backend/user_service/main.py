@@ -59,7 +59,8 @@ async def update_member(
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        updated_member = await crud.update_member(db, current_member, member_update.model_dump())
+        update_data = member_update.model_dump(exclude_unset=True)
+        updated_member = await crud.update_member(db, current_member, update_data)
         if updated_member is None:
             raise HTTPException(status_code=404, detail="Member not found")
         return updated_member

@@ -91,30 +91,35 @@ async def get_trainers(db: AsyncSession, skip: int = 0, limit: int = 100):
     result = await db.execute(select(models.Trainer).offset(skip).limit(limit))
     return result.scalars().all()
 
-# Updating member info
 async def update_member(db: AsyncSession, current_member: models.Member, member_update: dict):
-    # Prepare update data
     update_data = {k: v for k, v in member_update.items() if v is not None}
-
+    
     # Handle password change if requested
     if 'new_password' in update_data:
+        if 'confirm_password' not in update_data or update_data['new_password'] != update_data['confirm_password']:
+            raise ValueError("New password and confirm password do not match")
+        
         if 'current_password' not in update_data:
             raise ValueError("Current password is required to change password")
         
         # Verify current password
         if not bcrypt.checkpw(update_data['current_password'].encode('utf-8'), current_member.hashed_password.encode('utf-8')):
             raise ValueError("Incorrect current password")
-
+        
         # Validate new password
         utils.validate_password(update_data['new_password'])
-
+        
         # Hash the new password
         salt = bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(update_data['new_password'].encode('utf-8'), salt)
         update_data['hashed_password'] = hashed_password.decode('utf-8')
-
+        
         # Remove password fields from update_data
         del update_data['new_password']
+        del update_data['confirm_password']
+        del update_data['current_password']
+    elif 'current_password' in update_data:
+        # If current_password is provided but not new_password, remove it
         del update_data['current_password']
 
     # Update the member in the database
@@ -133,30 +138,35 @@ async def update_member(db: AsyncSession, current_member: models.Member, member_
 
     return db_member
 
-# Updating trainer info
 async def update_trainer(db: AsyncSession, current_trainer: models.Trainer, trainer_update: dict):
-    # Prepare update data
     update_data = {k: v for k, v in trainer_update.items() if v is not None}
-
-    # Handle password change if reqFuuested
+    
+    # Handle password change if requested
     if 'new_password' in update_data:
+        if 'confirm_password' not in update_data or update_data['new_password'] != update_data['confirm_password']:
+            raise ValueError("New password and confirm password do not match")
+        
         if 'current_password' not in update_data:
             raise ValueError("Current password is required to change password")
         
         # Verify current password
         if not bcrypt.checkpw(update_data['current_password'].encode('utf-8'), current_trainer.hashed_password.encode('utf-8')):
             raise ValueError("Incorrect current password")
-
+        
         # Validate new password
         utils.validate_password(update_data['new_password'])
-
+        
         # Hash the new password
         salt = bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(update_data['new_password'].encode('utf-8'), salt)
         update_data['hashed_password'] = hashed_password.decode('utf-8')
-
+        
         # Remove password fields from update_data
         del update_data['new_password']
+        del update_data['confirm_password']
+        del update_data['current_password']
+    elif 'current_password' in update_data:
+        # If current_password is provided but not new_password, remove it
         del update_data['current_password']
 
     # Update the trainer in the database
