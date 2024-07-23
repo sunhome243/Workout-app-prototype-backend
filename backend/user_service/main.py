@@ -1,6 +1,6 @@
 import bcrypt
 import logging
-from fastapi import FastAPI, APIRouter, Depends, HTTPException, status
+from fastapi import FastAPI, APIRouter, Depends, HTTPException, status, Header, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List, Annotated, Union, Optional, Dict
@@ -346,23 +346,31 @@ async def get_remaining_sessions(
         raise HTTPException(status_code=500, detail=f"Failed to get remaining sessions: {str(e)}")
 
 
-@router.patch("/api/trainer-member-mapping/{other_id}/update-sessions", response_model=schemas.RemainingSessionsResponse)
+@router.patch("/api/trainer-member-mapping/{member_id}/update-sessions", response_model=schemas.RemainingSessionsResponse)
 async def update_sessions(
-    other_id: str,
+    member_id: str,
     request: schemas.UpdateSessionsRequest,
-    current_user: Union[models.Member, models.Trainer] = Depends(utils.get_current_user),
+    background_tasks: BackgroundTasks,
+    token: str = Depends(utils.oauth2_scheme),
     db: AsyncSession = Depends(utils.get_db)
 ):
-    if not isinstance(current_user, models.Trainer):
-        raise HTTPException(status_code=403, detail="Only trainers can update sessions")
-    
     try:
-        new_remaining_sessions = await crud.update_sessions(db, current_user.trainer_id, other_id, request.sessions_to_add)
+        # Decode JWT to get user information
+        user_info = utils.decode_jwt(token)
+        if not user_info:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+        trainer_id = user_info['sub']
+        user_type = user_info['type']
+
+        if user_type != 'trainer':
+            raise HTTPException(status_code=403, detail="Only trainers can update sessions")
+
+        new_remaining_sessions = await crud.update_sessions(db, trainer_id, member_id, request.sessions_to_add)
         return {"remaining_sessions": new_remaining_sessions}
     except Exception as e:
         logging.error(f"Error updating sessions: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to update sessions: {str(e)}")
-
 
     
 app.include_router(router)

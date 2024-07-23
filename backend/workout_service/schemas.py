@@ -16,6 +16,7 @@ class SessionIDMap(BaseModel):
     trainer_id: Optional[str]
     is_pt: bool
     session_type_id: int
+    quest_id: Optional[int] = None
 
 class SessionCreate(BaseModel):
     member_id: str
@@ -102,3 +103,29 @@ class WorkoutInfo(BaseModel):
 
 class WorkoutsByPart(BaseModel):
     RootModel: Dict[str, List[WorkoutInfo]]
+    
+class SetSave(BaseModel):
+    set_num: int
+    weight: float
+    reps: int
+    rest_time: int
+
+class ExerciseSave(BaseModel):
+    workout_key: int
+    sets: List[SetSave]
+
+class SessionSave(BaseModel):
+    session_id: int
+    exercises: List[ExerciseSave]
+        
+class SessionSaveResponse(BaseModel):
+    session_id: int
+    workout_date: datetime
+    member_id: str
+    trainer_id: Optional[str] = None
+    is_pt: bool
+    session_type_id: int
+    quest_id: Optional[int] = None
+
+    class ConfigDict(ConfigDict):
+        from_attributes = True

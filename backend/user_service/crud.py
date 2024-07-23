@@ -382,12 +382,52 @@ async def get_remaining_sessions(db: AsyncSession, trainer_id: str, member_id: s
     return result.scalar_one_or_none()
 
 async def update_sessions(db: AsyncSession, trainer_id: str, member_id: str, sessions_to_add: int):
-    stmt = (
-        update(models.TrainerMemberMap)
-        .where(models.TrainerMemberMap.trainer_id == trainer_id)
-        .where(models.TrainerMemberMap.member_id == member_id)
-        .values(remaining_sessions=models.TrainerMemberMap.remaining_sessions + sessions_to_add)
-    )
-    await db.execute(stmt)
-    await db.commit()
-    return await get_remaining_sessions(db, trainer_id, member_id)
+    try:
+        stmt = (
+            update(models.TrainerMemberMap)
+            .where(models.TrainerMemberMap.trainer_id == trainer_id)
+            .where(models.TrainerMemberMap.member_id == member_id)
+            .values(remaining_sessions=models.TrainerMemberMap.remaining_sessions + sessions_to_add)
+            .returning(models.TrainerMemberMap.remaining_sessions, models.TrainerMemberMap.status)
+        )
+        result = await db.execute(stmt)
+        new_remaining_sessions, current_status = result.first()
+
+        # If remaining sessions become 0, schedule status update
+        if new_remaining_sessions == 0 and current_status != models.MappingStatus.expired:
+            asyncio.create_task(schedule_status_update(db, trainer_id, member_id))
+
+        await db.commit()
+        return new_remaining_sessions
+    except SQLAlchemyError as e:
+        await db.rollback()
+        logging.error(f"Database error occurred: {str(e)}")
+        raise
+    except Exception as e:
+        await db.rollback()
+        logging.error(f"Unexpected error occurred: {str(e)}")
+        raise
+
+async def schedule_status_update(db: AsyncSession, trainer_id: str, member_id: str):
+    await asyncio.sleep(2 * 60 * 60)  # Sleep for 2 hours
+    await update_trainer_member_mapping_status(db, trainer_id, member_id, models.MappingStatus.expired)
+
+async def update_trainer_member_mapping_status(db: AsyncSession, trainer_id: str, member_id: str, new_status: models.MappingStatus):
+    try:
+        stmt = (
+            update(models.TrainerMemberMap)
+            .where(models.TrainerMemberMap.trainer_id == trainer_id)
+            .where(models.TrainerMemberMap.member_id == member_id)
+            .values(status=new_status)
+        )
+        await db.execute(stmt)
+        await db.commit()
+        logging.info(f"Updated status to {new_status} for trainer {trainer_id} and member {member_id}")
+    except SQLAlchemyError as e:
+        await db.rollback()
+        logging.error(f"Database error occurred while updating status: {str(e)}")
+        raise
+    except Exception as e:
+        await db.rollback()
+        logging.error(f"Unexpected error occurred while updating status: {str(e)}")
+        raise

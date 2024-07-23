@@ -10,6 +10,7 @@ from aiocache import cached, caches
 from aiocache.serializers import JsonSerializer
 from collections import defaultdict
 from fastapi import HTTPException
+from typing import List
 
 logger = logging.getLogger(__name__)
 
@@ -47,72 +48,147 @@ async def check_trainer_member_mapping(trainer_id: str, member_id: str, token: s
             logger.error(f"Unexpected error occurred while checking trainer-member mapping: {str(e)}")
             raise HTTPException(status_code=500, detail="Unexpected error occurred")
 
-async def create_session(db: AsyncSession, session_data: dict, current_member: dict):
+async def create_session(
+    db: AsyncSession,
+    session_type_id: int | None,
+    quest_id: int | None,
+    member_id: str | None,
+    current_user: dict,
+    authorization: str
+):
     try:
-        required_fields = ['session_type_id', 'member_id', 'is_pt']
-        for field in required_fields:
-            if field not in session_data:
-                raise ValueError(f"{field} is required")
-
-        try:
-            session_type_id = int(session_data['session_type_id'])
-        except ValueError:
-            raise ValueError("session_type_id must be a valid integer")
-
-        session_data_to_create = {
-            "member_id": session_data['member_id'],
-            "trainer_id": current_member.get('id'),
-            "is_pt": session_data['is_pt'],
-            "session_type_id": session_type_id
+        if current_user['user_type'] == 'trainer':
+            if not member_id:
+                raise ValueError("member_id is required for trainers")
+            
+            mapping_exists = await check_trainer_member_mapping(current_user.get('id'), member_id, authorization)
+            
+            if not mapping_exists:
+                raise HTTPException(status_code=403, detail="Trainer is not associated with this member")
+            is_pt = True
+            session_type_id = 3  # Always set session_type_id to 3 for trainers
+            logger.info(f"Automatically set session_type_id to 3 for trainer {current_user.get('id')}")
+        else:  # member
+            if member_id and member_id != current_user.get('id'):
+                raise HTTPException(status_code=403, detail="Member can only create sessions for themselves")
+            member_id = current_user.get('id')
+            is_pt = False
+            if session_type_id is None:
+                session_type_id = 1  # Default to 1 for members if not specified
+                logger.info(f"Automatically set session_type_id to 1 for member {member_id}")
+        
+        session_data = {
+            "member_id": member_id,
+            "is_pt": is_pt,
+            "session_type_id": session_type_id,
         }
 
-        new_session = models.SessionIDMap(**session_data_to_create)
-
+        if session_type_id == 2:
+            if quest_id is None:
+                raise ValueError("quest_id is required for session_type_id 2")
+            session_data["quest_id"] = quest_id
+        elif quest_id is not None:
+            raise ValueError("quest_id should only be provided for session_type_id 2")
+        
+        new_session = models.SessionIDMap(**session_data)
         db.add(new_session)
         await db.commit()
         await db.refresh(new_session)
-
-        logger.info(f"Session created: {new_session.session_id}")
+        
         return new_session
     except ValueError as ve:
         logger.error(f"Validation error in create_session: {str(ve)}")
-        await db.rollback()
-        raise
+        raise HTTPException(status_code=400, detail=str(ve))
+    except HTTPException as he:
+        logger.error(f"HTTP error in create_session: {he.detail}")
+        raise he
     except Exception as e:
-        logger.error(f"Error creating session: {str(e)}")
+        logger.error(f"Unexpected error in create_session: {str(e)}")
         await db.rollback()
-        raise
-    
-async def record_set(db: AsyncSession, session_id: int, workout_key: int, set_num: int, weight: float, reps: int, rest_time: int):
+        raise HTTPException(status_code=500, detail=f"Error creating session: {str(e)}")
+
+async def get_oldest_not_started_quest(db: AsyncSession, member_id: str):
     try:
-        # Check if the workout_key exists
-        workout_key_query = select(models.WorkoutKeyNameMap).filter_by(workout_key_id=workout_key)
-        workout_key_result = await db.execute(workout_key_query)
-        workout_key_map = workout_key_result.scalar_one_or_none()
-        
-        if not workout_key_map:
-            raise ValueError(f"Invalid workout_key: {workout_key}")
-
-        # Create new set record
-        new_set = models.Session(
-            session_id=session_id,
-            workout_key=workout_key,
-            set_num=set_num,
-            weight=weight,
-            reps=reps,
-            rest_time=rest_time
-        )
-
-        db.add(new_set)
-        await db.commit()
-        await db.refresh(new_set)
-
-        logger.info(f"Set recorded: session_id={session_id}, workout_key={workout_key}, set_num={set_num}")
-        return new_set
+        stmt = select(models.Quest).options(
+            selectinload(models.Quest.workouts).selectinload(models.QuestWorkout.sets)
+        ).filter(
+            models.Quest.member_id == member_id,
+            models.Quest.status == schemas.QuestStatus.NOT_STARTED
+        ).order_by(models.Quest.workout_date)
+        result = await db.execute(stmt)
+        return result.scalar_one_or_none()
     except Exception as e:
-        logger.error(f"Error recording set: {str(e)}")
+        logger.error(f"Error fetching oldest not started quest: {str(e)}")
+        raise
+
+async def save_session(db: AsyncSession, session_data: schemas.SessionSave, current_member: dict, authorization: str):
+    try:
+        session = await db.get(models.SessionIDMap, session_data.session_id)
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        if session.member_id != current_member['id'] and current_member['user_type'] != 'trainer':
+            raise HTTPException(status_code=403, detail="Not authorized to save this session")
+        
+        # Delete existing exercises for this session
+        await db.execute(delete(models.Session).where(models.Session.session_id == session_data.session_id))
+        
+        # Add new exercises and sets
+        for exercise in session_data.exercises:
+            for set_data in exercise.sets:
+                new_set = models.Session(
+                    session_id=session_data.session_id,
+                    workout_key=exercise.workout_key,
+                    set_num=set_data.set_num,
+                    weight=set_data.weight,
+                    reps=set_data.reps,
+                    rest_time=set_data.rest_time
+                )
+                db.add(new_set)
+        
+        if session.session_type_id == 2:  # Quest session
+            quest = await db.get(models.Quest, session.quest_id)
+            if quest:
+                quest.status = schemas.QuestStatus.COMPLETED
+        
+        if session.is_pt:
+            await update_remaining_sessions(session.member_id, session.trainer_id, authorization)
+        
+        await db.commit()
+        await db.refresh(session)
+
+        # Convert to Pydantic model for safe serialization
+        return schemas.SessionSaveResponse(
+            session_id=session.session_id,
+            workout_date=session.workout_date,
+            member_id=session.member_id,
+            trainer_id=session.trainer_id,
+            is_pt=session.is_pt,
+            session_type_id=session.session_type_id,
+            quest_id=session.quest_id
+        )
+    except Exception as e:
+        logger.error(f"Error saving session: {str(e)}")
         await db.rollback()
         raise
+
+async def update_remaining_sessions(member_id: str, trainer_id: str, token: str):
+    async with httpx.AsyncClient() as client:
+        try:
+            url = f"{USER_SERVICE_URL}/api/trainer-member-mapping/{member_id}/update-sessions"
+            data = {"sessions_to_add": -1}  # Decrease by 1
+            headers = {"Authorization": f"Bearer {token}"}
+            response = await client.patch(url, json=data, headers=headers)
+            response.raise_for_status()
+            result = response.json()
+            logger.info(f"Updated remaining sessions for member {member_id} and trainer {trainer_id}: {result}")
+        except httpx.HTTPStatusError as e:
+            logger.error(f"HTTP error occurred while updating remaining sessions: {e.response.status_code} - {e.response.text}")
+            raise HTTPException(status_code=e.response.status_code, detail=f"Error updating remaining sessions: {e.response.text}")
+        except Exception as e:
+            logger.error(f"Unexpected error occurred while updating remaining sessions: {str(e)}")
+            raise HTTPException(status_code=500, detail="Unexpected error occurred")
+
     
 async def get_sessions_by_member(db: AsyncSession, member_id: str):
     query = select(models.SessionIDMap).filter_by(member_id=member_id)
@@ -197,30 +273,6 @@ async def get_quest_by_id(db: AsyncSession, quest_id: int):
     ).filter(models.Quest.quest_id == quest_id)
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
-
-async def update_quest_status(db: AsyncSession, quest_id: int, new_status: models.QuestStatus):
-    try:
-        stmt = update(models.Quest).where(models.Quest.quest_id == quest_id).values(status=new_status)
-        await db.execute(stmt)
-        await db.commit()
-
-        # Fetch the updated quest
-        stmt = select(models.Quest).options(
-            selectinload(models.Quest.workouts).selectinload(models.QuestWorkout.sets)
-        ).where(models.Quest.quest_id == quest_id)
-        result = await db.execute(stmt)
-        updated_quest = result.scalar_one_or_none()
-
-        if updated_quest is None:
-            logger.error(f"Quest with id {quest_id} not found")
-            return None
-
-        logger.info(f"Quest status updated: id={quest_id}, new_status={new_status}")
-        return updated_quest
-    except Exception as e:
-        logger.error(f"Error updating quest status: {str(e)}")
-        await db.rollback()
-        raise
 
 async def update_quests_status(db: AsyncSession, member_id: str):
     try:

@@ -46,8 +46,10 @@ class SessionIDMap(Base):
     member_id = Column(String, nullable=False)
     trainer_id = Column(String, nullable=True)
     is_pt = Column(Boolean, nullable=False)
-    # Relationship
+    quest_id = Column(Integer, ForeignKey('quests.quest_id'), nullable=True)
+    # Relationships
     sessions = relationship('Session', back_populates='session_id_map')
+    quest = relationship('Quest', back_populates='sessions')
 
 class SessionTypeMap(Base):
     __tablename__ = "session_type_map"
@@ -73,9 +75,9 @@ class Quest(Base):
     member_id = Column(String, nullable=False)
     status = Column(Enum(QuestStatus), default=QuestStatus.NOT_STARTED) 
     workout_date = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    # Relationship
+    # Relationships
     workouts = relationship('QuestWorkout', back_populates='quest', cascade="all, delete-orphan")
-
+    sessions = relationship('SessionIDMap', back_populates='quest')
 
 class QuestWorkout(Base):
     __tablename__ = 'quest_workouts'

@@ -12,6 +12,7 @@ class UserRole(str, PyEnum):
 class MappingStatus(str, PyEnum):
     pending = "pending"
     accepted = "accepted"
+    expired = "expired"
 
 class Member(Base, AsyncAttrs): 
     __tablename__ = "members"  
