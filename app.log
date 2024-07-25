@@ -567,3 +567,1020 @@ WHERE members.uid = $1::VARCHAR
 2024-07-25 16:11:55,982 - sqlalchemy.engine.Engine - INFO - [generated in 0.00024s] ('vNoeaF7jqvpHqnkJTSgQCb3IajHq',)
 2024-07-25 16:11:56,058 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Member object at 0x107c90d70>
 2024-07-25 16:11:56,060 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 16:55:45,477 - backend.user_service.main - INFO - Received request to create user: uid='DObwpiNjABThxxSQIkEYOhrVUcmr' email='sdds@dsd' first_name='sd' last_name='sd' role=<UserRole.member: 'member'>
+2024-07-25 16:55:45,878 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 16:55:45,879 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 16:55:45,996 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 16:55:45,996 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 16:55:46,041 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 16:55:46,042 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 16:55:46,080 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 16:55:46,083 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 16:55:46,084 - sqlalchemy.engine.Engine - INFO - [generated in 0.00039s] ('DObwpiNjABThxxSQIkEYOhrVUcmr', 'sdds@dsd', None, None, None, None, None, None, 'sd', 'sd', 'member')
+2024-07-25 16:55:46,316 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 16:55:46,328 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 16:55:46,333 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 16:55:46,333 - sqlalchemy.engine.Engine - INFO - [generated in 0.00037s] ('DObwpiNjABThxxSQIkEYOhrVUcmr',)
+2024-07-25 16:55:46,377 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Member object at 0x1101bda60>
+2024-07-25 16:55:46,380 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 17:14:50,103 - backend.user_service.main - INFO - Received request to create user: uid='xiKM9gXr5dzIWBR7RzHVcr1ric4X' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 17:14:50,475 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 17:14:50,475 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:14:50,547 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 17:14:50,548 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:14:50,608 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 17:14:50,608 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:14:50,663 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 17:14:50,667 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 17:14:50,667 - sqlalchemy.engine.Engine - INFO - [generated in 0.00061s] ('xiKM9gXr5dzIWBR7RzHVcr1ric4X', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 17:14:50,787 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 17:14:50,802 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 17:14:50,806 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 17:14:50,806 - sqlalchemy.engine.Engine - INFO - [generated in 0.00025s] ('xiKM9gXr5dzIWBR7RzHVcr1ric4X',)
+2024-07-25 17:14:50,853 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 17:14:50,865 - backend.user_service.main - ERROR - Unexpected error in create_user: name 'trainer' is not defined
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 45, in create_user
+    db_user = await crud.create_member(db=db, member=user)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/crud.py", line 39, in create_member
+    await addCustomClaims(trainer.uid, {"role": "member"})
+                          ^^^^^^^
+NameError: name 'trainer' is not defined
+2024-07-25 17:15:17,985 - backend.user_service.main - INFO - Received request to create user: uid='nJAYzCQggXOPjIYxAbUo1UpWElkw' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 17:15:18,156 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 17:15:18,156 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:15:18,221 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 17:15:18,221 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:15:18,265 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 17:15:18,265 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:15:18,319 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 17:15:18,323 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 17:15:18,324 - sqlalchemy.engine.Engine - INFO - [generated in 0.00048s] ('nJAYzCQggXOPjIYxAbUo1UpWElkw', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 17:15:18,569 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 17:15:18,582 - backend.user_service.main - ERROR - Unexpected error in create_user: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.UniqueViolationError'>: duplicate key value violates unique constraint "ix_members_email"
+DETAIL:  Key (email)=(user@example.com) already exists.
+[SQL: INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)]
+[parameters: ('nJAYzCQggXOPjIYxAbUo1UpWElkw', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 538, in _prepare_and_execute
+    self._rows = deque(await prepared_stmt.fetch(*parameters))
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 176, in fetch
+    data = await self.__bind_execute(args, 0, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 241, in __bind_execute
+    data, status, _ = await self.__do_execute(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 230, in __do_execute
+    return await executor(protocol)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "asyncpg/protocol/protocol.pyx", line 207, in bind_execute
+asyncpg.exceptions.UniqueViolationError: duplicate key value violates unique constraint "ix_members_email"
+DETAIL:  Key (email)=(user@example.com) already exists.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 924, in do_execute
+    cursor.execute(statement, parameters)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 572, in execute
+    self._adapt_connection.await_(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 550, in _prepare_and_execute
+    self._handle_exception(error)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 501, in _handle_exception
+    self._adapt_connection._handle_exception(error)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 784, in _handle_exception
+    raise translated_error from error
+sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.IntegrityError: <class 'asyncpg.exceptions.UniqueViolationError'>: duplicate key value violates unique constraint "ix_members_email"
+DETAIL:  Key (email)=(user@example.com) already exists.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 45, in create_user
+    db_user = await crud.create_member(db=db, member=user)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/crud.py", line 37, in create_member
+    await db.commit()
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py", line 1009, in commit
+    await greenlet_spawn(self.sync_session.commit)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 203, in greenlet_spawn
+    result = context.switch(value)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2017, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1302, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1277, in _prepare_impl
+    self.session.flush()
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4341, in flush
+    self._flush(objects)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4476, in _flush
+    with util.safe_reraise():
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4437, in _flush
+    flush_context.execute()
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1048, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1418, in execute
+    return meth(
+           ^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 515, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1640, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2353, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 924, in do_execute
+    cursor.execute(statement, parameters)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 572, in execute
+    self._adapt_connection.await_(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 550, in _prepare_and_execute
+    self._handle_exception(error)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 501, in _handle_exception
+    self._adapt_connection._handle_exception(error)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 784, in _handle_exception
+    raise translated_error from error
+sqlalchemy.exc.IntegrityError: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.UniqueViolationError'>: duplicate key value violates unique constraint "ix_members_email"
+DETAIL:  Key (email)=(user@example.com) already exists.
+[SQL: INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)]
+[parameters: ('nJAYzCQggXOPjIYxAbUo1UpWElkw', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-07-25 17:15:47,068 - backend.user_service.main - INFO - Received request to create user: uid='csW8sf67ShvkuXaFxqFguLBl17pI' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 17:15:47,660 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 17:15:47,660 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:15:47,727 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 17:15:47,727 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:15:47,806 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 17:15:47,806 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:15:47,872 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 17:15:47,876 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 17:15:47,876 - sqlalchemy.engine.Engine - INFO - [generated in 0.00044s] ('csW8sf67ShvkuXaFxqFguLBl17pI', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 17:15:48,047 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 17:15:48,061 - backend.user_service.main - ERROR - Unexpected error in create_user: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.UniqueViolationError'>: duplicate key value violates unique constraint "ix_members_email"
+DETAIL:  Key (email)=(user@example.com) already exists.
+[SQL: INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)]
+[parameters: ('csW8sf67ShvkuXaFxqFguLBl17pI', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 538, in _prepare_and_execute
+    self._rows = deque(await prepared_stmt.fetch(*parameters))
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 176, in fetch
+    data = await self.__bind_execute(args, 0, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 241, in __bind_execute
+    data, status, _ = await self.__do_execute(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 230, in __do_execute
+    return await executor(protocol)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "asyncpg/protocol/protocol.pyx", line 207, in bind_execute
+asyncpg.exceptions.UniqueViolationError: duplicate key value violates unique constraint "ix_members_email"
+DETAIL:  Key (email)=(user@example.com) already exists.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 924, in do_execute
+    cursor.execute(statement, parameters)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 572, in execute
+    self._adapt_connection.await_(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 550, in _prepare_and_execute
+    self._handle_exception(error)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 501, in _handle_exception
+    self._adapt_connection._handle_exception(error)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 784, in _handle_exception
+    raise translated_error from error
+sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.IntegrityError: <class 'asyncpg.exceptions.UniqueViolationError'>: duplicate key value violates unique constraint "ix_members_email"
+DETAIL:  Key (email)=(user@example.com) already exists.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 45, in create_user
+    db_user = await crud.create_member(db=db, member=user)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/crud.py", line 37, in create_member
+    await db.commit()
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py", line 1009, in commit
+    await greenlet_spawn(self.sync_session.commit)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 203, in greenlet_spawn
+    result = context.switch(value)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2017, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1302, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1277, in _prepare_impl
+    self.session.flush()
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4341, in flush
+    self._flush(objects)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4476, in _flush
+    with util.safe_reraise():
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4437, in _flush
+    flush_context.execute()
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1048, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1418, in execute
+    return meth(
+           ^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 515, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1640, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2353, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 924, in do_execute
+    cursor.execute(statement, parameters)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 572, in execute
+    self._adapt_connection.await_(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 550, in _prepare_and_execute
+    self._handle_exception(error)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 501, in _handle_exception
+    self._adapt_connection._handle_exception(error)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 784, in _handle_exception
+    raise translated_error from error
+sqlalchemy.exc.IntegrityError: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.UniqueViolationError'>: duplicate key value violates unique constraint "ix_members_email"
+DETAIL:  Key (email)=(user@example.com) already exists.
+[SQL: INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)]
+[parameters: ('csW8sf67ShvkuXaFxqFguLBl17pI', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-07-25 17:16:51,379 - backend.user_service.main - INFO - Received request to create user: uid='cpcadX28oKo2MT220yFfmbA7I3W1' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 17:16:51,385 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 17:16:51,385 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 17:16:51,385 - sqlalchemy.engine.Engine - INFO - [cached since 63.51s ago] ('cpcadX28oKo2MT220yFfmbA7I3W1', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 17:16:51,421 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 17:16:51,433 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 17:16:51,437 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 17:16:51,437 - sqlalchemy.engine.Engine - INFO - [generated in 0.00033s] ('cpcadX28oKo2MT220yFfmbA7I3W1',)
+2024-07-25 17:16:51,535 - root - ERROR - Error adding custom claims: name 'uid' is not defined
+2024-07-25 17:16:51,535 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 17:16:51,592 - backend.user_service.main - ERROR - Unexpected error in create_user: name 'uid' is not defined
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 45, in create_user
+    db_user = await crud.create_member(db=db, member=user)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/crud.py", line 39, in create_member
+    await addCustomClaims({"role": "member"})
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/crud.py", line 65, in addCustomClaims
+    await auth.set_custom_user_claims(uid, customClaims)
+                                      ^^^
+NameError: name 'uid' is not defined. Did you mean: 'id'?
+2024-07-25 17:17:15,021 - backend.user_service.main - INFO - Received request to create user: uid='qrF3admAAl1Q4AidHaVBrdbteOtJ' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 17:17:15,203 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 17:17:15,203 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:17:15,265 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 17:17:15,265 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:17:15,377 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 17:17:15,377 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:17:15,512 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 17:17:15,516 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 17:17:15,517 - sqlalchemy.engine.Engine - INFO - [generated in 0.00076s] ('qrF3admAAl1Q4AidHaVBrdbteOtJ', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 17:17:15,806 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 17:17:15,820 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 17:17:15,823 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 17:17:15,823 - sqlalchemy.engine.Engine - INFO - [generated in 0.00024s] ('qrF3admAAl1Q4AidHaVBrdbteOtJ',)
+2024-07-25 17:17:15,853 - root - ERROR - Error adding custom claims: set_custom_user_claims() missing 1 required positional argument: 'custom_claims'
+2024-07-25 17:17:15,853 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 17:17:15,864 - backend.user_service.main - ERROR - Unexpected error in create_user: set_custom_user_claims() missing 1 required positional argument: 'custom_claims'
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 45, in create_user
+    db_user = await crud.create_member(db=db, member=user)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/crud.py", line 39, in create_member
+    await addCustomClaims({"role": "member"})
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/crud.py", line 65, in addCustomClaims
+    await auth.set_custom_user_claims(customClaims)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: set_custom_user_claims() missing 1 required positional argument: 'custom_claims'
+2024-07-25 17:18:58,763 - backend.user_service.main - INFO - Received request to create user: uid='blU1pPXXhTUgTRvMusIB1b1RoJVv' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 17:18:59,005 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 17:18:59,005 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:18:59,104 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 17:18:59,105 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:18:59,164 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 17:18:59,165 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:18:59,207 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 17:18:59,215 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::INTEGER, $3::FLOAT, $4::FLOAT, $5::INTEGER, $6::INTEGER, $7::INTEGER, $8::VARCHAR, $9::VARCHAR, $10::userrole)
+2024-07-25 17:18:59,216 - sqlalchemy.engine.Engine - INFO - [generated in 0.00056s] ('user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 17:18:59,337 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 17:18:59,346 - backend.user_service.main - ERROR - Unexpected error in create_user: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.NotNullViolationError'>: null value in column "uid" of relation "members" violates not-null constraint
+DETAIL:  Failing row contains (null, user@example.com, null, null, null, null, null, null, user, test, member).
+[SQL: INSERT INTO members (email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::INTEGER, $3::FLOAT, $4::FLOAT, $5::INTEGER, $6::INTEGER, $7::INTEGER, $8::VARCHAR, $9::VARCHAR, $10::userrole)]
+[parameters: ('user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 538, in _prepare_and_execute
+    self._rows = deque(await prepared_stmt.fetch(*parameters))
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 176, in fetch
+    data = await self.__bind_execute(args, 0, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 241, in __bind_execute
+    data, status, _ = await self.__do_execute(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 230, in __do_execute
+    return await executor(protocol)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "asyncpg/protocol/protocol.pyx", line 207, in bind_execute
+asyncpg.exceptions.NotNullViolationError: null value in column "uid" of relation "members" violates not-null constraint
+DETAIL:  Failing row contains (null, user@example.com, null, null, null, null, null, null, user, test, member).
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 924, in do_execute
+    cursor.execute(statement, parameters)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 572, in execute
+    self._adapt_connection.await_(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 550, in _prepare_and_execute
+    self._handle_exception(error)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 501, in _handle_exception
+    self._adapt_connection._handle_exception(error)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 784, in _handle_exception
+    raise translated_error from error
+sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.IntegrityError: <class 'asyncpg.exceptions.NotNullViolationError'>: null value in column "uid" of relation "members" violates not-null constraint
+DETAIL:  Failing row contains (null, user@example.com, null, null, null, null, null, null, user, test, member).
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 45, in create_user
+    db_user = await crud.create_member(db=db, member=user)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/crud.py", line 36, in create_member
+    await db.commit()
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py", line 1009, in commit
+    await greenlet_spawn(self.sync_session.commit)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 203, in greenlet_spawn
+    result = context.switch(value)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2017, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1302, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1277, in _prepare_impl
+    self.session.flush()
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4341, in flush
+    self._flush(objects)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4476, in _flush
+    with util.safe_reraise():
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4437, in _flush
+    flush_context.execute()
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1418, in execute
+    return meth(
+           ^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 515, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1640, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2353, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 924, in do_execute
+    cursor.execute(statement, parameters)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 572, in execute
+    self._adapt_connection.await_(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 550, in _prepare_and_execute
+    self._handle_exception(error)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 501, in _handle_exception
+    self._adapt_connection._handle_exception(error)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 784, in _handle_exception
+    raise translated_error from error
+sqlalchemy.exc.IntegrityError: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.NotNullViolationError'>: null value in column "uid" of relation "members" violates not-null constraint
+DETAIL:  Failing row contains (null, user@example.com, null, null, null, null, null, null, user, test, member).
+[SQL: INSERT INTO members (email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::INTEGER, $3::FLOAT, $4::FLOAT, $5::INTEGER, $6::INTEGER, $7::INTEGER, $8::VARCHAR, $9::VARCHAR, $10::userrole)]
+[parameters: ('user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-07-25 17:22:41,832 - backend.user_service.main - INFO - Received request to create user: uid='UiltwKbDcKIbDJkL800GMwNkYrYj' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 17:22:42,103 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 17:22:42,104 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:22:42,194 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 17:22:42,195 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:22:42,259 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 17:22:42,259 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:22:42,297 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 17:22:42,301 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 17:22:42,302 - sqlalchemy.engine.Engine - INFO - [generated in 0.00086s] ('UiltwKbDcKIbDJkL800GMwNkYrYj', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 17:22:42,524 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 17:22:42,539 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 17:22:42,540 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 17:22:42,540 - sqlalchemy.engine.Engine - INFO - [generated in 0.00009s] ('UiltwKbDcKIbDJkL800GMwNkYrYj',)
+2024-07-25 17:22:42,615 - root - ERROR - Error adding custom claims: The default Firebase app does not exist. Make sure to initialize the SDK by calling initialize_app().
+2024-07-25 17:22:42,615 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 17:22:42,630 - backend.user_service.main - ERROR - ValueError in create_user: The default Firebase app does not exist. Make sure to initialize the SDK by calling initialize_app().
+2024-07-25 17:23:15,960 - backend.user_service.main - INFO - Received request to create user: uid='iKUdvkP8425is2F3oJTirrIv2IvG' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 17:23:16,240 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 17:23:16,241 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:23:16,293 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 17:23:16,294 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:23:16,348 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 17:23:16,349 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:23:16,392 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 17:23:16,395 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 17:23:16,395 - sqlalchemy.engine.Engine - INFO - [generated in 0.00038s] ('iKUdvkP8425is2F3oJTirrIv2IvG', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 17:23:16,576 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 17:23:16,611 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 17:23:16,614 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 17:23:16,614 - sqlalchemy.engine.Engine - INFO - [generated in 0.00031s] ('iKUdvkP8425is2F3oJTirrIv2IvG',)
+2024-07-25 17:23:16,664 - root - ERROR - Error adding custom claims: The default Firebase app does not exist. Make sure to initialize the SDK by calling initialize_app().
+2024-07-25 17:23:16,664 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 17:23:16,674 - backend.user_service.main - ERROR - ValueError in create_user: The default Firebase app does not exist. Make sure to initialize the SDK by calling initialize_app().
+2024-07-25 17:23:30,773 - backend.user_service.main - INFO - Received request to create user: uid='YvgjMPTum3FDoE8WstJP70RFihXr' email='user2@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 17:23:30,991 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 17:23:30,991 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:23:31,024 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 17:23:31,024 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:23:31,071 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 17:23:31,071 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:23:31,100 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 17:23:31,105 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 17:23:31,105 - sqlalchemy.engine.Engine - INFO - [generated in 0.00069s] ('YvgjMPTum3FDoE8WstJP70RFihXr', 'user2@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 17:23:31,252 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 17:23:31,271 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 17:23:31,275 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 17:23:31,276 - sqlalchemy.engine.Engine - INFO - [generated in 0.00052s] ('YvgjMPTum3FDoE8WstJP70RFihXr',)
+2024-07-25 17:23:31,329 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-07-25 17:23:31,340 - google.auth.transport.requests - DEBUG - Making request: POST https://oauth2.googleapis.com/token
+2024-07-25 17:23:31,353 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): oauth2.googleapis.com:443
+2024-07-25 17:23:32,687 - urllib3.connectionpool - DEBUG - https://oauth2.googleapis.com:443 "POST /token HTTP/11" 200 None
+2024-07-25 17:23:32,691 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): identitytoolkit.googleapis.com:443
+2024-07-25 17:23:33,390 - urllib3.connectionpool - DEBUG - https://identitytoolkit.googleapis.com:443 "POST /v1/projects/fitsync-app-c93ad/accounts:update HTTP/11" 400 None
+2024-07-25 17:23:33,392 - root - ERROR - Error adding custom claims: No user record found for the given identifier (USER_NOT_FOUND).
+2024-07-25 17:23:33,392 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 17:23:33,413 - backend.user_service.main - ERROR - Unexpected error in create_user: No user record found for the given identifier (USER_NOT_FOUND).
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_user_mgt.py", line 842, in _make_request
+    return self.http_client.body_and_response(method, url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_http_client.py", line 127, in body_and_response
+    resp = self.request(method, url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_http_client.py", line 119, in request
+    resp.raise_for_status()
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/requests/models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: https://identitytoolkit.googleapis.com/v1/projects/fitsync-app-c93ad/accounts:update
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 47, in create_user
+    db_user = await crud.create_member(db=db, member=user)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/crud.py", line 39, in create_member
+    await addCustomClaims(member.uid, {"role": "member"})
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/crud.py", line 65, in addCustomClaims
+    await auth.set_custom_user_claims(uid, customClaims)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/auth.py", line 511, in set_custom_user_claims
+    client.set_custom_user_claims(uid, custom_claims=custom_claims)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_auth_client.py", line 375, in set_custom_user_claims
+    self._user_manager.update_user(uid, custom_claims=custom_claims)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_user_mgt.py", line 734, in update_user
+    body, http_resp = self._make_request('post', '/accounts:update', json=payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_user_mgt.py", line 844, in _make_request
+    raise _auth_utils.handle_auth_backend_error(error)
+firebase_admin._auth_utils.UserNotFoundError: No user record found for the given identifier (USER_NOT_FOUND).
+2024-07-25 17:38:19,269 - backend.user_service.main - INFO - Received request to create user: uid='qm2G2XpNtzRtwVlmlige6j4II43u' email='user1@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 17:38:19,758 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 17:38:19,758 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:38:19,817 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 17:38:19,818 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:38:19,877 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 17:38:19,878 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 17:38:19,906 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 17:38:19,910 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 17:38:19,911 - sqlalchemy.engine.Engine - INFO - [generated in 0.00042s] ('qm2G2XpNtzRtwVlmlige6j4II43u', 'user1@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 17:38:20,076 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 17:38:20,091 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 17:38:20,095 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 17:38:20,095 - sqlalchemy.engine.Engine - INFO - [generated in 0.00040s] ('qm2G2XpNtzRtwVlmlige6j4II43u',)
+2024-07-25 17:38:20,160 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Member object at 0x10531aa20>
+2024-07-25 17:38:20,163 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 18:01:46,861 - backend.user_service.main - INFO - Received request to create user: uid='AVCH5VLVW6waCLMfksI8y1RIBbfU' email='user1@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 18:01:47,052 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 18:01:47,052 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:01:47,136 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 18:01:47,136 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:01:47,211 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 18:01:47,212 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:01:47,272 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 18:01:47,276 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 18:01:47,277 - sqlalchemy.engine.Engine - INFO - [generated in 0.00053s] ('AVCH5VLVW6waCLMfksI8y1RIBbfU', 'user1@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 18:01:47,491 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 18:01:47,502 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 18:01:47,506 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 18:01:47,506 - sqlalchemy.engine.Engine - INFO - [generated in 0.00062s] ('AVCH5VLVW6waCLMfksI8y1RIBbfU',)
+2024-07-25 18:01:47,538 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Member object at 0x11168c4a0>
+2024-07-25 18:01:47,539 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 18:02:21,875 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-07-25 18:07:31,341 - backend.user_service.main - INFO - Received request to create user: uid='JnIBCSDsjr3sWoUuL12Pj6xTbooE' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 18:07:31,543 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 18:07:31,544 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:07:31,574 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 18:07:31,575 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:07:31,606 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 18:07:31,606 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:07:31,635 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 18:07:31,639 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 18:07:31,639 - sqlalchemy.engine.Engine - INFO - [generated in 0.00039s] ('JnIBCSDsjr3sWoUuL12Pj6xTbooE', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 18:07:31,837 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 18:07:31,853 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 18:07:31,857 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 18:07:31,857 - sqlalchemy.engine.Engine - INFO - [generated in 0.00043s] ('JnIBCSDsjr3sWoUuL12Pj6xTbooE',)
+2024-07-25 18:07:31,886 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Member object at 0x105f72450>
+2024-07-25 18:07:31,887 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-07-25 18:07:31,899 - google.auth.transport.requests - DEBUG - Making request: POST https://oauth2.googleapis.com/token
+2024-07-25 18:07:31,911 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): oauth2.googleapis.com:443
+2024-07-25 18:07:32,337 - urllib3.connectionpool - DEBUG - https://oauth2.googleapis.com:443 "POST /token HTTP/11" 200 None
+2024-07-25 18:07:32,341 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): identitytoolkit.googleapis.com:443
+2024-07-25 18:07:32,929 - urllib3.connectionpool - DEBUG - https://identitytoolkit.googleapis.com:443 "POST /v1/projects/fitsync-app-c93ad/accounts:update HTTP/11" 400 None
+2024-07-25 18:07:32,929 - backend.user_service.main - ERROR - Unexpected error in create_user: No user record found for the given identifier (USER_NOT_FOUND).
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_user_mgt.py", line 842, in _make_request
+    return self.http_client.body_and_response(method, url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_http_client.py", line 127, in body_and_response
+    resp = self.request(method, url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_http_client.py", line 119, in request
+    resp.raise_for_status()
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/requests/models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: https://identitytoolkit.googleapis.com/v1/projects/fitsync-app-c93ad/accounts:update
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 59, in create_user
+    await auth.set_custom_user_claims(user.uid, custom_claims)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/auth.py", line 511, in set_custom_user_claims
+    client.set_custom_user_claims(uid, custom_claims=custom_claims)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_auth_client.py", line 375, in set_custom_user_claims
+    self._user_manager.update_user(uid, custom_claims=custom_claims)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_user_mgt.py", line 734, in update_user
+    body, http_resp = self._make_request('post', '/accounts:update', json=payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_user_mgt.py", line 844, in _make_request
+    raise _auth_utils.handle_auth_backend_error(error)
+firebase_admin._auth_utils.UserNotFoundError: No user record found for the given identifier (USER_NOT_FOUND).
+2024-07-25 18:07:32,939 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 18:10:27,494 - backend.user_service.main - INFO - Received request to create user: uid='Ocyar1vgRptREmICqeFdMLjzDVZo' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 18:10:27,497 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 18:10:27,498 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 18:10:27,498 - sqlalchemy.engine.Engine - INFO - [cached since 175.9s ago] ('Ocyar1vgRptREmICqeFdMLjzDVZo', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 18:10:27,526 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 18:10:27,536 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 18:10:27,536 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 18:10:27,536 - sqlalchemy.engine.Engine - INFO - [cached since 175.7s ago] ('Ocyar1vgRptREmICqeFdMLjzDVZo',)
+2024-07-25 18:10:27,553 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Member object at 0x105f8c7d0>
+2024-07-25 18:10:27,896 - urllib3.connectionpool - DEBUG - https://identitytoolkit.googleapis.com:443 "POST /v1/projects/fitsync-app-c93ad/accounts:update HTTP/11" 400 None
+2024-07-25 18:10:27,898 - backend.user_service.main - ERROR - Unexpected error in create_user: No user record found for the given identifier (USER_NOT_FOUND).
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_user_mgt.py", line 842, in _make_request
+    return self.http_client.body_and_response(method, url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_http_client.py", line 127, in body_and_response
+    resp = self.request(method, url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_http_client.py", line 119, in request
+    resp.raise_for_status()
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/requests/models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: https://identitytoolkit.googleapis.com/v1/projects/fitsync-app-c93ad/accounts:update
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 59, in create_user
+    await auth.set_custom_user_claims(user.uid, custom_claims)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/auth.py", line 511, in set_custom_user_claims
+    client.set_custom_user_claims(uid, custom_claims=custom_claims)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_auth_client.py", line 375, in set_custom_user_claims
+    self._user_manager.update_user(uid, custom_claims=custom_claims)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_user_mgt.py", line 734, in update_user
+    body, http_resp = self._make_request('post', '/accounts:update', json=payload)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_user_mgt.py", line 844, in _make_request
+    raise _auth_utils.handle_auth_backend_error(error)
+firebase_admin._auth_utils.UserNotFoundError: No user record found for the given identifier (USER_NOT_FOUND).
+2024-07-25 18:10:27,901 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 18:16:35,059 - backend.user_service.main - INFO - Received request to create user: uid='JO2bjO65jh4jeJgMvzX0ggUng9xX' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 18:16:35,451 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 18:16:35,451 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:16:35,612 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 18:16:35,613 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:16:35,918 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 18:16:35,918 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:16:35,975 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 18:16:35,977 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 18:16:35,978 - sqlalchemy.engine.Engine - INFO - [generated in 0.00025s] ('JO2bjO65jh4jeJgMvzX0ggUng9xX', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 18:16:36,144 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 18:16:36,155 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 18:16:36,159 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 18:16:36,159 - sqlalchemy.engine.Engine - INFO - [generated in 0.00024s] ('JO2bjO65jh4jeJgMvzX0ggUng9xX',)
+2024-07-25 18:16:36,189 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Member object at 0x1080711f0>
+2024-07-25 18:16:36,189 - backend.user_service.main - ERROR - Unexpected error in create_user: name 'asyncio' is not defined
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 59, in create_user
+    await asyncio.sleep(5)
+          ^^^^^^^
+NameError: name 'asyncio' is not defined. Did you forget to import 'asyncio'
+2024-07-25 18:16:36,194 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 18:16:56,478 - backend.user_service.main - INFO - Received request to create user: uid='crvFjtMFhF7alMoJHucB6lTGYL5j' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 18:16:57,163 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 18:16:57,164 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:16:57,203 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 18:16:57,203 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:16:57,348 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 18:16:57,349 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:16:57,381 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 18:16:57,385 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 18:16:57,386 - sqlalchemy.engine.Engine - INFO - [generated in 0.00050s] ('crvFjtMFhF7alMoJHucB6lTGYL5j', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 18:16:57,593 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 18:16:57,648 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 18:16:57,650 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 18:16:57,650 - sqlalchemy.engine.Engine - INFO - [generated in 0.00017s] ('crvFjtMFhF7alMoJHucB6lTGYL5j',)
+2024-07-25 18:16:57,711 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Member object at 0x10713bda0>
+2024-07-25 18:16:57,711 - backend.user_service.main - ERROR - Unexpected error in create_user: name 'time' is not defined
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 59, in create_user
+    time.sleep(2)  # 또는 async로 대기: await asyncio.sleep(5)
+    ^^^^
+NameError: name 'time' is not defined. Did you forget to import 'time'
+2024-07-25 18:16:57,715 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 18:17:24,418 - backend.user_service.main - INFO - Received request to create user: uid='5kJKyBcA4WpZKYFoPsesdKmh468k' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 18:17:24,774 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 18:17:24,775 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:17:24,848 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 18:17:24,848 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:17:24,944 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 18:17:24,944 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:17:25,019 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 18:17:25,021 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 18:17:25,021 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ('5kJKyBcA4WpZKYFoPsesdKmh468k', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 18:17:25,475 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 18:17:25,493 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 18:17:25,494 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 18:17:25,494 - sqlalchemy.engine.Engine - INFO - [generated in 0.00012s] ('5kJKyBcA4WpZKYFoPsesdKmh468k',)
+2024-07-25 18:17:25,524 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Member object at 0x119cfaf90>
+2024-07-25 18:17:25,524 - backend.user_service.main - ERROR - Unexpected error in create_user: type object 'datetime.time' has no attribute 'sleep'
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 60, in create_user
+    time.sleep(2)  # 또는 async로 대기: await asyncio.sleep(5)
+    ^^^^^^^^^^
+AttributeError: type object 'datetime.time' has no attribute 'sleep'
+2024-07-25 18:17:25,525 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 18:17:53,181 - backend.user_service.main - INFO - Received request to create user: uid='qVNlFoRT6c0EfScfhWFqMLx8fNBR' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 18:17:53,617 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 18:17:53,617 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:17:53,803 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 18:17:53,803 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:17:53,852 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 18:17:53,852 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:17:53,876 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 18:17:53,877 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 18:17:53,877 - sqlalchemy.engine.Engine - INFO - [generated in 0.00013s] ('qVNlFoRT6c0EfScfhWFqMLx8fNBR', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 18:17:54,171 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 18:17:54,181 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 18:17:54,185 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 18:17:54,185 - sqlalchemy.engine.Engine - INFO - [generated in 0.00027s] ('qVNlFoRT6c0EfScfhWFqMLx8fNBR',)
+2024-07-25 18:17:54,263 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Member object at 0x1224d9af0>
+2024-07-25 18:17:56,271 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-07-25 18:17:56,281 - google.auth.transport.requests - DEBUG - Making request: POST https://oauth2.googleapis.com/token
+2024-07-25 18:17:56,286 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): oauth2.googleapis.com:443
+2024-07-25 18:17:56,571 - urllib3.connectionpool - DEBUG - https://oauth2.googleapis.com:443 "POST /token HTTP/11" 200 None
+2024-07-25 18:17:56,575 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): identitytoolkit.googleapis.com:443
+2024-07-25 18:17:57,147 - urllib3.connectionpool - DEBUG - https://identitytoolkit.googleapis.com:443 "POST /v1/projects/fitsync-app-c93ad/accounts:lookup HTTP/11" 200 None
+2024-07-25 18:17:57,149 - backend.user_service.main - ERROR - User with UID qVNlFoRT6c0EfScfhWFqMLx8fNBR not found in Firebase
+2024-07-25 18:17:57,149 - backend.user_service.main - ERROR - Unexpected error in create_user: 500: User not found in Firebase
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 64, in create_user
+    user_record = auth.get_user(user.uid)
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/auth.py", line 328, in get_user
+    return client.get_user(uid=uid)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_auth_client.py", line 176, in get_user
+    response = self._user_manager.get_user(uid=uid)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_user_mgt.py", line 599, in get_user
+    raise _auth_utils.UserNotFoundError(
+firebase_admin._auth_utils.UserNotFoundError: No user record found for the provided user ID: qVNlFoRT6c0EfScfhWFqMLx8fNBR.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 70, in create_user
+    raise HTTPException(status_code=500, detail="User not found in Firebase")
+fastapi.exceptions.HTTPException: 500: User not found in Firebase
+2024-07-25 18:17:57,155 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 18:21:48,791 - backend.user_service.main - INFO - Received request to create user: uid='m2Rp7OnLHHVpUTKp907Q0QIEC2D5' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 18:21:49,358 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 18:21:49,358 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:21:49,400 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 18:21:49,400 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:21:49,436 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 18:21:49,437 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:21:49,471 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 18:21:49,476 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 18:21:49,476 - sqlalchemy.engine.Engine - INFO - [generated in 0.00055s] ('m2Rp7OnLHHVpUTKp907Q0QIEC2D5', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 18:21:49,746 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 18:21:49,760 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 18:21:49,763 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 18:21:49,764 - sqlalchemy.engine.Engine - INFO - [generated in 0.00024s] ('m2Rp7OnLHHVpUTKp907Q0QIEC2D5',)
+2024-07-25 18:21:49,807 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Member object at 0x1149f4f80>
+2024-07-25 18:21:49,807 - backend.user_service.main - ERROR - Unexpected error in create_user: name 'asyncio' is not defined
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 60, in create_user
+    await asyncio.sleep(5)  # 비동기 대기
+          ^^^^^^^
+NameError: name 'asyncio' is not defined. Did you forget to import 'asyncio'
+2024-07-25 18:21:49,811 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 18:22:30,611 - backend.user_service.main - INFO - Received request to create user: uid='J46HxgQzD8vwe6TZpbhJSgJAWzxy' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 18:22:31,007 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 18:22:31,007 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:22:31,088 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 18:22:31,089 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:22:31,162 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 18:22:31,162 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 18:22:31,264 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 18:22:31,268 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 18:22:31,268 - sqlalchemy.engine.Engine - INFO - [generated in 0.00052s] ('J46HxgQzD8vwe6TZpbhJSgJAWzxy', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 18:22:31,465 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 18:22:31,479 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 18:22:31,482 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 18:22:31,482 - sqlalchemy.engine.Engine - INFO - [generated in 0.00025s] ('J46HxgQzD8vwe6TZpbhJSgJAWzxy',)
+2024-07-25 18:22:31,530 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Member object at 0x1199595e0>
+2024-07-25 18:22:36,531 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-07-25 18:22:36,543 - google.auth.transport.requests - DEBUG - Making request: POST https://oauth2.googleapis.com/token
+2024-07-25 18:22:36,554 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): oauth2.googleapis.com:443
+2024-07-25 18:22:36,896 - urllib3.connectionpool - DEBUG - https://oauth2.googleapis.com:443 "POST /token HTTP/11" 200 None
+2024-07-25 18:22:36,899 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): identitytoolkit.googleapis.com:443
+2024-07-25 18:22:37,386 - urllib3.connectionpool - DEBUG - https://identitytoolkit.googleapis.com:443 "POST /v1/projects/fitsync-app-c93ad/accounts:lookup HTTP/11" 200 None
+2024-07-25 18:22:37,388 - backend.user_service.main - ERROR - User with UID J46HxgQzD8vwe6TZpbhJSgJAWzxy not found in Firebase
+2024-07-25 18:22:37,388 - backend.user_service.main - ERROR - Unexpected error in create_user: 500: User not found in Firebase
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 65, in create_user
+    user_record = auth.get_user(user.uid)
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/auth.py", line 328, in get_user
+    return client.get_user(uid=uid)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_auth_client.py", line 176, in get_user
+    response = self._user_manager.get_user(uid=uid)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_user_mgt.py", line 599, in get_user
+    raise _auth_utils.UserNotFoundError(
+firebase_admin._auth_utils.UserNotFoundError: No user record found for the provided user ID: J46HxgQzD8vwe6TZpbhJSgJAWzxy.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 71, in create_user
+    raise HTTPException(status_code=500, detail="User not found in Firebase")
+fastapi.exceptions.HTTPException: 500: User not found in Firebase
+2024-07-25 18:22:37,397 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 18:24:33,750 - backend.user_service.main - INFO - Received request to create user: uid='LLfUKlBxc270PA8bG8NcndF3V61E' email='user2@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 18:24:33,753 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 18:24:33,754 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 18:24:33,755 - sqlalchemy.engine.Engine - INFO - [cached since 122.5s ago] ('LLfUKlBxc270PA8bG8NcndF3V61E', 'user2@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 18:24:33,801 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 18:24:33,818 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 18:24:33,819 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 18:24:33,819 - sqlalchemy.engine.Engine - INFO - [cached since 122.3s ago] ('LLfUKlBxc270PA8bG8NcndF3V61E',)
+2024-07-25 18:24:33,857 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Member object at 0x1199595e0>
+2024-07-25 18:24:39,261 - urllib3.connectionpool - DEBUG - https://identitytoolkit.googleapis.com:443 "POST /v1/projects/fitsync-app-c93ad/accounts:lookup HTTP/11" 200 None
+2024-07-25 18:24:39,262 - backend.user_service.main - ERROR - User with UID LLfUKlBxc270PA8bG8NcndF3V61E not found in Firebase
+2024-07-25 18:24:39,263 - backend.user_service.main - ERROR - Unexpected error in create_user: 500: User not found in Firebase
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 65, in create_user
+    user_record = auth.get_user(user.uid)
+                  ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/auth.py", line 328, in get_user
+    return client.get_user(uid=uid)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_auth_client.py", line 176, in get_user
+    response = self._user_manager.get_user(uid=uid)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/firebase_admin/_user_mgt.py", line 599, in get_user
+    raise _auth_utils.UserNotFoundError(
+firebase_admin._auth_utils.UserNotFoundError: No user record found for the provided user ID: LLfUKlBxc270PA8bG8NcndF3V61E.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 71, in create_user
+    raise HTTPException(status_code=500, detail="User not found in Firebase")
+fastapi.exceptions.HTTPException: 500: User not found in Firebase
+2024-07-25 18:24:39,266 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 20:38:56,602 - backend.user_service.main - INFO - Received request to create user: uid='dga0rUXJvNWmrNeXQDh9NF6rrOlj' email='user2@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 20:38:57,138 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 20:38:57,138 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 20:38:57,291 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 20:38:57,291 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 20:38:57,444 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 20:38:57,445 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 20:38:57,561 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 20:38:57,566 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 20:38:57,566 - sqlalchemy.engine.Engine - INFO - [generated in 0.00043s] ('dga0rUXJvNWmrNeXQDh9NF6rrOlj', 'user2@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 20:38:57,927 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 20:38:57,968 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 20:38:57,971 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 20:38:57,971 - sqlalchemy.engine.Engine - INFO - [generated in 0.00025s] ('dga0rUXJvNWmrNeXQDh9NF6rrOlj',)
+2024-07-25 20:38:58,091 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Member object at 0x10471df10>
+2024-07-25 20:38:58,093 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-07-25 20:38:58,110 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:9099
+2024-07-25 20:38:58,117 - urllib3.connectionpool - DEBUG - http://localhost:9099 "POST /identitytoolkit.googleapis.com/v1/projects/fitsync-app-c93ad/accounts:lookup HTTP/11" 200 None
+2024-07-25 20:38:58,125 - urllib3.connectionpool - DEBUG - http://localhost:9099 "POST /identitytoolkit.googleapis.com/v1/projects/fitsync-app-c93ad/accounts:update HTTP/11" 200 None
+2024-07-25 20:38:58,125 - backend.user_service.main - INFO - Custom claims set for user: dga0rUXJvNWmrNeXQDh9NF6rrOlj
+2024-07-25 20:38:58,126 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 20:42:19,925 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 20:42:19,934 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 20:42:19,934 - sqlalchemy.engine.Engine - INFO - [generated in 0.00061s] ('dga0rUXJvNWmrNeXQDh9NF6rrOlj',)
+2024-07-25 20:42:20,012 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 20:48:50,139 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 20:48:50,141 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 20:48:50,141 - sqlalchemy.engine.Engine - INFO - [cached since 390.2s ago] ('dga0rUXJvNWmrNeXQDh9NF6rrOlj',)
+2024-07-25 20:48:50,232 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 21:57:41,634 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 21:57:41,636 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 21:57:41,637 - sqlalchemy.engine.Engine - INFO - [cached since 4522s ago] ('dga0rUXJvNWmrNeXQDh9NF6rrOlj',)
+2024-07-25 21:57:41,736 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 21:59:23,514 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 21:59:23,515 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 21:59:23,515 - sqlalchemy.engine.Engine - INFO - [cached since 4624s ago] ('dga0rUXJvNWmrNeXQDh9NF6rrOlj',)
+2024-07-25 21:59:23,597 - sqlalchemy.engine.Engine - INFO - ROLLBACK

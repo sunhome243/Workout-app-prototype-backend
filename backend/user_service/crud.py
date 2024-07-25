@@ -58,6 +58,14 @@ async def create_trainer(db: AsyncSession, trainer: schemas.UserCreate):
         await db.rollback()
         raise
 
+async def addCustomClaims(uid: str, customClaims: dict):
+    try:
+        await auth.set_custom_user_claims(uid, customClaims)
+        logging.info('Custom claims added successfully')
+    except Exception as error:
+        logging.error(f'Error adding custom claims: {error}')
+        raise
+
 async def update_member(db: AsyncSession, current_member: models.Member, member_update: dict):
     for key, value in member_update.items():
         setattr(current_member, key, value)

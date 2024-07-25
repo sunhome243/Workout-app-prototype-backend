@@ -7,6 +7,10 @@ from .database import get_db
 from fastapi.middleware.cors import CORSMiddleware
 from firebase_admin import auth
 from firebase_admin_init import initialize_firebase
+import time
+import asyncio
+
+initialize_firebase()
 
 # 로깅 설정
 logging.basicConfig(
@@ -52,7 +56,26 @@ async def create_user(user: schemas.UserCreate, db: AsyncSession = Depends(get_d
             logger.error("Failed to create user in database")
             raise HTTPException(status_code=500, detail="Failed to create user in database")
         logger.info(f"Successfully created user: {db_user}")
+
+        # Firebase에서 사용자 정보 조회 및 custom claims 설정
+        max_retries = 5
+        retry_delay = 1  # seconds
+        for attempt in range(max_retries):
+            try:
+                user_record = auth.get_user(user.uid)
+                custom_claims = {'role': user.role}
+                auth.set_custom_user_claims(user_record.uid, custom_claims)
+                logger.info(f"Custom claims set for user: {user_record.uid}")
+                break
+            except auth.UserNotFoundError:
+                if attempt == max_retries - 1:
+                    logger.error(f"User with UID {user.uid} not found in Firebase after {max_retries} attempts")
+                    raise HTTPException(status_code=500, detail="User not found in Firebase")
+                logger.warning(f"User not found in Firebase, retrying... (attempt {attempt + 1}/{max_retries})")
+                await asyncio.sleep(retry_delay)
+        
         return db_user
+
     except ValueError as ve:
         logger.error(f"ValueError in create_user: {str(ve)}")
         raise HTTPException(status_code=400, detail=str(ve))
