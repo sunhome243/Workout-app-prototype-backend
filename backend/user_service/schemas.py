@@ -1,43 +1,41 @@
 from typing import List, Union, Optional
-from pydantic import BaseModel, Field, ConfigDict, field_validator
+from pydantic import BaseModel, Field, ConfigDict
 from enum import Enum
 from datetime import datetime
+
+class UserRole(str, Enum):
+    member = "member"
+    trainer = "trainer"
+
+class UserCreate(BaseModel):
+    uid: str
+    email: str
+    first_name: str
+    last_name: str
+    role: UserRole
 
 class MemberBase(BaseModel):
     email: str
     first_name: str
     last_name: str
-    @field_validator('email')
-    def check_required_fields(cls, v):
-        if v is None:
-            raise ValueError(f'{cls.__name__} is a required field')
-        return v
 
-class MemberCreate(MemberBase):
-    password: str
-    @field_validator('password')
-    def check_required_fields(cls, v):
-        if v is None:
-            raise ValueError(f'{cls.__name__} is a required field')
-        return v
+class MemberCreate(UserCreate):
+    role: UserRole = UserRole.member
 
 class Member(MemberBase):
-    member_id: str
+    uid: str
     age: Optional[int] = Field(default=None)
     height: Optional[float] = Field(default=None)
     weight: Optional[float] = Field(default=None)
     workout_level: Optional[int] = Field(default=None)
     workout_frequency: Optional[int] = Field(default=None)
     workout_goal: Optional[int] = Field(default=None)
-    role: str
-    
-    class ConfigDict(ConfigDict):
+    role: UserRole = UserRole.member
+
+    class Config:
         from_attributes = True
 
 class MemberUpdate(BaseModel):
-    current_password: Optional[str] = None
-    new_password: Optional[str] = None
-    confirm_password: Optional[str] = None
     age: Optional[int] = None
     height: Optional[float] = None
     weight: Optional[float] = None
@@ -49,32 +47,22 @@ class TrainerBase(BaseModel):
     email: str
     first_name: str
     last_name: str
-    def check_required_fields(cls, v):
-        if v is None:
-            raise ValueError(f'{cls.__name__} is a required field')
-        return v
 
-class TrainerCreate(TrainerBase):
-    password: str
-    
-    @field_validator('password')
-    def check_required_fields(cls, v):
-        if v is None:
-            raise ValueError(f'{cls.__name__} is a required field')
-        return v
+class TrainerCreate(UserCreate):
+    role: UserRole = UserRole.trainer
 
 class Trainer(TrainerBase):
-    trainer_id: str
-    hashed_password: str
-    role: str
-    
+    uid: str
+    role: UserRole = UserRole.trainer
+
+    class Config:
+        from_attributes = True
+
 class TrainerUpdate(BaseModel):
-    current_password: Optional[str] = None
-    new_password: Optional[str] = None
-    confirm_password: Optional[str] = None
+    pass
 
 class ConnectedMemberInfo(BaseModel):
-    member_id: str
+    uid: str
     age: Optional[int]
     height: Optional[float]
     weight: Optional[float]
@@ -84,35 +72,36 @@ class ConnectedMemberInfo(BaseModel):
     first_name: Optional[str]
     last_name: Optional[str]
 
-    class ConfigDict(ConfigDict):
+    class Config:
         from_attributes = True
-    
+
 class MappingStatus(str, Enum):
     pending = "pending"
     accepted = "accepted"
+    expired = "expired"
 
 class MemberMappingInfo(BaseModel):
-    member_id: str
+    uid: str
     member_email: str
     member_first_name: str
     member_last_name: str
     status: MappingStatus
 
 class TrainerMappingInfo(BaseModel):
-    trainer_id: str
-    trainer_email: str
+    uid: str
+    member_email: str
     trainer_first_name: str
     trainer_last_name: str
     status: MappingStatus
 
 class CreateTrainerMemberMapping(BaseModel):
-    other_id: str
+    other_email: str
     initial_sessions: int
 
 class TrainerMemberMappingResponse(BaseModel):
     id: int
-    trainer_id: str
-    member_id: str
+    trainer_uid: str
+    member_uid: str
     status: MappingStatus
     remaining_sessions: int
     acceptance_date: Optional[datetime] = None
@@ -123,13 +112,6 @@ class TrainerMemberMappingUpdate(BaseModel):
 class Message(BaseModel):
     message: str
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-class TokenData(BaseModel):
-    username: Union[str, None] = None
-    
 class RemainingSessionsResponse(BaseModel):
     remaining_sessions: int
 

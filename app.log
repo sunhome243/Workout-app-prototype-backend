@@ -1,0 +1,569 @@
+2024-07-25 14:20:14,707 - backend.user_service.main - INFO - Received request to create member: uid='string' email='string' first_name='string' last_name='string' role=<UserRole.member: 'member'>
+2024-07-25 14:20:15,032 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 14:20:15,032 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 14:20:15,107 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 14:20:15,107 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 14:20:15,305 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 14:20:15,305 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 14:20:15,347 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 14:20:15,351 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 14:20:15,352 - sqlalchemy.engine.Engine - INFO - [generated in 0.00040s] ('string', 'string', None, None, None, None, None, None, 'string', 'string', 'member')
+2024-07-25 14:20:15,580 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 14:20:15,603 - backend.user_service.main - ERROR - Unexpected error in create_member: Can't operate on closed transaction inside context manager.  Please complete the context manager before emitting further commands.
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 45, in create_member
+    db_member = await crud.create_member(db=db, member=member)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/crud.py", line 37, in create_member
+    await db.refresh(db_member)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py", line 331, in refresh
+    await greenlet_spawn(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 190, in greenlet_spawn
+    result = context.switch(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 3153, in refresh
+    loading.load_on_ident(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/loading.py", line 509, in load_on_ident
+    return load_on_pk_identity(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/loading.py", line 694, in load_on_pk_identity
+    session.execute(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2351, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2226, in _execute_internal
+    conn = self._connection_for_bind(bind)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2090, in _connection_for_bind
+    TransactionalContext._trans_ctx_check(self)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/util.py", line 111, in _trans_ctx_check
+    raise exc.InvalidRequestError(
+sqlalchemy.exc.InvalidRequestError: Can't operate on closed transaction inside context manager.  Please complete the context manager before emitting further commands.
+2024-07-25 14:35:46,168 - backend.user_service.main - INFO - Received request to create user: uid='string' email='string' first_name='string' last_name='string' role=<UserRole.member: 'member'>
+2024-07-25 14:35:46,498 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 14:35:46,499 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 14:35:46,559 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 14:35:46,560 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 14:35:46,623 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 14:35:46,623 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 14:35:46,665 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 14:35:46,670 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 14:35:46,670 - sqlalchemy.engine.Engine - INFO - [generated in 0.00054s] ('string', 'string', None, None, None, None, None, None, 'string', 'string', 'member')
+2024-07-25 14:35:46,790 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 14:35:46,805 - backend.user_service.main - ERROR - Unexpected error in create_user: Can't operate on closed transaction inside context manager.  Please complete the context manager before emitting further commands.
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 46, in create_user
+    db_user = await crud.create_member(db=db, member=user)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/crud.py", line 37, in create_member
+    await db.refresh(db_member)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py", line 331, in refresh
+    await greenlet_spawn(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 190, in greenlet_spawn
+    result = context.switch(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 3153, in refresh
+    loading.load_on_ident(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/loading.py", line 509, in load_on_ident
+    return load_on_pk_identity(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/loading.py", line 694, in load_on_pk_identity
+    session.execute(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2351, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2226, in _execute_internal
+    conn = self._connection_for_bind(bind)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2090, in _connection_for_bind
+    TransactionalContext._trans_ctx_check(self)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/util.py", line 111, in _trans_ctx_check
+    raise exc.InvalidRequestError(
+sqlalchemy.exc.InvalidRequestError: Can't operate on closed transaction inside context manager.  Please complete the context manager before emitting further commands.
+2024-07-25 15:27:57,034 - backend.user_service.main - INFO - Received request to create user: uid='voyyeuLBvjEDNhwfVnrlvEAObvgu' email='wㅇ@ㅇㅁㄴㅇㄴㅁㅇ' first_name='ㅇㄴ' last_name='ㄴㅇ' role=<UserRole.member: 'member'>
+2024-07-25 15:27:57,345 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 15:27:57,346 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 15:27:57,422 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 15:27:57,422 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 15:27:57,523 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 15:27:57,523 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 15:27:57,559 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 15:27:57,563 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 15:27:57,563 - sqlalchemy.engine.Engine - INFO - [generated in 0.00048s] ('voyyeuLBvjEDNhwfVnrlvEAObvgu', 'wㅇ@ㅇㅁㄴㅇㄴㅁㅇ', None, None, None, None, None, None, 'ㅇㄴ', 'ㄴㅇ', 'member')
+2024-07-25 15:27:57,945 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 15:27:58,035 - backend.user_service.main - ERROR - Unexpected error in create_user: Can't operate on closed transaction inside context manager.  Please complete the context manager before emitting further commands.
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 46, in create_user
+    db_user = await crud.create_member(db=db, member=user)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/crud.py", line 37, in create_member
+    await db.refresh(db_member)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py", line 331, in refresh
+    await greenlet_spawn(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 190, in greenlet_spawn
+    result = context.switch(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 3153, in refresh
+    loading.load_on_ident(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/loading.py", line 509, in load_on_ident
+    return load_on_pk_identity(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/loading.py", line 694, in load_on_pk_identity
+    session.execute(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2351, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2226, in _execute_internal
+    conn = self._connection_for_bind(bind)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2090, in _connection_for_bind
+    TransactionalContext._trans_ctx_check(self)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/util.py", line 111, in _trans_ctx_check
+    raise exc.InvalidRequestError(
+sqlalchemy.exc.InvalidRequestError: Can't operate on closed transaction inside context manager.  Please complete the context manager before emitting further commands.
+2024-07-25 15:28:08,882 - backend.user_service.main - INFO - Received request to create user: uid='xWqfkPaY3Q8hol4ayEyyUa0zHOa2' email='w3@ㅇㅁㄴㅇㄴㅁㅇ' first_name='ㅇㄴ' last_name='ㄴㅇ' role=<UserRole.member: 'member'>
+2024-07-25 15:28:08,884 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 15:28:08,884 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 15:28:08,884 - sqlalchemy.engine.Engine - INFO - [cached since 11.32s ago] ('xWqfkPaY3Q8hol4ayEyyUa0zHOa2', 'w3@ㅇㅁㄴㅇㄴㅁㅇ', None, None, None, None, None, None, 'ㅇㄴ', 'ㄴㅇ', 'member')
+2024-07-25 15:28:08,927 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 15:28:08,937 - backend.user_service.main - ERROR - Unexpected error in create_user: Can't operate on closed transaction inside context manager.  Please complete the context manager before emitting further commands.
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 46, in create_user
+    db_user = await crud.create_member(db=db, member=user)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/crud.py", line 37, in create_member
+    await db.refresh(db_member)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py", line 331, in refresh
+    await greenlet_spawn(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 190, in greenlet_spawn
+    result = context.switch(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 3153, in refresh
+    loading.load_on_ident(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/loading.py", line 509, in load_on_ident
+    return load_on_pk_identity(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/loading.py", line 694, in load_on_pk_identity
+    session.execute(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2351, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2226, in _execute_internal
+    conn = self._connection_for_bind(bind)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2090, in _connection_for_bind
+    TransactionalContext._trans_ctx_check(self)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/util.py", line 111, in _trans_ctx_check
+    raise exc.InvalidRequestError(
+sqlalchemy.exc.InvalidRequestError: Can't operate on closed transaction inside context manager.  Please complete the context manager before emitting further commands.
+2024-07-25 15:30:20,399 - backend.user_service.main - INFO - Received request to create user: uid='wdbCsl0pCF1HKgoWWlr5ocqIW4ws' email='wㅎ@ㅇㅁㄴㅇㄴㅁㅇ' first_name='ㅇㄴ' last_name='ㄴㅇ' role=<UserRole.member: 'member'>
+2024-07-25 15:30:20,940 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 15:30:20,940 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 15:30:21,083 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 15:30:21,083 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 15:30:21,261 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 15:30:21,263 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 15:30:21,427 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 15:30:21,430 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 15:30:21,430 - sqlalchemy.engine.Engine - INFO - [generated in 0.00052s] ('wdbCsl0pCF1HKgoWWlr5ocqIW4ws', 'wㅎ@ㅇㅁㄴㅇㄴㅁㅇ', None, None, None, None, None, None, 'ㅇㄴ', 'ㄴㅇ', 'member')
+2024-07-25 15:30:21,536 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 15:30:21,615 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 15:30:21,618 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 15:30:21,618 - sqlalchemy.engine.Engine - INFO - [generated in 0.00027s] ('wdbCsl0pCF1HKgoWWlr5ocqIW4ws',)
+2024-07-25 15:30:21,693 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Member object at 0x11045c3e0>
+2024-07-25 15:30:21,695 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 15:33:32,636 - backend.user_service.main - INFO - Received request to create user: uid='sYyvCuWupEs0whkZDbsBRzB1i1Kf' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 15:33:32,638 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 15:33:32,639 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 15:33:32,639 - sqlalchemy.engine.Engine - INFO - [cached since 191.2s ago] ('sYyvCuWupEs0whkZDbsBRzB1i1Kf', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 15:33:32,662 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 15:33:32,673 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 15:33:32,674 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 15:33:32,674 - sqlalchemy.engine.Engine - INFO - [cached since 191.1s ago] ('sYyvCuWupEs0whkZDbsBRzB1i1Kf',)
+2024-07-25 15:33:32,712 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Member object at 0x11045e360>
+2024-07-25 15:33:32,712 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 16:00:55,711 - backend.user_service.main - INFO - Received request to create user: uid='YwDGDAK8AdeXAk9r5s5McS4MV3qu' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 16:00:56,176 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 16:00:56,176 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 16:00:56,220 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 16:00:56,221 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 16:00:56,295 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 16:00:56,295 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 16:00:56,326 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 16:00:56,331 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 16:00:56,331 - sqlalchemy.engine.Engine - INFO - [generated in 0.00054s] ('YwDGDAK8AdeXAk9r5s5McS4MV3qu', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 16:00:56,530 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 16:00:56,539 - backend.user_service.main - ERROR - Unexpected error in create_user: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.UniqueViolationError'>: duplicate key value violates unique constraint "ix_members_email"
+DETAIL:  Key (email)=(user@example.com) already exists.
+[SQL: INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)]
+[parameters: ('YwDGDAK8AdeXAk9r5s5McS4MV3qu', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 538, in _prepare_and_execute
+    self._rows = deque(await prepared_stmt.fetch(*parameters))
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 176, in fetch
+    data = await self.__bind_execute(args, 0, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 241, in __bind_execute
+    data, status, _ = await self.__do_execute(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 230, in __do_execute
+    return await executor(protocol)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "asyncpg/protocol/protocol.pyx", line 207, in bind_execute
+asyncpg.exceptions.UniqueViolationError: duplicate key value violates unique constraint "ix_members_email"
+DETAIL:  Key (email)=(user@example.com) already exists.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 924, in do_execute
+    cursor.execute(statement, parameters)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 572, in execute
+    self._adapt_connection.await_(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 550, in _prepare_and_execute
+    self._handle_exception(error)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 501, in _handle_exception
+    self._adapt_connection._handle_exception(error)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 784, in _handle_exception
+    raise translated_error from error
+sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.IntegrityError: <class 'asyncpg.exceptions.UniqueViolationError'>: duplicate key value violates unique constraint "ix_members_email"
+DETAIL:  Key (email)=(user@example.com) already exists.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 45, in create_user
+    db_user = await crud.create_member(db=db, member=user)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/crud.py", line 37, in create_member
+    await db.commit()
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py", line 1009, in commit
+    await greenlet_spawn(self.sync_session.commit)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 203, in greenlet_spawn
+    result = context.switch(value)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2017, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1302, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1277, in _prepare_impl
+    self.session.flush()
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4341, in flush
+    self._flush(objects)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4476, in _flush
+    with util.safe_reraise():
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4437, in _flush
+    flush_context.execute()
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1048, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1418, in execute
+    return meth(
+           ^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 515, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1640, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2353, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 924, in do_execute
+    cursor.execute(statement, parameters)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 572, in execute
+    self._adapt_connection.await_(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 550, in _prepare_and_execute
+    self._handle_exception(error)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 501, in _handle_exception
+    self._adapt_connection._handle_exception(error)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 784, in _handle_exception
+    raise translated_error from error
+sqlalchemy.exc.IntegrityError: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.UniqueViolationError'>: duplicate key value violates unique constraint "ix_members_email"
+DETAIL:  Key (email)=(user@example.com) already exists.
+[SQL: INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)]
+[parameters: ('YwDGDAK8AdeXAk9r5s5McS4MV3qu', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-07-25 16:01:15,838 - backend.user_service.main - INFO - Received request to create user: uid='BjhUdB2sc74t3roisGYPn7WpsKiT' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 16:01:15,842 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 16:01:15,843 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 16:01:15,843 - sqlalchemy.engine.Engine - INFO - [cached since 19.51s ago] ('BjhUdB2sc74t3roisGYPn7WpsKiT', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 16:01:15,876 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 16:01:15,884 - backend.user_service.main - ERROR - Unexpected error in create_user: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.UniqueViolationError'>: duplicate key value violates unique constraint "ix_members_email"
+DETAIL:  Key (email)=(user@example.com) already exists.
+[SQL: INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)]
+[parameters: ('BjhUdB2sc74t3roisGYPn7WpsKiT', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 538, in _prepare_and_execute
+    self._rows = deque(await prepared_stmt.fetch(*parameters))
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 176, in fetch
+    data = await self.__bind_execute(args, 0, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 241, in __bind_execute
+    data, status, _ = await self.__do_execute(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 230, in __do_execute
+    return await executor(protocol)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "asyncpg/protocol/protocol.pyx", line 207, in bind_execute
+asyncpg.exceptions.UniqueViolationError: duplicate key value violates unique constraint "ix_members_email"
+DETAIL:  Key (email)=(user@example.com) already exists.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 924, in do_execute
+    cursor.execute(statement, parameters)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 572, in execute
+    self._adapt_connection.await_(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 550, in _prepare_and_execute
+    self._handle_exception(error)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 501, in _handle_exception
+    self._adapt_connection._handle_exception(error)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 784, in _handle_exception
+    raise translated_error from error
+sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.IntegrityError: <class 'asyncpg.exceptions.UniqueViolationError'>: duplicate key value violates unique constraint "ix_members_email"
+DETAIL:  Key (email)=(user@example.com) already exists.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 45, in create_user
+    db_user = await crud.create_member(db=db, member=user)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/crud.py", line 37, in create_member
+    await db.commit()
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py", line 1009, in commit
+    await greenlet_spawn(self.sync_session.commit)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 203, in greenlet_spawn
+    result = context.switch(value)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2017, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1302, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1277, in _prepare_impl
+    self.session.flush()
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4341, in flush
+    self._flush(objects)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4476, in _flush
+    with util.safe_reraise():
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4437, in _flush
+    flush_context.execute()
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1048, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1418, in execute
+    return meth(
+           ^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 515, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1640, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2353, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 924, in do_execute
+    cursor.execute(statement, parameters)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 572, in execute
+    self._adapt_connection.await_(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 550, in _prepare_and_execute
+    self._handle_exception(error)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 501, in _handle_exception
+    self._adapt_connection._handle_exception(error)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 784, in _handle_exception
+    raise translated_error from error
+sqlalchemy.exc.IntegrityError: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.UniqueViolationError'>: duplicate key value violates unique constraint "ix_members_email"
+DETAIL:  Key (email)=(user@example.com) already exists.
+[SQL: INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)]
+[parameters: ('BjhUdB2sc74t3roisGYPn7WpsKiT', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-07-25 16:01:40,488 - backend.user_service.main - INFO - Received request to create user: uid='E7ekhUlj2ZblfYhsRdQOWW8HphrM' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 16:01:40,490 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 16:01:40,491 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 16:01:40,491 - sqlalchemy.engine.Engine - INFO - [cached since 44.16s ago] ('E7ekhUlj2ZblfYhsRdQOWW8HphrM', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 16:01:40,547 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 16:01:40,617 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 16:01:40,622 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 16:01:40,622 - sqlalchemy.engine.Engine - INFO - [generated in 0.00029s] ('E7ekhUlj2ZblfYhsRdQOWW8HphrM',)
+2024-07-25 16:01:40,660 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 16:01:40,672 - backend.user_service.main - ERROR - ValueError in create_user: The default Firebase app does not exist. Make sure to initialize the SDK by calling initialize_app().
+2024-07-25 16:02:27,928 - backend.user_service.main - INFO - Received request to create user: uid='xC5tEhiyi7cBvyF3m3ZvXfriNMIp' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 16:02:27,929 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 16:02:27,931 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 16:02:27,931 - sqlalchemy.engine.Engine - INFO - [cached since 91.6s ago] ('xC5tEhiyi7cBvyF3m3ZvXfriNMIp', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 16:02:27,955 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 16:02:27,977 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 16:02:27,978 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 16:02:27,978 - sqlalchemy.engine.Engine - INFO - [cached since 47.36s ago] ('xC5tEhiyi7cBvyF3m3ZvXfriNMIp',)
+2024-07-25 16:02:28,074 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 16:02:28,098 - backend.user_service.main - ERROR - ValueError in create_user: The default Firebase app does not exist. Make sure to initialize the SDK by calling initialize_app().
+2024-07-25 16:03:27,636 - backend.user_service.main - INFO - Received request to create user: uid='39KuvCuuvHw67lHcJkAHL1lC3ef4' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 16:03:27,638 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 16:03:27,639 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 16:03:27,640 - sqlalchemy.engine.Engine - INFO - [cached since 151.3s ago] ('39KuvCuuvHw67lHcJkAHL1lC3ef4', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 16:03:27,675 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 16:03:27,687 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 16:03:27,688 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 16:03:27,688 - sqlalchemy.engine.Engine - INFO - [cached since 107.1s ago] ('39KuvCuuvHw67lHcJkAHL1lC3ef4',)
+2024-07-25 16:03:27,714 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 16:03:27,729 - backend.user_service.main - ERROR - ValueError in create_user: The default Firebase app does not exist. Make sure to initialize the SDK by calling initialize_app().
+2024-07-25 16:07:48,664 - backend.user_service.main - INFO - Received request to create user: uid='ioCWZZ7roObrlyRTnoC4CbFAdHmx' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 16:07:48,666 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 16:07:48,667 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 16:07:48,668 - sqlalchemy.engine.Engine - INFO - [cached since 412.3s ago] ('ioCWZZ7roObrlyRTnoC4CbFAdHmx', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 16:07:48,684 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 16:07:48,710 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 16:07:48,710 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 16:07:48,710 - sqlalchemy.engine.Engine - INFO - [cached since 368.1s ago] ('ioCWZZ7roObrlyRTnoC4CbFAdHmx',)
+2024-07-25 16:07:48,736 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-25 16:07:48,756 - backend.user_service.main - ERROR - ValueError in create_user: The default Firebase app does not exist. Make sure to initialize the SDK by calling initialize_app().
+2024-07-25 16:11:01,652 - backend.user_service.main - INFO - Received request to create user: uid='gtYZhjDWvl1Kc3BBM2JSNWWlkcBb' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 16:11:01,953 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 16:11:01,953 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 16:11:01,994 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 16:11:01,994 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 16:11:02,078 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 16:11:02,078 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 16:11:02,136 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 16:11:02,140 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 16:11:02,140 - sqlalchemy.engine.Engine - INFO - [generated in 0.00083s] ('gtYZhjDWvl1Kc3BBM2JSNWWlkcBb', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 16:11:02,278 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 16:11:02,287 - backend.user_service.main - ERROR - Unexpected error in create_user: Can't operate on closed transaction inside context manager.  Please complete the context manager before emitting further commands.
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/main.py", line 46, in create_user
+    db_user = await crud.create_member(db=db, member=user)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/user_service/crud.py", line 38, in create_member
+    await db.refresh(db_member)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py", line 331, in refresh
+    await greenlet_spawn(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 190, in greenlet_spawn
+    result = context.switch(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 3153, in refresh
+    loading.load_on_ident(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/loading.py", line 509, in load_on_ident
+    return load_on_pk_identity(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/loading.py", line 694, in load_on_pk_identity
+    session.execute(
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2351, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2226, in _execute_internal
+    conn = self._connection_for_bind(bind)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2090, in _connection_for_bind
+    TransactionalContext._trans_ctx_check(self)
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/venv/lib/python3.12/site-packages/sqlalchemy/engine/util.py", line 111, in _trans_ctx_check
+    raise exc.InvalidRequestError(
+sqlalchemy.exc.InvalidRequestError: Can't operate on closed transaction inside context manager.  Please complete the context manager before emitting further commands.
+2024-07-25 16:11:55,053 - backend.user_service.main - INFO - Received request to create user: uid='vNoeaF7jqvpHqnkJTSgQCb3IajHq' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-07-25 16:11:55,560 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-25 16:11:55,561 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 16:11:55,699 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-25 16:11:55,700 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 16:11:55,781 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-25 16:11:55,781 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-25 16:11:55,820 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 16:11:55,823 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole)
+2024-07-25 16:11:55,823 - sqlalchemy.engine.Engine - INFO - [generated in 0.00047s] ('vNoeaF7jqvpHqnkJTSgQCb3IajHq', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member')
+2024-07-25 16:11:55,968 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-25 16:11:55,979 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-25 16:11:55,982 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-25 16:11:55,982 - sqlalchemy.engine.Engine - INFO - [generated in 0.00024s] ('vNoeaF7jqvpHqnkJTSgQCb3IajHq',)
+2024-07-25 16:11:56,058 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Member object at 0x107c90d70>
+2024-07-25 16:11:56,060 - sqlalchemy.engine.Engine - INFO - ROLLBACK

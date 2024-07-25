@@ -1,35 +1,12 @@
-from datetime import datetime, timedelta
-from typing import Optional, Annotated
-from sqlalchemy import select
-import jwt
-from jwt.exceptions import PyJWTError 
-import bcrypt
+from typing import Optional
 from fastapi import Depends, HTTPException, status
-
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
-import pytz
-from . import schemas, models
-from .database import AsyncSession, get_db
-from . import crud  
-import os
-import logging
-import re
-import datetime as dt  # Renamed datetime to dt to avoid conflict with datetime module
+from firebase_admin import auth
+from . import crud, models
+from .database import get_db
 
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = "HS256"
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-
-def create_access_token(data: dict, expires_delta: timedelta = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = dt.datetime.now(dt.timezone.utc) + expires_delta
-    else:
-        expire = dt.datetime.now(dt.timezone.utc) + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
     credentials_exception = HTTPException(
@@ -38,19 +15,19 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        id: str = payload.get("sub")
-        member_type: str = payload.get("type")
-        if id is None or member_type is None:
+        decoded_token = auth.verify_id_token(token)
+        uid: str = decoded_token.get("uid")
+        user_type: str = decoded_token.get("role")
+        if uid is None or user_type is None:
             raise credentials_exception
-    except JWTError:
+    except Exception:
         raise credentials_exception
 
     user = None
-    if member_type == 'member':
-        user = await crud.get_member_by_id(db, str(id))
-    elif member_type == 'trainer':
-        user = await crud.get_trainer_by_id(db, str(id))
+    if user_type == 'member':
+        user = await crud.get_member_by_uid(db, str(uid))
+    elif user_type == 'trainer':
+        user = await crud.get_trainer_by_uid(db, str(uid))
     else:
         raise credentials_exception
 
@@ -58,28 +35,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
         raise credentials_exception
     return user
 
-def verify_password(plain_password, hashed_password):
-    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
-
-async def authenticate_member(db: AsyncSession, email: str, password: str):
-    # Check member table
-    member_result = await db.execute(select(models.Member).filter(models.Member.email == email))
-    member = member_result.scalar_one_or_none()
-    if member and verify_password(password, member.hashed_password):
-        return member, 'member'
-    
-    # Check trainer table
-    trainer_result = await db.execute(select(models.Trainer).filter(models.Trainer.email == email))
-    trainer = trainer_result.scalar_one_or_none()
-    if trainer and verify_password(password, trainer.hashed_password):
-        return trainer, 'trainer'
-    
-    return None, None
-
-async def admin_required(current_member: schemas.Member = Depends(get_current_user)):
-    if current_member.role != "admin":
+async def admin_required(current_user: models.Member = Depends(get_current_user)):
+    if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
-    return current_member
+    return current_user
 
 def validate_password(password: str):
     if len(password) < 8:

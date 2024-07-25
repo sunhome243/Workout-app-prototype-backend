@@ -6,7 +6,7 @@ from enum import Enum as PyEnum
 Base = declarative_base()
 
 class UserRole(str, PyEnum):
-    member = "member"  
+    member = "member"
     trainer = "trainer"
 
 class MappingStatus(str, PyEnum):
@@ -14,11 +14,10 @@ class MappingStatus(str, PyEnum):
     accepted = "accepted"
     expired = "expired"
 
-class Member(Base, AsyncAttrs): 
-    __tablename__ = "members"  
-    member_id = Column(String, primary_key=True, index=True, unique=True)
+class Member(Base, AsyncAttrs):
+    __tablename__ = "members"
+    uid = Column(String, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
-    hashed_password = Column(String, nullable=True)
     age = Column(Integer, nullable=True)
     height = Column(Float, nullable=True)
     weight = Column(Float, nullable=True)
@@ -27,30 +26,29 @@ class Member(Base, AsyncAttrs):
     workout_goal = Column(Integer, nullable=True)
     first_name = Column(String, nullable=True)
     last_name = Column(String, nullable=True)
-    role = Column(SQLAlchemyEnum(UserRole), default=UserRole.member)  # Changed default role to 'member'
-    trainer_mappings = relationship("TrainerMemberMap", back_populates="member")  # Changed back_populates to 'member'
+    role = Column(SQLAlchemyEnum(UserRole), default=UserRole.member)
+    trainer_mappings = relationship("TrainerMemberMap", back_populates="member")
 
 class Trainer(Base, AsyncAttrs):
     __tablename__ = "trainers"
-    trainer_id = Column(String, primary_key=True, index=True, unique=True)
+    uid = Column(String, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
-    hashed_password = Column(String, nullable=False)
     first_name = Column(String, nullable=True)
     last_name = Column(String, nullable=True)
     role = Column(SQLAlchemyEnum(UserRole), default=UserRole.trainer)
     member_mappings = relationship("TrainerMemberMap", back_populates="trainer")
 
 class TrainerMemberMap(Base):
-    __tablename__ = "trainer_member_mapping"  
+    __tablename__ = "trainer_member_mapping"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    trainer_id = Column(String, ForeignKey("trainers.trainer_id"))
-    member_id = Column(String, ForeignKey("members.member_id")) 
+    trainer_uid = Column(String, ForeignKey("trainers.uid"))
+    member_uid = Column(String, ForeignKey("members.uid"))
     status = Column(SQLAlchemyEnum(MappingStatus), default=MappingStatus.pending)
-    requester_id = Column(String) 
-    remaining_sessions = Column(Integer, default=0)  
-    acceptance_date = Column(DateTime, nullable=True) 
+    requester_uid = Column(String)
+    remaining_sessions = Column(Integer, default=0)
+    acceptance_date = Column(DateTime, nullable=True)
     trainer = relationship("Trainer", back_populates="member_mappings")
-    member = relationship("Member", back_populates="trainer_mappings") 
+    member = relationship("Member", back_populates="trainer_mappings")
     
 class WorkoutGoalMap(Base):
     __tablename__ = "workout_goal_mapping"
