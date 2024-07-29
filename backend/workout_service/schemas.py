@@ -12,15 +12,15 @@ class QuestStatus(str, Enum):
 class SessionIDMap(BaseModel):
     session_id: int
     workout_date: datetime
-    member_id: str
-    trainer_id: Optional[str]
+    member_uid: str
+    trainer_uid: Optional[str]
     is_pt: bool
     session_type_id: int
     quest_id: Optional[int] = None
 
 class SessionCreate(BaseModel):
-    member_id: str
-    trainer_id: Optional[str] = None
+    member_uid: str
+    trainer_uid: Optional[str] = None
     is_pt: bool
     session_type_id: int
 
@@ -60,7 +60,7 @@ class QuestWorkoutCreate(BaseModel):
     sets: List[QuestWorkoutSetCreate]
 
 class QuestCreate(BaseModel):
-    member_id: str
+    member_uid: str
     workouts: List[QuestWorkoutCreate]
 
 class QuestWorkoutSet(QuestWorkoutSetCreate):
@@ -74,8 +74,8 @@ class QuestWorkout(BaseModel):
 
 class Quest(BaseModel):
     quest_id: int
-    trainer_id: str
-    member_id: str
+    trainer_uid: str
+    member_uid: str
     status: QuestStatus
     created_at: datetime
     workouts: List[QuestWorkout]
@@ -121,8 +121,8 @@ class SessionSave(BaseModel):
 class SessionSaveResponse(BaseModel):
     session_id: int
     workout_date: datetime
-    member_id: str
-    trainer_id: Optional[str] = None
+    member_uid: str
+    trainer_uid: Optional[str] = None
     is_pt: bool
     session_type_id: int
     quest_id: Optional[int] = None

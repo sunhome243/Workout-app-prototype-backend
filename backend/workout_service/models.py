@@ -43,8 +43,8 @@ class SessionIDMap(Base):
     session_id = Column(Integer, primary_key=True, index=True)
     session_type_id = Column(Integer, ForeignKey("session_type_map.session_type_id"))
     workout_date = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    member_id = Column(String, nullable=False)
-    trainer_id = Column(String, nullable=True)
+    member_uid = Column(String, nullable=False)
+    trainer_uid = Column(String, nullable=True)
     is_pt = Column(Boolean, nullable=False)
     quest_id = Column(Integer, ForeignKey('quests.quest_id'), nullable=True)
     # Relationships
@@ -71,8 +71,8 @@ class Session(Base):
 class Quest(Base):
     __tablename__ = 'quests'
     quest_id = Column(Integer, primary_key=True, autoincrement=True)
-    trainer_id = Column(String, nullable=False)
-    member_id = Column(String, nullable=False)
+    trainer_uid = Column(String, nullable=False)
+    member_uid = Column(String, nullable=False)
     status = Column(Enum(QuestStatus), default=QuestStatus.NOT_STARTED) 
     workout_date = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     # Relationships

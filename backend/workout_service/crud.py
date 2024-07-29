@@ -25,19 +25,19 @@ caches.set_config({
     }
 })
 
-@cached(ttl=3000, key="trainer_member_mapping:{trainer_id}:{member_id}")
-async def check_trainer_member_mapping(trainer_id: str, member_id: str, token: str):
+@cached(ttl=3000, key="trainer_member_mapping:{trainer_uid}:{member_uid}")
+async def check_trainer_member_mapping(trainer_uid: str, member_uid: str, token: str):
     async with httpx.AsyncClient() as client:
         headers = {"Authorization": token}
         try:
-            url = f"{USER_SERVICE_URL}/api/check-trainer-member-mapping/{trainer_id}/{member_id}"
+            url = f"{USER_SERVICE_URL}/api/check-trainer-member-mapping/{trainer_uid}/{member_uid}"
             logger.debug(f"Sending request to: {url}")
             response = await client.get(url, headers=headers)
             response.raise_for_status()
             result = response.json()
             logger.debug(f"Trainer-member mapping check result: {result}")
             mapping_exists = result.get("exists", False)
-            logger.info(f"Mapping exists for trainer {trainer_id} and member {member_id}: {mapping_exists}")
+            logger.info(f"Mapping exists for trainer {trainer_uid} and member {member_uid}: {mapping_exists}")
             return mapping_exists
         except httpx.HTTPStatusError as e:
             logger.error(f"HTTP error occurred while checking trainer-member mapping: {e.response.status_code} - {e.response.text}")
@@ -52,33 +52,33 @@ async def create_session(
     db: AsyncSession,
     session_type_id: int | None,
     quest_id: int | None,
-    member_id: str | None,
+    member_uid: str | None,
     current_user: dict,
     authorization: str
 ):
     try:
         if current_user['user_type'] == 'trainer':
-            if not member_id:
-                raise ValueError("member_id is required for trainers")
+            if not member_uid:
+                raise ValueError("member_uid is required for trainers")
             
-            mapping_exists = await check_trainer_member_mapping(current_user.get('id'), member_id, authorization)
+            mapping_exists = await check_trainer_member_mapping(current_user.get('uid'), member_uid, authorization)
             
             if not mapping_exists:
                 raise HTTPException(status_code=403, detail="Trainer is not associated with this member")
             is_pt = True
             session_type_id = 3  # Always set session_type_id to 3 for trainers
-            logger.info(f"Automatically set session_type_id to 3 for trainer {current_user.get('id')}")
+            logger.info(f"Automatically set session_type_id to 3 for trainer {current_user.get('uid')}")
         else:  # member
-            if member_id and member_id != current_user.get('id'):
+            if member_uid and member_uid != current_user.get('uid'):
                 raise HTTPException(status_code=403, detail="Member can only create sessions for themselves")
-            member_id = current_user.get('id')
+            member_uid = current_user.get('uid')
             is_pt = False
             if session_type_id is None:
                 session_type_id = 1  # Default to 1 for members if not specified
-                logger.info(f"Automatically set session_type_id to 1 for member {member_id}")
+                logger.info(f"Automatically set session_type_id to 1 for member {member_uid}")
         
         session_data = {
-            "member_id": member_id,
+            "member_uid": member_uid,
             "is_pt": is_pt,
             "session_type_id": session_type_id,
         }
@@ -107,12 +107,12 @@ async def create_session(
         await db.rollback()
         raise HTTPException(status_code=500, detail=f"Error creating session: {str(e)}")
 
-async def get_oldest_not_started_quest(db: AsyncSession, member_id: str):
+async def get_oldest_not_started_quest(db: AsyncSession, member_uid: str):
     try:
         stmt = select(models.Quest).options(
             selectinload(models.Quest.workouts).selectinload(models.QuestWorkout.sets)
         ).filter(
-            models.Quest.member_id == member_id,
+            models.Quest.member_uid == member_uid,
             models.Quest.status == schemas.QuestStatus.NOT_STARTED
         ).order_by(models.Quest.workout_date)
         result = await db.execute(stmt)
@@ -127,7 +127,7 @@ async def save_session(db: AsyncSession, session_data: schemas.SessionSave, curr
         if not session:
             raise HTTPException(status_code=404, detail="Session not found")
         
-        if session.member_id != current_member['id'] and current_member['user_type'] != 'trainer':
+        if session.member_uid != current_member['uid'] and current_member['user_type'] != 'trainer':
             raise HTTPException(status_code=403, detail="Not authorized to save this session")
         
         # Delete existing exercises for this session
@@ -152,7 +152,7 @@ async def save_session(db: AsyncSession, session_data: schemas.SessionSave, curr
                 quest.status = schemas.QuestStatus.COMPLETED
         
         if session.is_pt:
-            await update_remaining_sessions(session.member_id, session.trainer_id, authorization)
+            await update_remaining_sessions(session.member_uid, session.trainer_uid, authorization)
         
         await db.commit()
         await db.refresh(session)
@@ -161,8 +161,8 @@ async def save_session(db: AsyncSession, session_data: schemas.SessionSave, curr
         return schemas.SessionSaveResponse(
             session_id=session.session_id,
             workout_date=session.workout_date,
-            member_id=session.member_id,
-            trainer_id=session.trainer_id,
+            member_uid=session.member_uid,
+            trainer_uid=session.trainer_uid,
             is_pt=session.is_pt,
             session_type_id=session.session_type_id,
             quest_id=session.quest_id
@@ -172,16 +172,16 @@ async def save_session(db: AsyncSession, session_data: schemas.SessionSave, curr
         await db.rollback()
         raise
 
-async def update_remaining_sessions(member_id: str, trainer_id: str, token: str):
+async def update_remaining_sessions(member_uid: str, trainer_uid: str, token: str):
     async with httpx.AsyncClient() as client:
         try:
-            url = f"{USER_SERVICE_URL}/api/trainer-member-mapping/{member_id}/update-sessions"
+            url = f"{USER_SERVICE_URL}/api/trainer-member-mapping/{member_uid}/update-sessions"
             data = {"sessions_to_add": -1}  # Decrease by 1
             headers = {"Authorization": f"Bearer {token}"}
             response = await client.patch(url, json=data, headers=headers)
             response.raise_for_status()
             result = response.json()
-            logger.info(f"Updated remaining sessions for member {member_id} and trainer {trainer_id}: {result}")
+            logger.info(f"Updated remaining sessions for member {member_uid} and trainer {trainer_uid}: {result}")
         except httpx.HTTPStatusError as e:
             logger.error(f"HTTP error occurred while updating remaining sessions: {e.response.status_code} - {e.response.text}")
             raise HTTPException(status_code=e.response.status_code, detail=f"Error updating remaining sessions: {e.response.text}")
@@ -190,8 +190,8 @@ async def update_remaining_sessions(member_id: str, trainer_id: str, token: str)
             raise HTTPException(status_code=500, detail="Unexpected error occurred")
 
     
-async def get_sessions_by_member(db: AsyncSession, member_id: str):
-    query = select(models.SessionIDMap).filter_by(member_id=member_id)
+async def get_sessions_by_member(db: AsyncSession, member_uid: str):
+    query = select(models.SessionIDMap).filter_by(member_uid=member_uid)
     result = await db.execute(query)
     return result.scalars().all()
 
@@ -200,11 +200,11 @@ async def get_sets_by_session(db: AsyncSession, session_id: int):
     result = await db.execute(query)
     return result.scalars().all()
 
-async def create_quest(db: AsyncSession, quest_data: schemas.QuestCreate, trainer_id: str):
+async def create_quest(db: AsyncSession, quest_data: schemas.QuestCreate, trainer_uid: str):
     try:
         new_quest = models.Quest(
-            trainer_id=trainer_id,
-            member_id=quest_data.member_id,
+            trainer_uid=trainer_uid,
+            member_uid=quest_data.member_uid,
             status=models.QuestStatus.NOT_STARTED 
         )
         db.add(new_quest)
@@ -246,24 +246,24 @@ async def create_quest(db: AsyncSession, quest_data: schemas.QuestCreate, traine
         raise
 
 
-async def get_quests_by_trainer(db: AsyncSession, trainer_id: str):
+async def get_quests_by_trainer(db: AsyncSession, trainer_uid: str):
     stmt = select(models.Quest).options(
         selectinload(models.Quest.workouts).selectinload(models.QuestWorkout.sets)
-    ).filter(models.Quest.trainer_id == trainer_id)
+    ).filter(models.Quest.trainer_uid == trainer_uid)
     result = await db.execute(stmt)
     return result.unique().scalars().all()
 
-async def get_quests_by_member(db: AsyncSession, member_id: str):
+async def get_quests_by_member(db: AsyncSession, member_uid: str):
     stmt = select(models.Quest).options(
         selectinload(models.Quest.workouts).selectinload(models.QuestWorkout.sets)
-    ).filter(models.Quest.member_id == member_id)
+    ).filter(models.Quest.member_uid == member_uid)
     result = await db.execute(stmt)
     return result.scalars().all()
 
-async def get_quests_by_trainer_and_member(db: AsyncSession, trainer_id: str, member_id: str):
+async def get_quests_by_trainer_and_member(db: AsyncSession, trainer_uid: str, member_uid: str):
     stmt = select(models.Quest).options(
         selectinload(models.Quest.workouts).selectinload(models.QuestWorkout.sets)
-    ).filter(models.Quest.trainer_id == trainer_id, models.Quest.member_id == member_id)
+    ).filter(models.Quest.trainer_uid == trainer_uid, models.Quest.member_uid == member_uid)
     result = await db.execute(stmt)
     return result.scalars().all()
 
@@ -274,17 +274,17 @@ async def get_quest_by_id(db: AsyncSession, quest_id: int):
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
-async def update_quests_status(db: AsyncSession, member_id: str):
+async def update_quests_status(db: AsyncSession, member_uid: str):
     try:
         stmt = update(models.Quest).where(
-            (models.Quest.member_id == member_id) & 
+            (models.Quest.member_uid == member_uid) & 
             (models.Quest.status == models.QuestStatus.NOT_STARTED)
         ).values(status=models.QuestStatus.DEADLINE_PASSED)
         
         result = await db.execute(stmt)
         await db.commit()
         
-        logger.info(f"Updated {result.rowcount} quests to 'Deadline passed' for member {member_id}")
+        logger.info(f"Updated {result.rowcount} quests to 'Deadline passed' for member {member_uid}")
     except Exception as e:
         logger.error(f"Error updating quests status: {str(e)}")
         await db.rollback()
@@ -313,7 +313,7 @@ async def delete_quest(db: AsyncSession, quest_id: int):
         await db.rollback()
         raise
     
-async def get_workout_records(db: AsyncSession, member_id: str, workout_key: int):
+async def get_workout_records(db: AsyncSession, member_uid: str, workout_key: int):
     try:
         stmt = select(models.Quest, models.QuestWorkoutSet).join(
             models.QuestWorkout,
@@ -326,7 +326,7 @@ async def get_workout_records(db: AsyncSession, member_id: str, workout_key: int
             models.QuestWorkout.quest_id == models.Quest.quest_id
         ).where(
             and_(
-                models.Quest.member_id == member_id,
+                models.Quest.member_uid == member_uid,
                 models.QuestWorkoutSet.workout_key == workout_key
             )
         ).order_by(models.Quest.created_at.desc(), models.QuestWorkoutSet.set_number)
@@ -346,7 +346,7 @@ async def get_workout_records(db: AsyncSession, member_id: str, workout_key: int
                 "rest_time": workout_set.rest_time
             })
 
-        logger.info(f"Retrieved workout records for member {member_id} and workout key {workout_key}")
+        logger.info(f"Retrieved workout records for member {member_uid} and workout key {workout_key}")
         return dict(structured_records)
     except Exception as e:
         logger.error(f"Error retrieving workout records: {str(e)}", exc_info=True)
@@ -399,10 +399,10 @@ async def get_workouts_by_part(db: AsyncSession, workout_part_id: int = None):
         logger.error(f"Error retrieving workouts by part: {str(e)}", exc_info=True)
         raise
 
-async def get_session_counts(db: AsyncSession, member_id: str, start_date: datetime, end_date: datetime):
+async def get_session_counts(db: AsyncSession, member_uid: str, start_date: datetime, end_date: datetime):
     query = select(models.SessionIDMap).where(
         and_(
-            models.SessionIDMap.member_id == member_id,
+            models.SessionIDMap.member_uid == member_uid,
             models.SessionIDMap.workout_date >= start_date,
             models.SessionIDMap.workout_date < end_date
         )
@@ -430,7 +430,7 @@ async def get_session_counts(db: AsyncSession, member_id: str, start_date: datet
     return counts
 
 async def get_last_session_update(db: AsyncSession, user_id: str) -> datetime:
-    query = select(func.max(models.SessionIDMap.workout_date)).where(models.SessionIDMap.member_id == user_id)
+    query = select(func.max(models.SessionIDMap.workout_date)).where(models.SessionIDMap.member_uid == user_id)
     result = await db.execute(query)
     last_updated = result.scalar_one_or_none()
     return last_updated or datetime.min

@@ -7,7 +7,7 @@ class TestTrainerRouter:
     @pytest.mark.asyncio
     async def test_create_trainer(self, user_client: AsyncClient, db_session, monkeypatch):
         mock_trainer = models.Trainer(
-            trainer_id="AAAAA", 
+            trainer_uid="AAAAA", 
             email="trainer@example.com", 
             first_name="John", 
             last_name="Doe",
@@ -17,7 +17,7 @@ class TestTrainerRouter:
         mock_create_trainer = AsyncMock(return_value=mock_trainer)
         monkeypatch.setattr(crud, "create_trainer", mock_create_trainer)
         
-        data = {"trainer_id": "AAAAA", "email": "trainer@example.com", "password": "password", "first_name": "John", "last_name": "Doe"}
+        data = {"trainer_uid": "AAAAA", "email": "trainer@example.com", "password": "password", "first_name": "John", "last_name": "Doe"}
         response = await user_client.post("/api/trainers/", json=data)
         assert response.status_code == 200
         assert response.json()["email"] == data["email"]
@@ -29,7 +29,7 @@ class TestTrainerRouter:
         print(f"Attributes of user_client: {dir(user_client)}")
         
         mock_trainer = models.Trainer(
-            trainer_id="AAAAA",
+            trainer_uid="AAAAA",
             email="trainer_test@example.com",
             first_name="Trainer",
             last_name="Test",
@@ -52,14 +52,14 @@ class TestTrainerRouter:
         mock_authenticate.assert_awaited_once_with(db_session, "trainer_test@example.com", "trainerpassword")
         mock_create_token.assert_called_once()
         call_args = mock_create_token.call_args[1]
-        assert call_args["data"] == {"sub": str(mock_trainer.trainer_id), "type": "trainer"}
+        assert call_args["data"] == {"sub": str(mock_trainer.trainer_uid), "type": "trainer"}
         assert "expires_delta" in call_args
 
     @pytest.mark.asyncio
     async def test_update_trainer(self, authenticated_trainer_client: AsyncClient, db_session, monkeypatch):
         update_data = {"first_name": "Updated", "last_name": "Trainer"}
         mock_updated_trainer = models.Trainer(
-            trainer_id="AAAAA",  
+            trainer_uid="AAAAA",  
             **update_data,
             email="trainer@example.com",
             role="trainer",
@@ -76,7 +76,7 @@ class TestTrainerRouter:
     @pytest.mark.asyncio
     async def test_read_specific_connected_member_info(self, authenticated_trainer_client: AsyncClient, db_session, monkeypatch):
         mock_member_info = schemas.ConnectedMemberInfo(
-            member_id="AAAAA",
+            member_uid="AAAAA",
             email="member@example.com",
             first_name="Test",
             last_name="Member",
@@ -97,7 +97,7 @@ class TestTrainerRouter:
         response_data = response.json()
 
         expected_fields = [
-            "member_id", "first_name", "last_name", "age", "height", "weight",
+            "member_uid", "first_name", "last_name", "age", "height", "weight",
             "workout_level", "workout_frequency", "workout_goal"
         ]
         for field in expected_fields:

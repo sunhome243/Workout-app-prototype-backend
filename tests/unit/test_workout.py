@@ -24,7 +24,7 @@ async def test_get_sessions(mock_check_mapping, mock_get_sets, mock_get_sessions
     }
     mock_get_current_user.return_value = mock_current_member
     mock_get_sessions.return_value = [
-        AsyncMock(session_id=1, workout_date=date(2024, 7, 10), member_id="member1", trainer_id=None, is_pt=False, session_type_id=2)
+        AsyncMock(session_id=1, workout_date=date(2024, 7, 10), member_uid="member1", trainer_uid=None, is_pt=False, session_type_id=2)
     ]
     mock_get_sets.return_value = [
         AsyncMock(session_id=1, workout_key=1, set_num=1, weight=50.0, reps=10, rest_time=60)
@@ -36,8 +36,8 @@ async def test_get_sessions(mock_check_mapping, mock_get_sets, mock_get_sessions
     assert response.status_code == 200
     assert response.json() == [{
         "session_id": 1,
-        "member_id": "member1",
-        "trainer_id": None,
+        "member_uid": "member1",
+        "trainer_uid": None,
         "is_pt": False,
         "session_type_id": 2,
         "sets": [{
@@ -67,8 +67,8 @@ async def test_create_quest(mock_check_mapping, mock_create_quest, mock_get_curr
     # Setup mock quest response
     mock_quest = {
         "quest_id": 1,
-        "trainer_id": "trainer1",
-        "member_id": "member1",
+        "trainer_uid": "trainer1",
+        "member_uid": "member1",
         "status": schemas.QuestStatus.NOT_STARTED,
         "created_at": datetime(2024, 7, 10, 12, 0, 0),
         "workouts": [
@@ -93,7 +93,7 @@ async def test_create_quest(mock_check_mapping, mock_create_quest, mock_get_curr
 
     # Prepare quest data
     quest_data = {
-        "member_id": "member1",
+        "member_uid": "member1",
         "workouts": [
             {
                 "workout_key": 1,
@@ -116,8 +116,8 @@ async def test_create_quest(mock_check_mapping, mock_create_quest, mock_get_curr
     assert response.status_code == 200
     assert response.json() == {
         "quest_id": 1,
-        "trainer_id": "trainer1",
-        "member_id": "member1",
+        "trainer_uid": "trainer1",
+        "member_uid": "member1",
         "status": "Not started",
         "created_at": "2024-07-10T12:00:00",
         "workouts": [
@@ -155,8 +155,8 @@ async def test_read_quests_trainer(mock_get_quests, mock_get_current_user, worko
     mock_get_quests.return_value = [
         AsyncMock(
             quest_id=1,
-            trainer_id="trainer1",
-            member_id="member1",
+            trainer_uid="trainer1",
+            member_uid="member1",
             status= schemas.QuestStatus.NOT_STARTED,
             created_at=datetime(2024, 7, 10, 12, 0, 0),
             workouts=[
@@ -183,8 +183,8 @@ async def test_read_quests_trainer(mock_get_quests, mock_get_current_user, worko
     assert response.status_code == 200
     assert response.json() == [{
         "quest_id": 1,
-        "trainer_id": "trainer1",
-        "member_id": "member1",
+        "trainer_uid": "trainer1",
+        "member_uid": "member1",
         "status": schemas.QuestStatus.NOT_STARTED,
         "created_at": "2024-07-10T12:00:00",
         "workouts": [
@@ -219,8 +219,8 @@ async def test_read_quests_for_member(mock_check_mapping, mock_get_quests, mock_
     mock_get_quests.return_value = [
         AsyncMock(
             quest_id=1,
-            trainer_id="trainer1",
-            member_id="member1",
+            trainer_uid="trainer1",
+            member_uid="member1",
             status= schemas.QuestStatus.NOT_STARTED,
             created_at=datetime(2024, 7, 10, 12, 0, 0),
             workouts=[
@@ -247,8 +247,8 @@ async def test_read_quests_for_member(mock_check_mapping, mock_get_quests, mock_
     assert response.status_code == 200
     assert response.json() == [{
         "quest_id": 1,
-        "trainer_id": "trainer1",
-        "member_id": "member1",
+        "trainer_uid": "trainer1",
+        "member_uid": "member1",
         "status": schemas.QuestStatus.NOT_STARTED.value,
         "created_at": "2024-07-10T12:00:00",
         "workouts": [
@@ -281,8 +281,8 @@ async def test_delete_quest(mock_delete_quest, mock_get_quest, mock_get_current_
     mock_get_current_user.return_value = mock_current_trainer
     mock_get_quest.return_value = AsyncMock(
         quest_id=1,
-        trainer_id="trainer1",
-        member_id="member1",
+        trainer_uid="trainer1",
+        member_uid="member1",
         status=False
     )
     mock_delete_quest.return_value = True
@@ -413,8 +413,8 @@ async def test_create_session_member(mock_create_session, mock_get_current_user,
     mock_create_session.return_value.session_id = 1
     mock_create_session.return_value.session_type_id = 2
     mock_create_session.return_value.workout_date = date(2024, 7, 10)
-    mock_create_session.return_value.member_id = "member1"
-    mock_create_session.return_value.trainer_id = None
+    mock_create_session.return_value.member_uid = "member1"
+    mock_create_session.return_value.trainer_uid = None
     mock_create_session.return_value.is_pt = False
     mock_create_session.return_value.quest_id = 1
     
@@ -425,8 +425,8 @@ async def test_create_session_member(mock_create_session, mock_get_current_user,
         "session_id": 1,
         "session_type_id": 2,
         "workout_date": "2024-07-10",
-        "member_id": "member1",
-        "trainer_id": None,
+        "member_uid": "member1",
+        "trainer_uid": None,
         "is_pt": False,
         "quest_id": 1,
         'workout_date': '2024-07-10T00:00:00'
@@ -446,22 +446,22 @@ async def test_create_session_trainer(mock_check_mapping, mock_create_session, m
     mock_create_session.return_value.session_id = 1
     mock_create_session.return_value.session_type_id = 3
     mock_create_session.return_value.workout_date = date(2024, 7, 10)
-    mock_create_session.return_value.member_id = "member1"
-    mock_create_session.return_value.trainer_id = "trainer1"
+    mock_create_session.return_value.member_uid = "member1"
+    mock_create_session.return_value.trainer_uid = "trainer1"
     mock_create_session.return_value.is_pt = True
     mock_create_session.return_value.quest_id = None
     mock_check_mapping.return_value = True
 
     # Remove session_type_id from the request
-    response = await workout_client.post("/api/create_session?member_id=member1", headers={"Authorization": "Bearer mock_token"})
+    response = await workout_client.post("/api/create_session?member_uid=member1", headers={"Authorization": "Bearer mock_token"})
     
     assert response.status_code == 200
     assert response.json() == {
         "session_id": 1,
         "session_type_id": 3,
         "workout_date": "2024-07-10T00:00:00",
-        "member_id": "member1",
-        "trainer_id": "trainer1",
+        "member_uid": "member1",
+        "trainer_uid": "trainer1",
         "is_pt": True,
         "quest_id": None
     }
@@ -471,7 +471,7 @@ async def test_create_session_trainer(mock_check_mapping, mock_create_session, m
         ANY,  # db
         None,  # session_type_id should be None in the request
         None,  # quest_id
-        "member1",  # member_id
+        "member1",  # member_uid
         mock_current_trainer,
         "Bearer mock_token"
     )
@@ -495,8 +495,8 @@ async def test_get_oldest_not_started_quest(mock_get_quest, mock_get_current_use
     # Create two quests with different dates
     older_quest = AsyncMock(
         quest_id=1,
-        trainer_id="trainer1",
-        member_id="member1",
+        trainer_uid="trainer1",
+        member_uid="member1",
         status=schemas.QuestStatus.NOT_STARTED,
         created_at=datetime(2024, 7, 1, 12, 0, 0),
         workouts=[
@@ -519,8 +519,8 @@ async def test_get_oldest_not_started_quest(mock_get_quest, mock_get_current_use
 
     newer_quest = AsyncMock(
         quest_id=2,
-        trainer_id="trainer1",
-        member_id="member1",
+        trainer_uid="trainer1",
+        member_uid="member1",
         status=schemas.QuestStatus.NOT_STARTED,
         created_at=datetime(2024, 7, 10, 12, 0, 0),
         workouts=[
@@ -559,8 +559,8 @@ async def test_get_oldest_not_started_quest(mock_get_quest, mock_get_current_use
     # Verify the complete structure of the returned quest
     assert quest_data == {
         "quest_id": 1,
-        "trainer_id": "trainer1",
-        "member_id": "member1",
+        "trainer_uid": "trainer1",
+        "member_uid": "member1",
         "status": "Not started",
         "created_at": "2024-07-01T12:00:00",
         "workouts": [
@@ -598,8 +598,8 @@ async def test_save_session(mock_save_session, mock_get_current_user, workout_cl
         session_id=1,
         session_type_id=2,
         workout_date=date(2024, 7, 10),
-        member_id="member1",
-        trainer_id=None,
+        member_uid="member1",
+        trainer_uid=None,
         is_pt=False,
         quest_id=1
     )
@@ -645,8 +645,8 @@ async def test_save_session(mock_save_session, mock_get_current_user, workout_cl
         "session_id": 1,
         "session_type_id": 2,
         "workout_date": "2024-07-10T00:00:00",
-        "member_id": "member1",
-        "trainer_id": None,
+        "member_uid": "member1",
+        "trainer_uid": None,
         "is_pt": False,
         "quest_id": 1
     }
@@ -668,7 +668,7 @@ async def test_save_session(mock_save_session, mock_get_current_user, workout_cl
 @patch("backend.workout_service.crud.get_quest_by_id")
 async def test_delete_quest_unauthorized(mock_get_quest, mock_get_current_user, workout_client):
     mock_get_current_user.return_value = {"id": "member1", "user_type": "member"}
-    mock_get_quest.return_value = AsyncMock(trainer_id="trainer1")
+    mock_get_quest.return_value = AsyncMock(trainer_uid="trainer1")
     response = await workout_client.delete("/api/quests/1", headers={"Authorization": "Bearer mock_token"})
     assert response.status_code == 403
 

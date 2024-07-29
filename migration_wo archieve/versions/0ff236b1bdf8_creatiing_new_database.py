@@ -24,18 +24,18 @@ def upgrade() -> None:
     sa.Column('session_id', sa.Integer(), nullable=False),
     sa.Column('workout_date', sa.String(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('trainer_id', sa.Integer(), nullable=False),
+    sa.Column('trainer_uid', sa.Integer(), nullable=False),
     sa.Column('is_pt', sa.String(), nullable=False),
     sa.PrimaryKeyConstraint('session_id')
     )
     op.create_index(op.f('ix_session_id_mapping_session_id'), 'session_id_mapping', ['session_id'], unique=False)
     op.create_table('trainers',
-    sa.Column('trainer_id', sa.Integer(), nullable=False),
+    sa.Column('trainer_uid', sa.Integer(), nullable=False),
     sa.Column('email', sa.String(), nullable=True),
-    sa.PrimaryKeyConstraint('trainer_id')
+    sa.PrimaryKeyConstraint('trainer_uid')
     )
     op.create_index(op.f('ix_trainers_email'), 'trainers', ['email'], unique=True)
-    op.create_index(op.f('ix_trainers_trainer_id'), 'trainers', ['trainer_id'], unique=True)
+    op.create_index(op.f('ix_trainers_trainer_id'), 'trainers', ['trainer_uid'], unique=True)
     op.create_table('users',
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('email', sa.String(), nullable=True),
@@ -59,11 +59,11 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('session_id', 'workout_key', 'set_num')
     )
     op.create_table('trainer_user_mapping',
-    sa.Column('trainer_id', sa.Integer(), nullable=False),
+    sa.Column('trainer_uid', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['trainer_id'], ['trainers.trainer_id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['trainer_uid'], ['trainers.trainer_uid'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['users.user_id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('trainer_id', 'user_id')
+    sa.PrimaryKeyConstraint('trainer_uid', 'user_id')
     )
     # ### end Alembic commands ###
 

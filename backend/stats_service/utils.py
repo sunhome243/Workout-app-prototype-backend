@@ -32,17 +32,17 @@ async def get_current_user(token: str = None):
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         logger.debug(f"Successfully decoded token. Payload: {payload}")
 
-        member_id: str = payload.get("sub")
+        member_uid: str = payload.get("sub")
         role: str = payload.get("type")  # Changed to 'role' as per your token structure
 
-        if member_id is None or role is None:
-            logger.error(f"Invalid token payload: member_id={member_id}, role={role}")
+        if member_uid is None or role is None:
+            logger.error(f"Invalid token payload: member_uid={member_uid}, role={role}")
             raise HTTPException(status_code=401, detail="Invalid token payload")
 
-        logger.debug(f"Extracted from token: member_id={member_id}, role={role}")
+        logger.debug(f"Extracted from token: member_uid={member_uid}, role={role}")
 
         member_data = {
-            "id": str(member_id),
+            "id": str(member_uid),
             "user_type": role
         }
 

@@ -1,0 +1,356 @@
+2024-07-29 17:01:04,188 - aiocache - DEBUG - redis not installed, RedisCache unavailable
+2024-07-29 17:01:04,188 - aiocache - DEBUG - aiomcache not installed, Memcached unavailable
+2024-07-29 17:01:04,269 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,270 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,310 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,312 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,335 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,336 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,336 - tests.conftest - INFO - Creating database engine
+2024-07-29 17:01:04,400 - aiosqlite - DEBUG - executing <function connect.<locals>.connector at 0x1053b3f60>
+2024-07-29 17:01:04,400 - aiosqlite - DEBUG - operation <function connect.<locals>.connector at 0x1053b3f60> completed
+2024-07-29 17:01:04,401 - aiosqlite - DEBUG - executing functools.partial(<built-in method create_function of sqlite3.Connection object at 0x1052131f0>, 'regexp', 2, <function SQLiteDialect_pysqlite.on_connect.<locals>.regexp at 0x1053ab2e0>, deterministic=True)
+2024-07-29 17:01:04,401 - aiosqlite - DEBUG - operation functools.partial(<built-in method create_function of sqlite3.Connection object at 0x1052131f0>, 'regexp', 2, <function SQLiteDialect_pysqlite.on_connect.<locals>.regexp at 0x1053ab2e0>, deterministic=True) completed
+2024-07-29 17:01:04,401 - aiosqlite - DEBUG - executing functools.partial(<built-in method create_function of sqlite3.Connection object at 0x1052131f0>, 'floor', 1, <built-in function floor>, deterministic=True)
+2024-07-29 17:01:04,401 - aiosqlite - DEBUG - operation functools.partial(<built-in method create_function of sqlite3.Connection object at 0x1052131f0>, 'floor', 1, <built-in function floor>, deterministic=True) completed
+2024-07-29 17:01:04,401 - aiosqlite - DEBUG - executing functools.partial(<built-in method cursor of sqlite3.Connection object at 0x1052131f0>)
+2024-07-29 17:01:04,401 - aiosqlite - DEBUG - operation functools.partial(<built-in method cursor of sqlite3.Connection object at 0x1052131f0>) completed
+2024-07-29 17:01:04,401 - aiosqlite - DEBUG - executing functools.partial(<built-in method execute of sqlite3.Cursor object at 0x10536b240>, 'PRAGMA read_uncommitted', [])
+2024-07-29 17:01:04,401 - aiosqlite - DEBUG - operation functools.partial(<built-in method execute of sqlite3.Cursor object at 0x10536b240>, 'PRAGMA read_uncommitted', []) completed
+2024-07-29 17:01:04,401 - aiosqlite - DEBUG - executing functools.partial(<built-in method fetchall of sqlite3.Cursor object at 0x10536b240>)
+2024-07-29 17:01:04,401 - aiosqlite - DEBUG - operation functools.partial(<built-in method fetchall of sqlite3.Cursor object at 0x10536b240>) completed
+2024-07-29 17:01:04,401 - aiosqlite - DEBUG - executing functools.partial(<built-in method close of sqlite3.Cursor object at 0x10536b240>)
+2024-07-29 17:01:04,401 - aiosqlite - DEBUG - operation functools.partial(<built-in method close of sqlite3.Cursor object at 0x10536b240>) completed
+2024-07-29 17:01:04,402 - aiosqlite - DEBUG - executing functools.partial(<built-in method rollback of sqlite3.Connection object at 0x1052131f0>)
+2024-07-29 17:01:04,402 - aiosqlite - DEBUG - operation functools.partial(<built-in method rollback of sqlite3.Connection object at 0x1052131f0>) completed
+2024-07-29 17:01:04,402 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-29 17:01:04,402 - tests.conftest - INFO - Creating tables for MemberBase
+2024-07-29 17:01:04,402 - tests.conftest - INFO - Creating tables for WorkoutBase
+2024-07-29 17:01:04,402 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-29 17:01:04,402 - aiosqlite - DEBUG - executing functools.partial(<built-in method commit of sqlite3.Connection object at 0x1052131f0>)
+2024-07-29 17:01:04,402 - aiosqlite - DEBUG - operation functools.partial(<built-in method commit of sqlite3.Connection object at 0x1052131f0>) completed
+2024-07-29 17:01:04,402 - aiosqlite - DEBUG - executing functools.partial(<built-in method rollback of sqlite3.Connection object at 0x1052131f0>)
+2024-07-29 17:01:04,402 - aiosqlite - DEBUG - operation functools.partial(<built-in method rollback of sqlite3.Connection object at 0x1052131f0>) completed
+2024-07-29 17:01:04,403 - aiosqlite - DEBUG - executing functools.partial(<built-in method close of sqlite3.Connection object at 0x1052131f0>)
+2024-07-29 17:01:04,403 - aiosqlite - DEBUG - operation functools.partial(<built-in method close of sqlite3.Connection object at 0x1052131f0>) completed
+2024-07-29 17:01:04,403 - tests.conftest - INFO - Printing database schema
+2024-07-29 17:01:04,403 - aiosqlite - DEBUG - executing <function connect.<locals>.connector at 0x105358720>
+2024-07-29 17:01:04,403 - aiosqlite - DEBUG - operation <function connect.<locals>.connector at 0x105358720> completed
+2024-07-29 17:01:04,403 - aiosqlite - DEBUG - executing functools.partial(<built-in method create_function of sqlite3.Connection object at 0x105393e20>, 'regexp', 2, <function SQLiteDialect_pysqlite.on_connect.<locals>.regexp at 0x1053ab2e0>, deterministic=True)
+2024-07-29 17:01:04,403 - aiosqlite - DEBUG - operation functools.partial(<built-in method create_function of sqlite3.Connection object at 0x105393e20>, 'regexp', 2, <function SQLiteDialect_pysqlite.on_connect.<locals>.regexp at 0x1053ab2e0>, deterministic=True) completed
+2024-07-29 17:01:04,403 - aiosqlite - DEBUG - executing functools.partial(<built-in method create_function of sqlite3.Connection object at 0x105393e20>, 'floor', 1, <built-in function floor>, deterministic=True)
+2024-07-29 17:01:04,403 - aiosqlite - DEBUG - operation functools.partial(<built-in method create_function of sqlite3.Connection object at 0x105393e20>, 'floor', 1, <built-in function floor>, deterministic=True) completed
+2024-07-29 17:01:04,403 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-29 17:01:04,404 - sqlalchemy.engine.Engine - INFO - SELECT name FROM sqlite_master WHERE type='table';
+2024-07-29 17:01:04,404 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ()
+2024-07-29 17:01:04,404 - aiosqlite - DEBUG - executing functools.partial(<built-in method cursor of sqlite3.Connection object at 0x105393e20>)
+2024-07-29 17:01:04,404 - aiosqlite - DEBUG - operation functools.partial(<built-in method cursor of sqlite3.Connection object at 0x105393e20>) completed
+2024-07-29 17:01:04,404 - aiosqlite - DEBUG - executing functools.partial(<built-in method execute of sqlite3.Cursor object at 0x105433ec0>, "SELECT name FROM sqlite_master WHERE type='table';", ())
+2024-07-29 17:01:04,404 - aiosqlite - DEBUG - operation functools.partial(<built-in method execute of sqlite3.Cursor object at 0x105433ec0>, "SELECT name FROM sqlite_master WHERE type='table';", ()) completed
+2024-07-29 17:01:04,404 - aiosqlite - DEBUG - executing functools.partial(<built-in method fetchall of sqlite3.Cursor object at 0x105433ec0>)
+2024-07-29 17:01:04,404 - aiosqlite - DEBUG - operation functools.partial(<built-in method fetchall of sqlite3.Cursor object at 0x105433ec0>) completed
+2024-07-29 17:01:04,404 - aiosqlite - DEBUG - executing functools.partial(<built-in method close of sqlite3.Cursor object at 0x105433ec0>)
+2024-07-29 17:01:04,404 - aiosqlite - DEBUG - operation functools.partial(<built-in method close of sqlite3.Cursor object at 0x105433ec0>) completed
+2024-07-29 17:01:04,404 - tests.conftest - INFO - Database schema:
+2024-07-29 17:01:04,404 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-29 17:01:04,404 - aiosqlite - DEBUG - executing functools.partial(<built-in method rollback of sqlite3.Connection object at 0x105393e20>)
+2024-07-29 17:01:04,404 - aiosqlite - DEBUG - operation functools.partial(<built-in method rollback of sqlite3.Connection object at 0x105393e20>) completed
+2024-07-29 17:01:04,405 - aiosqlite - DEBUG - executing functools.partial(<built-in method close of sqlite3.Connection object at 0x105393e20>)
+2024-07-29 17:01:04,405 - aiosqlite - DEBUG - operation functools.partial(<built-in method close of sqlite3.Connection object at 0x105393e20>) completed
+2024-07-29 17:01:04,405 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,405 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:04,405 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:04,448 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,449 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,449 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:04,449 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:04,486 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,486 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,486 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:04,487 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:04,553 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,554 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,554 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:04,554 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:04,590 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,591 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,591 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:04,591 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:04,627 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,628 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,628 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:04,628 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:04,667 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,667 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,668 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:04,668 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:04,704 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,705 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,705 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:04,705 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:04,742 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,742 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,742 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:04,742 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:04,780 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,781 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,781 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:04,781 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:04,818 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,818 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,818 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:04,819 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:04,855 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,856 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,856 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:04,856 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:04,897 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,897 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,897 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:04,897 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:04,933 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,934 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,934 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:04,934 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:04,970 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,971 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:04,971 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:04,971 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,011 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,011 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,011 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:05,011 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,077 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,078 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,078 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:05,078 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,115 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,116 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,116 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:05,116 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,156 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,157 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,157 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:05,157 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,193 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,194 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,194 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:05,194 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,196 - httpx - INFO - HTTP Request: POST http://test/api/create_session?session_type_id=2 "HTTP/1.1 401 Unauthorized"
+2024-07-29 17:01:05,196 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,197 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,197 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:05,197 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,198 - backend.workout_service.main - ERROR - Error fetching sessions: 'uid'
+2024-07-29 17:01:05,198 - httpx - INFO - HTTP Request: GET http://test/api/get_sessions/member1 "HTTP/1.1 500 Internal Server Error"
+2024-07-29 17:01:05,203 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,203 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,204 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:05,204 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,205 - backend.workout_service.main - ERROR - Unexpected error in create_quest: 'uid'
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/workout_service/main.py", line 186, in create_quest_endpoint
+    mapping_exists = await crud.check_trainer_member_mapping(current_member['uid'], quest_data.member_uid, authorization)
+                                                             ~~~~~~~~~~~~~~^^^^^^^
+KeyError: 'uid'
+2024-07-29 17:01:05,206 - httpx - INFO - HTTP Request: POST http://test/api/create_quest "HTTP/1.1 500 Internal Server Error"
+2024-07-29 17:01:05,212 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,213 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,213 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:05,213 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,214 - backend.workout_service.main - DEBUG - Current member: {'id': 'trainer1', 'user_type': 'trainer'}
+2024-07-29 17:01:05,214 - backend.workout_service.main - ERROR - Error reading quests: 'uid'
+2024-07-29 17:01:05,214 - httpx - INFO - HTTP Request: GET http://test/api/quests "HTTP/1.1 500 Internal Server Error"
+2024-07-29 17:01:05,221 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,222 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,222 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:05,222 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,223 - backend.workout_service.main - DEBUG - Current member: {'id': 'trainer1', 'user_type': 'trainer'}
+2024-07-29 17:01:05,223 - backend.workout_service.main - ERROR - Error reading quests for member: 'uid'
+2024-07-29 17:01:05,223 - httpx - INFO - HTTP Request: GET http://test/api/quests/member1 "HTTP/1.1 500 Internal Server Error"
+2024-07-29 17:01:05,230 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,231 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,231 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:05,231 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,232 - backend.workout_service.main - ERROR - Error deleting quest: 'uid'
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/workout_service/main.py", line 271, in delete_quest
+    if current_member['user_type'] == 'trainer' and quest.trainer_uid != current_member['uid']:
+                                                                         ~~~~~~~~~~~~~~^^^^^^^
+KeyError: 'uid'
+2024-07-29 17:01:05,233 - httpx - INFO - HTTP Request: DELETE http://test/api/quests/1 "HTTP/1.1 500 Internal Server Error"
+2024-07-29 17:01:05,237 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,238 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,238 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:05,238 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,239 - backend.workout_service.main - ERROR - Error retrieving workout records: 'uid'
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/workout_service/main.py", line 300, in get_workout_records
+    records = await crud.get_workout_records(db, current_member['uid'], workout_key)
+                                                 ~~~~~~~~~~~~~~^^^^^^^
+KeyError: 'uid'
+2024-07-29 17:01:05,240 - httpx - INFO - HTTP Request: GET http://test/api/workout-records/1 "HTTP/1.1 500 Internal Server Error"
+2024-07-29 17:01:05,245 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,245 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,245 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:05,245 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,246 - httpx - INFO - HTTP Request: GET http://test/api/workout-name/1 "HTTP/1.1 200 OK"
+2024-07-29 17:01:05,247 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,247 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,247 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:05,247 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,248 - httpx - INFO - HTTP Request: GET http://test/api/workouts-by-part "HTTP/1.1 200 OK"
+2024-07-29 17:01:05,249 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,250 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,250 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:05,250 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,252 - httpx - INFO - HTTP Request: POST http://test/api/create_session?session_type_id=2&quest_id=1 "HTTP/1.1 200 OK"
+2024-07-29 17:01:05,253 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,253 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,253 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:05,253 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,254 - httpx - INFO - HTTP Request: POST http://test/api/create_session?member_uid=member1 "HTTP/1.1 200 OK"
+2024-07-29 17:01:05,255 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,255 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,255 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:05,255 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,257 - httpx - INFO - HTTP Request: GET http://test/api/get_oldest_not_started_quest "HTTP/1.1 500 Internal Server Error"
+2024-07-29 17:01:05,263 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,263 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,263 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:05,263 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,264 - httpx - INFO - HTTP Request: POST http://test/api/save_session "HTTP/1.1 200 OK"
+2024-07-29 17:01:05,265 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,265 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,265 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:05,266 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,267 - backend.workout_service.main - ERROR - Error deleting quest: 'uid'
+Traceback (most recent call last):
+  File "/Users/rocket/Documents/GitHub/Gym-app-prototype/backend/workout_service/main.py", line 273, in delete_quest
+    elif current_member['user_type'] == 'member' and quest.member_uid != current_member['uid']:
+                                                                         ~~~~~~~~~~~~~~^^^^^^^
+KeyError: 'uid'
+2024-07-29 17:01:05,267 - httpx - INFO - HTTP Request: DELETE http://test/api/quests/1 "HTTP/1.1 500 Internal Server Error"
+2024-07-29 17:01:05,272 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,273 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,273 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:05,273 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,274 - httpx - INFO - HTTP Request: GET http://test/api/workout-name/9999 "HTTP/1.1 404 Not Found"
+2024-07-29 17:01:05,274 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,275 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:01:05,275 - tests.conftest - INFO - Creating new database session
+2024-07-29 17:01:05,275 - tests.conftest - INFO - Clearing data from all tables
+2024-07-29 17:01:05,276 - httpx - INFO - HTTP Request: GET http://test/api/workouts-by-part?workout_part_id=1 "HTTP/1.1 200 OK"
+2024-07-29 17:01:05,276 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-07-29 17:30:34,755 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-07-29 17:30:35,037 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-29 17:30:35,037 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-29 17:30:35,083 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-29 17:30:35,083 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-29 17:30:35,275 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-29 17:30:35,275 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-29 17:30:35,318 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-29 17:30:35,330 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-29 17:30:35,330 - sqlalchemy.engine.Engine - INFO - [generated in 0.00029s] ('g6SGxrbEs6tWpToqKnveULigTpFF',)
+2024-07-29 17:30:35,449 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-29 17:33:26,541 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-29 17:33:26,544 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-29 17:33:26,544 - sqlalchemy.engine.Engine - INFO - [cached since 171.2s ago] ('g6SGxrbEs6tWpToqKnveULigTpFF',)
+2024-07-29 17:33:26,603 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-29 17:33:53,291 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-29 17:33:53,292 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-29 17:33:53,292 - sqlalchemy.engine.Engine - INFO - [cached since 198s ago] ('g6SGxrbEs6tWpToqKnveULigTpFF',)
+2024-07-29 17:33:53,326 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-29 17:35:06,485 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-29 17:35:06,488 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-29 17:35:06,488 - sqlalchemy.engine.Engine - INFO - [cached since 271.2s ago] ('g6SGxrbEs6tWpToqKnveULigTpFF',)
+2024-07-29 17:35:06,590 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-29 17:36:31,133 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-29 17:36:31,136 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-29 17:36:31,136 - sqlalchemy.engine.Engine - INFO - [cached since 355.8s ago] ('g6SGxrbEs6tWpToqKnveULigTpFF',)
+2024-07-29 17:36:31,184 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-29 17:40:11,853 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-29 17:40:11,854 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-29 17:40:11,855 - sqlalchemy.engine.Engine - INFO - [cached since 576.5s ago] ('g6SGxrbEs6tWpToqKnveULigTpFF',)
+2024-07-29 17:40:11,900 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-29 17:41:42,725 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-07-29 17:41:42,916 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-07-29 17:41:42,916 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-29 17:41:42,948 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-07-29 17:41:42,948 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-29 17:41:42,982 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-07-29 17:41:42,982 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-07-29 17:41:43,013 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-29 17:41:43,021 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-29 17:41:43,021 - sqlalchemy.engine.Engine - INFO - [generated in 0.00036s] ('g6SGxrbEs6tWpToqKnveULigTpFF',)
+2024-07-29 17:41:43,188 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-29 17:42:11,144 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-29 17:42:11,145 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-29 17:42:11,145 - sqlalchemy.engine.Engine - INFO - [cached since 28.12s ago] ('g6SGxrbEs6tWpToqKnveULigTpFF',)
+2024-07-29 17:42:11,276 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-29 17:42:16,422 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-29 17:42:16,423 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-29 17:42:16,423 - sqlalchemy.engine.Engine - INFO - [cached since 33.4s ago] ('g6SGxrbEs6tWpToqKnveULigTpFF',)
+2024-07-29 17:42:16,477 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-29 18:01:23,659 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-29 18:01:23,665 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-29 18:01:23,666 - sqlalchemy.engine.Engine - INFO - [cached since 1181s ago] ('g6SGxrbEs6tWpToqKnveULigTpFF',)
+2024-07-29 18:01:23,775 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-29 18:02:16,865 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-29 18:02:16,866 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-29 18:02:16,866 - sqlalchemy.engine.Engine - INFO - [cached since 1234s ago] ('g6SGxrbEs6tWpToqKnveULigTpFF',)
+2024-07-29 18:02:16,907 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-29 18:03:04,591 - backend.user_service.main - INFO - Received request to create user: uid='cNNokvHYagOM1Hu6bMaP2CQF5AQe' email='trainer@example.com' first_name='trainer' last_name='test' role=<UserRole.trainer: 'trainer'>
+2024-07-29 18:03:04,594 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-29 18:03:04,599 - sqlalchemy.engine.Engine - INFO - INSERT INTO trainers (uid, email, first_name, last_name, role) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::userrole)
+2024-07-29 18:03:04,599 - sqlalchemy.engine.Engine - INFO - [generated in 0.00032s] ('cNNokvHYagOM1Hu6bMaP2CQF5AQe', 'trainer@example.com', 'trainer', 'test', 'trainer')
+2024-07-29 18:03:04,666 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-07-29 18:03:04,677 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-29 18:03:04,679 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-07-29 18:03:04,679 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ('cNNokvHYagOM1Hu6bMaP2CQF5AQe',)
+2024-07-29 18:03:04,707 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Trainer object at 0x108bf9190>
+2024-07-29 18:03:04,730 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 127.0.0.1:9099
+2024-07-29 18:03:04,734 - urllib3.connectionpool - DEBUG - http://127.0.0.1:9099 "POST /identitytoolkit.googleapis.com/v1/projects/fitsync-app-c93ad/accounts:lookup HTTP/11" 200 None
+2024-07-29 18:03:04,737 - urllib3.connectionpool - DEBUG - http://127.0.0.1:9099 "POST /identitytoolkit.googleapis.com/v1/projects/fitsync-app-c93ad/accounts:update HTTP/11" 200 None
+2024-07-29 18:03:04,737 - backend.user_service.main - INFO - Custom claims set for user: cNNokvHYagOM1Hu6bMaP2CQF5AQe
+2024-07-29 18:03:04,738 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-29 18:13:00,528 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-29 18:13:00,539 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-29 18:13:00,541 - sqlalchemy.engine.Engine - INFO - [cached since 1878s ago] ('g6SGxrbEs6tWpToqKnveULigTpFF',)
+2024-07-29 18:13:00,622 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-07-29 18:30:13,222 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-07-29 18:30:13,225 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-07-29 18:30:13,226 - sqlalchemy.engine.Engine - INFO - [cached since 2910s ago] ('g6SGxrbEs6tWpToqKnveULigTpFF',)
+2024-07-29 18:30:13,254 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.member_uid = $1::VARCHAR
+2024-07-29 18:30:13,254 - sqlalchemy.engine.Engine - INFO - [generated in 0.00037s] ('g6SGxrbEs6tWpToqKnveULigTpFF',)
+2024-07-29 18:30:13,344 - sqlalchemy.engine.Engine - INFO - ROLLBACK

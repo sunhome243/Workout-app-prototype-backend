@@ -74,7 +74,7 @@ async def workout_client(db_session):
 @pytest.fixture
 def mock_current_member():
     return models.Member(
-        member_id= "AAAAA",
+        member_uid= "AAAAA",
         email="test@example.com",
         first_name="Test",
         last_name="Member",
@@ -126,7 +126,7 @@ async def print_schema(engine):
 @pytest.fixture
 def mock_current_trainer():
     return models.Trainer(
-        trainer_id="AAAAA",
+        trainer_uid="AAAAA",
         email="trainer@example.com",
         first_name="John",
         last_name="Doe",
