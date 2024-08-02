@@ -1,7 +1,9 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Enum as SQLAlchemyEnum
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, ARRAY, Enum as SQLAlchemyEnum
 from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from enum import Enum as PyEnum
+from datetime import datetime
+
 
 Base = declarative_base()
 
@@ -28,6 +30,7 @@ class Member(Base, AsyncAttrs):
     last_name = Column(String, nullable=True)
     role = Column(SQLAlchemyEnum(UserRole), default=UserRole.member)
     trainer_mappings = relationship("TrainerMemberMap", back_populates="member")
+    fcm_tokens = Column(ARRAY(String), nullable=True)
 
 class Trainer(Base, AsyncAttrs):
     __tablename__ = "trainers"
@@ -37,6 +40,7 @@ class Trainer(Base, AsyncAttrs):
     last_name = Column(String, nullable=True)
     role = Column(SQLAlchemyEnum(UserRole), default=UserRole.trainer)
     member_mappings = relationship("TrainerMemberMap", back_populates="trainer")
+    fcm_tokens = Column(ARRAY(String), nullable=True)
 
 class TrainerMemberMap(Base):
     __tablename__ = "trainer_member_mapping"
@@ -64,3 +68,13 @@ class WorkoutFrequencyMap(Base):
     __tablename__ = "workout_frequency_mapping"
     workout_frequency = Column(Integer, primary_key=True, index=True)
     workout_frequency_name = Column(String, index=True)
+    
+class SessionRequest(Base):
+    __tablename__ = "session_requests"
+
+    id = Column(Integer, primary_key=True, index=True)
+    trainer_uid = Column(String, ForeignKey("trainers.uid"))
+    member_uid = Column(String, ForeignKey("members.uid"))
+    requested_sessions = Column(Integer)
+    status = Column(String)  # "pending", "approved", "rejected"
+    created_at = Column(DateTime, default=datetime.utcnow)

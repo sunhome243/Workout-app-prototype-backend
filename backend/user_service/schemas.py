@@ -94,7 +94,7 @@ class MemberMappingInfoWithSessions(MemberMappingInfo):
 class TrainerMappingInfo(BaseModel):
     mapping_id: int
     uid: str
-    member_email: str
+    trainer_email: str
     trainer_first_name: str
     trainer_last_name: str
     status: MappingStatus
@@ -125,3 +125,18 @@ class RemainingSessionsResponse(BaseModel):
 
 class UpdateSessionsRequest(BaseModel):
     sessions_to_add: int
+    
+class SessionRequest(BaseModel):
+    trainer_uid: str
+    member_uid: str
+    requested_sessions: int
+
+class SessionRequestResponse(BaseModel):
+    request_id: int
+    status: str
+    
+class RequestMoreSessionsSchema(BaseModel):
+    additional_sessions: int
+
+class SessionRequestResponse(BaseModel):
+    status: str  # 'approved' or 'rejected'

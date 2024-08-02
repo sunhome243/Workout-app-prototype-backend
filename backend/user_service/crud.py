@@ -178,19 +178,17 @@ async def get_member_mappings(db: AsyncSession, user_uid: str, is_trainer: bool)
     
     return mapping_data
 
-async def remove_specific_mapping(db: AsyncSession, current_user_uid: str, other_email: str, is_trainer: bool) -> bool:
+async def remove_specific_mapping(db: AsyncSession, current_user_uid: str, other_uid: str, is_trainer: bool):
     try:
         if is_trainer:
-            other_user = await get_member_by_email(db, other_email)
             query = select(models.TrainerMemberMap).where(
                 (models.TrainerMemberMap.trainer_uid == current_user_uid) &
-                (models.TrainerMemberMap.member_uid == other_user.uid)
+                (models.TrainerMemberMap.member_uid == other_uid)
             )
         else:
-            other_user = await get_trainer_by_email(db, other_email)
             query = select(models.TrainerMemberMap).where(
                 (models.TrainerMemberMap.member_uid == current_user_uid) &
-                (models.TrainerMemberMap.trainer_uid == other_user.uid)
+                (models.TrainerMemberMap.trainer_uid == other_uid)
             )
         
         result = await db.execute(query)
@@ -204,11 +202,11 @@ async def remove_specific_mapping(db: AsyncSession, current_user_uid: str, other
         return True
     except SQLAlchemyError as e:
         await db.rollback()
-        logging.error(f"Database error occurred: {str(e)}")
+        logger.error(f"Database error occurred: {str(e)}")
         raise
     except Exception as e:
         await db.rollback()
-        logging.error(f"Unexpected error occurred: {str(e)}")
+        logger.error(f"Unexpected error occurred: {str(e)}")
         raise
 
 async def delete_member(db: AsyncSession, member: models.Member):
@@ -263,12 +261,28 @@ async def get_trainer_member_mapping(db: AsyncSession, trainer_uid: str, member_
         raise
 
 async def get_remaining_sessions(db: AsyncSession, trainer_uid: str, member_uid: str):
-    result = await db.execute(
-        select(models.TrainerMemberMap.remaining_sessions)
-        .filter(models.TrainerMemberMap.trainer_uid == trainer_uid)
-        .filter(models.TrainerMemberMap.member_uid == member_uid)
-    )
-    return result.scalar_one_or_none()
+    try:
+        logging.info(f"Querying remaining sessions for trainer_uid: {trainer_uid}, member_uid: {member_uid}")
+        
+        query = select(models.TrainerMemberMap).where(
+            and_(
+                models.TrainerMemberMap.trainer_uid == trainer_uid,
+                models.TrainerMemberMap.member_uid == member_uid,
+                models.TrainerMemberMap.status == 'accepted'
+            )
+        )
+        result = await db.execute(query)
+        mapping = result.scalar_one_or_none()
+        
+        if mapping:
+            logging.info(f"Found mapping with remaining sessions: {mapping.remaining_sessions}")
+            return mapping.remaining_sessions
+        else:
+            logging.warning(f"No accepted mapping found for trainer_uid: {trainer_uid}, member_uid: {member_uid}")
+            return None
+    except Exception as e:
+        logging.error(f"Error in get_remaining_sessions: {str(e)}", exc_info=True)
+        raise
 
 async def update_sessions(db: AsyncSession, trainer_uid: str, member_uid: str, sessions_to_add: int):
     try:
@@ -289,11 +303,11 @@ async def update_sessions(db: AsyncSession, trainer_uid: str, member_uid: str, s
         return new_remaining_sessions
     except SQLAlchemyError as e:
         await db.rollback()
-        logging.error(f"Database error occurred: {str(e)}")
+        logger.error(f"Database error occurred: {str(e)}")
         raise
     except Exception as e:
         await db.rollback()
-        logging.error(f"Unexpected error occurred: {str(e)}")
+        logger.error(f"Unexpected error occurred: {str(e)}")
         raise
 
 async def schedule_status_update(db: AsyncSession, trainer_uid: str, member_uid: str):
@@ -315,12 +329,4 @@ async def update_trainer_member_mapping_status(db: AsyncSession, mapping_id: int
         logging.error(f"Database error occurred while updating status: {str(e)}")
         raise
     except Exception as e:
-        await db.rollback()
-        logging.error(f"Unexpected error occurred while updating status: {str(e)}")
-        raise
-    
-async def get_trainer_member_mapping_by_id(db: AsyncSession, mapping_id: int):
-    result = await db.execute(
-        select(models.TrainerMemberMap).filter(models.TrainerMemberMap.id == mapping_id)
-    )
-    return result.scalar_one_or_none()
+        await db.roll
