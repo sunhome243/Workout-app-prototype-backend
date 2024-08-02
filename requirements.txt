@@ -12,3 +12,5 @@ pyjwt
 cachetools
 aiosqlite
 logger
+aiocache
+firebase_admin

@@ -1,0 +1,4 @@
+E0803 00:18:46.369926   26095 load.go:23] Could not load config from "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/dataconnect": could not find dataconnect.yaml in `/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/dataconnect`
+I0803 00:18:46.373918   26095 dev.go:79] Listening on address (HTTP + gRPC): 127.0.0.1:9399
+I0803 00:18:46.374699   26095 dev.go:79] Listening on address (HTTP + gRPC): [::1]:9399
+E0803 00:18:46.389742   26095 watch.go:75] watchAllDir unable to walk dir `/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/dataconnect`: on path "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/dataconnect" (DirEntry: <nil>): lstat /Users/sunhokim/Desktop/GitHub/Gym-app-prototype/dataconnect: no such file or directory

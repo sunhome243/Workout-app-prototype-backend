@@ -1,9 +1,8 @@
-"""“firebase
+"""init
 
-
-Revision ID: 68ee1356f01d
+Revision ID: 5b54301c1c0e
 Revises: 
-Create Date: 2024-07-25 12:11:24.329228
+Create Date: 2024-07-31 23:21:13.452777
 
 """
 from typing import Sequence, Union
@@ -13,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '68ee1356f01d'
+revision: str = '5b54301c1c0e'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

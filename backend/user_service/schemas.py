@@ -81,18 +81,26 @@ class MappingStatus(str, Enum):
     expired = "expired"
 
 class MemberMappingInfo(BaseModel):
+    mapping_id: int
     uid: str
     member_email: str
     member_first_name: str
     member_last_name: str
     status: MappingStatus
 
+class MemberMappingInfoWithSessions(MemberMappingInfo):
+    remaining_sessions: int
+
 class TrainerMappingInfo(BaseModel):
+    mapping_id: int
     uid: str
     member_email: str
     trainer_first_name: str
     trainer_last_name: str
     status: MappingStatus
+
+class TrainerMappingInfoWithSessions(TrainerMappingInfo):
+    remaining_sessions: int
 
 class CreateTrainerMemberMapping(BaseModel):
     other_email: str

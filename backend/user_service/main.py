@@ -172,12 +172,12 @@ async def request_trainer_member_mapping(
             status=db_mapping.status,
             remaining_sessions=db_mapping.remaining_sessions
         )
-    except ValueError as e:
-        logging.error(f"ValueError in request_trainer_member_mapping: {str(e)}")
-        raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException as http_exc:
+        logging.error(f"HTTP exception in request_trainer_member_mapping: {http_exc.detail}")
+        raise http_exc
     except Exception as e:
         logging.error(f"Unexpected error in request_trainer_member_mapping: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Failed to create mapping request: {str(e)}")
+        raise HTTPException(status_code=500, detail="An unexpected error occurred. Please try again later.")
 
 @router.patch("/api/trainer-member-mapping/{mapping_id}/status", response_model=schemas.TrainerMemberMappingResponse)
 async def update_trainer_member_mapping_status(
@@ -188,28 +188,42 @@ async def update_trainer_member_mapping_status(
 ):
     try:
         new_status = schemas.MappingStatus(status_update.new_status)
-        db_mapping = await crud.update_trainer_member_mapping_status(db, mapping_id, current_user.uid, new_status)
+        await crud.update_trainer_member_mapping_status(db, mapping_id, new_status)
+        
+        # Fetch the updated mapping to return in the response
+        updated_mapping = await crud.get_trainer_member_mapping_by_id(db, mapping_id)
+        if not updated_mapping:
+            raise HTTPException(status_code=404, detail="Mapping not found")
+        
         return schemas.TrainerMemberMappingResponse(
-            id=db_mapping.id,
-            trainer_uid=db_mapping.trainer_uid,
-            member_uid=db_mapping.member_uid,
-            status=db_mapping.status,
-            remaining_sessions=db_mapping.remaining_sessions,
-            acceptance_date=db_mapping.acceptance_date
+            id=updated_mapping.id,
+            trainer_uid=updated_mapping.trainer_uid,
+            member_uid=updated_mapping.member_uid,
+            status=updated_mapping.status,
+            remaining_sessions=updated_mapping.remaining_sessions,
+            acceptance_date=updated_mapping.acceptance_date
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=f"Invalid status: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to update mapping status: {str(e)}")
 
-@router.get("/api/my-mappings/", response_model=List[Union[schemas.MemberMappingInfo, schemas.TrainerMappingInfo]])
+@router.get("/api/my-mappings/", response_model=List[Union[schemas.MemberMappingInfoWithSessions, schemas.TrainerMappingInfo]])
 async def read_my_mappings(
     current_user: Union[models.Member, models.Trainer] = Depends(utils.get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    is_trainer = isinstance(current_user, models.Trainer)
-    mappings = await crud.get_member_mappings(db, current_user.uid, is_trainer)
-    return mappings
+    try:
+        is_trainer = isinstance(current_user, models.Trainer)
+        mappings = await crud.get_member_mappings(db, current_user.uid, is_trainer)
+        
+        logging.info(f"Retrieved mappings for user {current_user.uid}: {mappings}")
+        
+        return mappings
+    except Exception as e:
+        logging.error(f"Error in read_my_mappings for user {current_user.uid}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+
 
 @router.delete("/api/trainer-member-mapping/{other_email}", response_model=schemas.Message)
 async def remove_specific_mapping(
