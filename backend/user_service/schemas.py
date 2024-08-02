@@ -81,18 +81,26 @@ class MappingStatus(str, Enum):
     expired = "expired"
 
 class MemberMappingInfo(BaseModel):
+    mapping_id: int
     uid: str
     member_email: str
     member_first_name: str
     member_last_name: str
     status: MappingStatus
 
+class MemberMappingInfoWithSessions(MemberMappingInfo):
+    remaining_sessions: int
+
 class TrainerMappingInfo(BaseModel):
+    mapping_id: int
     uid: str
-    member_email: str
+    trainer_email: str
     trainer_first_name: str
     trainer_last_name: str
     status: MappingStatus
+
+class TrainerMappingInfoWithSessions(TrainerMappingInfo):
+    remaining_sessions: int
 
 class CreateTrainerMemberMapping(BaseModel):
     other_email: str
@@ -117,3 +125,18 @@ class RemainingSessionsResponse(BaseModel):
 
 class UpdateSessionsRequest(BaseModel):
     sessions_to_add: int
+    
+class SessionRequest(BaseModel):
+    trainer_uid: str
+    member_uid: str
+    requested_sessions: int
+
+class SessionRequestResponse(BaseModel):
+    request_id: int
+    status: str
+    
+class RequestMoreSessionsSchema(BaseModel):
+    additional_sessions: int
+
+class SessionRequestResponse(BaseModel):
+    status: str  # 'approved' or 'rejected'
