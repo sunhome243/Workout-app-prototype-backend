@@ -354,3 +354,753 @@ FROM trainer_member_mapping
 WHERE trainer_member_mapping.member_uid = $1::VARCHAR
 2024-07-29 18:30:13,254 - sqlalchemy.engine.Engine - INFO - [generated in 0.00037s] ('g6SGxrbEs6tWpToqKnveULigTpFF',)
 2024-07-29 18:30:13,344 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 01:07:42,292 - backend.user_service.main - INFO - Received request to create user: uid='p2r2HmSmjZtYlJ6QSAqPXC7PzXR5' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-08-03 01:07:42,323 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-08-03 01:07:42,323 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 01:07:42,327 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-08-03 01:07:42,328 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 01:07:42,330 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-08-03 01:07:42,330 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 01:07:42,331 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 01:07:42,332 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role, fcm_tokens, last_active) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole, $12::VARCHAR[], $13::TIMESTAMP WITHOUT TIME ZONE)
+2024-08-03 01:07:42,333 - sqlalchemy.engine.Engine - INFO - [generated in 0.00024s] ('p2r2HmSmjZtYlJ6QSAqPXC7PzXR5', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member', None, datetime.datetime(2024, 8, 2, 16, 7, 42, 332892))
+2024-08-03 01:07:42,335 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 01:07:42,336 - backend.user_service.main - ERROR - Unexpected error in create_user: (sqlalchemy.dialects.postgresql.asyncpg.ProgrammingError) <class 'asyncpg.exceptions.UndefinedColumnError'>: column "fcm_tokens" of relation "members" does not exist
+[SQL: INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role, fcm_tokens, last_active) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole, $12::VARCHAR[], $13::TIMESTAMP WITHOUT TIME ZONE)]
+[parameters: ('p2r2HmSmjZtYlJ6QSAqPXC7PzXR5', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member', None, datetime.datetime(2024, 8, 2, 16, 7, 42, 332892))]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 514, in _prepare_and_execute
+    prepared_stmt, attributes = await adapt_connection._prepare(
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 760, in _prepare
+    prepared_stmt = await self._connection.prepare(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/asyncpg/connection.py", line 636, in prepare
+    return await self._prepare(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/asyncpg/connection.py", line 654, in _prepare
+    stmt = await self._get_statement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/asyncpg/connection.py", line 433, in _get_statement
+    statement = await self._protocol.prepare(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "asyncpg/protocol/protocol.pyx", line 166, in prepare
+asyncpg.exceptions.UndefinedColumnError: column "fcm_tokens" of relation "members" does not exist
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 924, in do_execute
+    cursor.execute(statement, parameters)
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 572, in execute
+    self._adapt_connection.await_(
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 550, in _prepare_and_execute
+    self._handle_exception(error)
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 501, in _handle_exception
+    self._adapt_connection._handle_exception(error)
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 784, in _handle_exception
+    raise translated_error from error
+sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.ProgrammingError: <class 'asyncpg.exceptions.UndefinedColumnError'>: column "fcm_tokens" of relation "members" does not exist
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/backend/user_service/main.py", line 51, in create_user
+    db_user = await crud.create_member(db=db, member=user)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/backend/user_service/crud.py", line 37, in create_member
+    await db.commit()
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py", line 1009, in commit
+    await greenlet_spawn(self.sync_session.commit)
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 203, in greenlet_spawn
+    result = context.switch(value)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2017, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1302, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1277, in _prepare_impl
+    self.session.flush()
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4341, in flush
+    self._flush(objects)
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4476, in _flush
+    with util.safe_reraise():
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4437, in _flush
+    flush_context.execute()
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1048, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1418, in execute
+    return meth(
+           ^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 515, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1640, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2353, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 924, in do_execute
+    cursor.execute(statement, parameters)
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 572, in execute
+    self._adapt_connection.await_(
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 550, in _prepare_and_execute
+    self._handle_exception(error)
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 501, in _handle_exception
+    self._adapt_connection._handle_exception(error)
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 784, in _handle_exception
+    raise translated_error from error
+sqlalchemy.exc.ProgrammingError: (sqlalchemy.dialects.postgresql.asyncpg.ProgrammingError) <class 'asyncpg.exceptions.UndefinedColumnError'>: column "fcm_tokens" of relation "members" does not exist
+[SQL: INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role, fcm_tokens, last_active) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole, $12::VARCHAR[], $13::TIMESTAMP WITHOUT TIME ZONE)]
+[parameters: ('p2r2HmSmjZtYlJ6QSAqPXC7PzXR5', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member', None, datetime.datetime(2024, 8, 2, 16, 7, 42, 332892))]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2024-08-03 01:08:51,092 - backend.user_service.main - INFO - Received request to create user: uid='2la15z7LMFLCWM0vAlCGW4dsIhdf' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-08-03 01:08:51,106 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-08-03 01:08:51,106 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 01:08:51,107 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-08-03 01:08:51,107 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 01:08:51,108 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-08-03 01:08:51,108 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 01:08:51,108 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 01:08:51,109 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role, fcm_tokens, last_active) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole, $12::VARCHAR[], $13::TIMESTAMP WITHOUT TIME ZONE)
+2024-08-03 01:08:51,109 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ('2la15z7LMFLCWM0vAlCGW4dsIhdf', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member', None, datetime.datetime(2024, 8, 2, 16, 8, 51, 109690))
+2024-08-03 01:08:51,123 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-08-03 01:08:51,124 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 01:08:51,125 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 01:08:51,125 - sqlalchemy.engine.Engine - INFO - [generated in 0.00008s] ('2la15z7LMFLCWM0vAlCGW4dsIhdf',)
+2024-08-03 01:08:51,127 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Member object at 0x106727290>
+2024-08-03 01:08:51,127 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-08-03 01:08:51,132 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 127.0.0.1:9099
+2024-08-03 01:08:51,134 - urllib3.connectionpool - DEBUG - http://127.0.0.1:9099 "POST /identitytoolkit.googleapis.com/v1/projects/fitsync-app-c93ad/accounts:lookup HTTP/11" 200 None
+2024-08-03 01:08:51,138 - urllib3.connectionpool - DEBUG - http://127.0.0.1:9099 "POST /identitytoolkit.googleapis.com/v1/projects/fitsync-app-c93ad/accounts:update HTTP/11" 200 None
+2024-08-03 01:08:51,139 - backend.user_service.main - INFO - Custom claims set for user: 2la15z7LMFLCWM0vAlCGW4dsIhdf
+2024-08-03 01:08:51,140 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 01:09:08,791 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 01:09:08,793 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 01:09:08,793 - sqlalchemy.engine.Engine - INFO - [generated in 0.00017s] ('2la15z7LMFLCWM0vAlCGW4dsIhdf',)
+2024-08-03 01:09:08,794 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 01:09:10,552 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 01:09:10,552 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 01:09:10,552 - sqlalchemy.engine.Engine - INFO - [cached since 1.759s ago] ('2la15z7LMFLCWM0vAlCGW4dsIhdf',)
+2024-08-03 01:09:10,553 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 01:09:13,412 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 01:09:13,412 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 01:09:13,412 - sqlalchemy.engine.Engine - INFO - [cached since 4.619s ago] ('2la15z7LMFLCWM0vAlCGW4dsIhdf',)
+2024-08-03 01:09:13,414 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 01:09:14,649 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 01:09:14,650 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 01:09:14,650 - sqlalchemy.engine.Engine - INFO - [cached since 5.857s ago] ('2la15z7LMFLCWM0vAlCGW4dsIhdf',)
+2024-08-03 01:09:14,651 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 01:09:23,819 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 01:09:23,819 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 01:09:23,820 - sqlalchemy.engine.Engine - INFO - [cached since 15.03s ago] ('2la15z7LMFLCWM0vAlCGW4dsIhdf',)
+2024-08-03 01:09:23,820 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 02:16:16,355 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 02:16:16,357 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 02:16:16,358 - sqlalchemy.engine.Engine - INFO - [cached since 4028s ago] ('2la15z7LMFLCWM0vAlCGW4dsIhdf',)
+2024-08-03 02:16:16,361 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 02:16:20,480 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 02:16:20,480 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 02:16:20,480 - sqlalchemy.engine.Engine - INFO - [cached since 4032s ago] ('2la15z7LMFLCWM0vAlCGW4dsIhdf',)
+2024-08-03 02:16:20,481 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 02:16:22,288 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 02:16:22,288 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 02:16:22,288 - sqlalchemy.engine.Engine - INFO - [cached since 4034s ago] ('2la15z7LMFLCWM0vAlCGW4dsIhdf',)
+2024-08-03 02:16:22,289 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 02:22:08,005 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 02:22:08,006 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 02:22:08,006 - sqlalchemy.engine.Engine - INFO - [cached since 4379s ago] ('2la15z7LMFLCWM0vAlCGW4dsIhdf',)
+2024-08-03 02:22:08,009 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 02:23:18,603 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 02:23:18,605 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 02:23:18,605 - sqlalchemy.engine.Engine - INFO - [cached since 4450s ago] ('2la15z7LMFLCWM0vAlCGW4dsIhdf',)
+2024-08-03 02:23:18,606 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 02:23:28,405 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 02:23:28,406 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 02:23:28,407 - sqlalchemy.engine.Engine - INFO - [cached since 4460s ago] ('2la15z7LMFLCWM0vAlCGW4dsIhdf',)
+2024-08-03 02:23:28,409 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 02:25:13,852 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 02:25:13,855 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 02:25:13,855 - sqlalchemy.engine.Engine - INFO - [cached since 4565s ago] ('2la15z7LMFLCWM0vAlCGW4dsIhdf',)
+2024-08-03 02:25:13,858 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 02:33:17,894 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 02:33:17,896 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 02:33:17,897 - sqlalchemy.engine.Engine - INFO - [cached since 5049s ago] ('2la15z7LMFLCWM0vAlCGW4dsIhdf',)
+2024-08-03 02:33:17,899 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 02:37:52,224 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 02:37:52,226 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 02:37:52,226 - sqlalchemy.engine.Engine - INFO - [cached since 5323s ago] ('2la15z7LMFLCWM0vAlCGW4dsIhdf',)
+2024-08-03 02:37:52,228 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 02:38:02,938 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 02:38:02,939 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 02:38:02,939 - sqlalchemy.engine.Engine - INFO - [cached since 5334s ago] ('2la15z7LMFLCWM0vAlCGW4dsIhdf',)
+2024-08-03 02:38:02,940 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 02:38:11,305 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 02:38:11,307 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 02:38:11,308 - sqlalchemy.engine.Engine - INFO - [cached since 5343s ago] ('2la15z7LMFLCWM0vAlCGW4dsIhdf',)
+2024-08-03 02:38:11,310 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 02:38:35,013 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 02:38:35,014 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 02:38:35,014 - sqlalchemy.engine.Engine - INFO - [cached since 5366s ago] ('2la15z7LMFLCWM0vAlCGW4dsIhdf',)
+2024-08-03 02:38:35,015 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 11:54:21,875 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 11:54:21,877 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 11:54:21,878 - sqlalchemy.engine.Engine - INFO - [cached since 1.56e+04s ago] ('2la15z7LMFLCWM0vAlCGW4dsIhdf',)
+2024-08-03 11:54:21,905 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 11:56:12,272 - backend.user_service.main - INFO - Received request to create user: uid='77kuSo73IJ6YQdLtvsNE9hcHs6LS' email='user@example.com' first_name='user' last_name='test' role=<UserRole.member: 'member'>
+2024-08-03 11:56:12,273 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 11:56:12,274 - sqlalchemy.engine.Engine - INFO - INSERT INTO members (uid, email, age, height, weight, workout_level, workout_frequency, workout_goal, first_name, last_name, role, fcm_tokens, last_active) VALUES ($1::VARCHAR, $2::VARCHAR, $3::INTEGER, $4::FLOAT, $5::FLOAT, $6::INTEGER, $7::INTEGER, $8::INTEGER, $9::VARCHAR, $10::VARCHAR, $11::userrole, $12::VARCHAR[], $13::TIMESTAMP WITHOUT TIME ZONE)
+2024-08-03 11:56:12,274 - sqlalchemy.engine.Engine - INFO - [cached since 1.573e+04s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'user@example.com', None, None, None, None, None, None, 'user', 'test', 'member', None, datetime.datetime(2024, 8, 3, 2, 56, 12, 274164))
+2024-08-03 11:56:12,286 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-08-03 11:56:12,287 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 11:56:12,287 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 11:56:12,287 - sqlalchemy.engine.Engine - INFO - [cached since 1.573e+04s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 11:56:12,288 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Member object at 0x1067e1580>
+2024-08-03 11:56:12,290 - urllib3.connectionpool - DEBUG - Resetting dropped connection: 127.0.0.1
+2024-08-03 11:56:12,292 - urllib3.connectionpool - DEBUG - http://127.0.0.1:9099 "POST /identitytoolkit.googleapis.com/v1/projects/fitsync-app-c93ad/accounts:lookup HTTP/11" 200 None
+2024-08-03 11:56:12,296 - urllib3.connectionpool - DEBUG - http://127.0.0.1:9099 "POST /identitytoolkit.googleapis.com/v1/projects/fitsync-app-c93ad/accounts:update HTTP/11" 200 None
+2024-08-03 11:56:12,296 - backend.user_service.main - INFO - Custom claims set for user: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 11:56:12,297 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 11:56:19,313 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 11:56:19,313 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 11:56:19,313 - sqlalchemy.engine.Engine - INFO - [cached since 1.572e+04s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 11:56:19,314 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 11:56:21,752 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 11:56:21,753 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 11:56:21,753 - sqlalchemy.engine.Engine - INFO - [cached since 1.572e+04s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 11:56:21,755 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 11:56:34,555 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 11:56:34,557 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 11:56:34,557 - sqlalchemy.engine.Engine - INFO - [cached since 1.573e+04s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 11:56:34,558 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 11:56:37,861 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 11:56:37,862 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 11:56:37,862 - sqlalchemy.engine.Engine - INFO - [cached since 1.574e+04s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 11:56:37,863 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 11:56:41,670 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 11:56:41,671 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 11:56:41,671 - sqlalchemy.engine.Engine - INFO - [cached since 1.574e+04s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 11:56:41,672 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 11:59:22,935 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-08-03 11:59:22,957 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-08-03 11:59:22,957 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 11:59:22,959 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-08-03 11:59:22,959 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 11:59:22,960 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-08-03 11:59:22,960 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 11:59:22,961 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 11:59:22,966 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 11:59:22,966 - sqlalchemy.engine.Engine - INFO - [generated in 0.00018s] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 11:59:22,984 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:00:48,476 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-08-03 12:00:48,489 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-08-03 12:00:48,489 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:00:48,490 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-08-03 12:00:48,490 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:00:48,491 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-08-03 12:00:48,491 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:00:48,492 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:00:48,499 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:00:48,499 - sqlalchemy.engine.Engine - INFO - [generated in 0.00018s] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:00:48,512 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainer_member_mapping JOIN trainers ON trainer_member_mapping.trainer_uid = trainers.uid 
+WHERE trainer_member_mapping.member_uid = $1::VARCHAR
+2024-08-03 12:00:48,512 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:00:48,522 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:01:19,265 - backend.user_service.main - INFO - Received request to create user: uid='Dc3B5ko5g8YFk3FmhsCwXLrorJwM' email='trainer@example.com' first_name='trainer' last_name='test' role=<UserRole.trainer: 'trainer'>
+2024-08-03 12:01:19,266 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:01:19,268 - sqlalchemy.engine.Engine - INFO - INSERT INTO trainers (uid, email, first_name, last_name, role, fcm_tokens, last_active) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::userrole, $6::VARCHAR[], $7::TIMESTAMP WITHOUT TIME ZONE)
+2024-08-03 12:01:19,268 - sqlalchemy.engine.Engine - INFO - [generated in 0.00023s] ('Dc3B5ko5g8YFk3FmhsCwXLrorJwM', 'trainer@example.com', 'trainer', 'test', 'trainer', None, datetime.datetime(2024, 8, 3, 3, 1, 19, 268180))
+2024-08-03 12:01:19,272 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:01:19,272 - backend.user_service.main - ERROR - Unexpected error in create_user: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.UniqueViolationError'>: duplicate key value violates unique constraint "ix_trainers_email"
+DETAIL:  Key (email)=(trainer@example.com) already exists.
+[SQL: INSERT INTO trainers (uid, email, first_name, last_name, role, fcm_tokens, last_active) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::userrole, $6::VARCHAR[], $7::TIMESTAMP WITHOUT TIME ZONE)]
+[parameters: ('Dc3B5ko5g8YFk3FmhsCwXLrorJwM', 'trainer@example.com', 'trainer', 'test', 'trainer', None, datetime.datetime(2024, 8, 3, 3, 1, 19, 268180))]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+Traceback (most recent call last):
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 538, in _prepare_and_execute
+    self._rows = deque(await prepared_stmt.fetch(*parameters))
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 176, in fetch
+    data = await self.__bind_execute(args, 0, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 241, in __bind_execute
+    data, status, _ = await self.__do_execute(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/asyncpg/prepared_stmt.py", line 230, in __do_execute
+    return await executor(protocol)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "asyncpg/protocol/protocol.pyx", line 207, in bind_execute
+asyncpg.exceptions.UniqueViolationError: duplicate key value violates unique constraint "ix_trainers_email"
+DETAIL:  Key (email)=(trainer@example.com) already exists.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 924, in do_execute
+    cursor.execute(statement, parameters)
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 572, in execute
+    self._adapt_connection.await_(
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 550, in _prepare_and_execute
+    self._handle_exception(error)
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 501, in _handle_exception
+    self._adapt_connection._handle_exception(error)
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 784, in _handle_exception
+    raise translated_error from error
+sqlalchemy.dialects.postgresql.asyncpg.AsyncAdapt_asyncpg_dbapi.IntegrityError: <class 'asyncpg.exceptions.UniqueViolationError'>: duplicate key value violates unique constraint "ix_trainers_email"
+DETAIL:  Key (email)=(trainer@example.com) already exists.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/backend/user_service/main.py", line 54, in create_user
+    db_user = await crud.create_trainer(db=db, trainer=user)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/backend/user_service/crud.py", line 54, in create_trainer
+    await db.commit()
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py", line 1009, in commit
+    await greenlet_spawn(self.sync_session.commit)
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 203, in greenlet_spawn
+    result = context.switch(value)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2017, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1302, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 1277, in _prepare_impl
+    self.session.flush()
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4341, in flush
+    self._flush(objects)
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4476, in _flush
+    with util.safe_reraise():
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/util/langhelpers.py", line 146, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 4437, in _flush
+    flush_context.execute()
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/orm/persistence.py", line 1048, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1418, in execute
+    return meth(
+           ^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 515, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1640, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2353, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 924, in do_execute
+    cursor.execute(statement, parameters)
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 572, in execute
+    self._adapt_connection.await_(
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 550, in _prepare_and_execute
+    self._handle_exception(error)
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 501, in _handle_exception
+    self._adapt_connection._handle_exception(error)
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/asyncpg.py", line 784, in _handle_exception
+    raise translated_error from error
+sqlalchemy.exc.IntegrityError: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.UniqueViolationError'>: duplicate key value violates unique constraint "ix_trainers_email"
+DETAIL:  Key (email)=(trainer@example.com) already exists.
+[SQL: INSERT INTO trainers (uid, email, first_name, last_name, role, fcm_tokens, last_active) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::userrole, $6::VARCHAR[], $7::TIMESTAMP WITHOUT TIME ZONE)]
+[parameters: ('Dc3B5ko5g8YFk3FmhsCwXLrorJwM', 'trainer@example.com', 'trainer', 'test', 'trainer', None, datetime.datetime(2024, 8, 3, 3, 1, 19, 268180))]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-08-03 12:01:45,872 - backend.user_service.main - INFO - Received request to create user: uid='zcBomtXd7uXfIj6SJRFFQI8AMRCV' email='trainer@example.com' first_name='trainer' last_name='test' role=<UserRole.trainer: 'trainer'>
+2024-08-03 12:01:45,874 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:01:45,874 - sqlalchemy.engine.Engine - INFO - INSERT INTO trainers (uid, email, first_name, last_name, role, fcm_tokens, last_active) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::userrole, $6::VARCHAR[], $7::TIMESTAMP WITHOUT TIME ZONE)
+2024-08-03 12:01:45,874 - sqlalchemy.engine.Engine - INFO - [cached since 26.61s ago] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'trainer@example.com', 'trainer', 'test', 'trainer', None, datetime.datetime(2024, 8, 3, 3, 1, 45, 874619))
+2024-08-03 12:01:45,887 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-08-03 12:01:45,889 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:01:45,890 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-08-03 12:01:45,890 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:01:45,892 - backend.user_service.main - INFO - Successfully created user: <backend.user_service.models.Trainer object at 0x1066e0650>
+2024-08-03 12:01:45,897 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): 127.0.0.1:9099
+2024-08-03 12:01:45,902 - urllib3.connectionpool - DEBUG - http://127.0.0.1:9099 "POST /identitytoolkit.googleapis.com/v1/projects/fitsync-app-c93ad/accounts:lookup HTTP/11" 200 None
+2024-08-03 12:01:45,907 - urllib3.connectionpool - DEBUG - http://127.0.0.1:9099 "POST /identitytoolkit.googleapis.com/v1/projects/fitsync-app-c93ad/accounts:update HTTP/11" 200 None
+2024-08-03 12:01:45,908 - backend.user_service.main - INFO - Custom claims set for user: zcBomtXd7uXfIj6SJRFFQI8AMRCV
+2024-08-03 12:01:45,909 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:01:57,772 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:01:57,774 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-08-03 12:01:57,774 - sqlalchemy.engine.Engine - INFO - [generated in 0.00011s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:01:57,775 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM trainer_member_mapping JOIN members ON trainer_member_mapping.member_uid = members.uid 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR
+2024-08-03 12:01:57,775 - sqlalchemy.engine.Engine - INFO - [generated in 0.00019s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:01:57,778 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:02:17,712 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:02:17,713 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:02:17,713 - sqlalchemy.engine.Engine - INFO - [cached since 89.21s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:02:17,714 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:02:18,848 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:02:18,849 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:02:18,849 - sqlalchemy.engine.Engine - INFO - [cached since 90.35s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:02:18,849 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainer_member_mapping JOIN trainers ON trainer_member_mapping.trainer_uid = trainers.uid 
+WHERE trainer_member_mapping.member_uid = $1::VARCHAR
+2024-08-03 12:02:18,850 - sqlalchemy.engine.Engine - INFO - [cached since 90.34s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:02:18,850 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:02:29,259 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:02:29,259 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:02:29,259 - sqlalchemy.engine.Engine - INFO - [cached since 100.8s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:02:29,261 - root - INFO - Attempting to create mapping: current_user=(<backend.user_service.models.Member object at 0x1066e0fb0>, 'member'), other_email=trainer@example.com, is_trainer=False
+2024-08-03 12:02:29,261 - root - ERROR - Unexpected error in request_trainer_member_mapping: 'tuple' object has no attribute 'uid'
+Traceback (most recent call last):
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/backend/user_service/main.py", line 133, in request_trainer_member_mapping
+    current_user.uid,
+    ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'uid'
+2024-08-03 12:02:29,261 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:06:14,785 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-08-03 12:06:14,809 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-08-03 12:06:14,809 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:06:14,810 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-08-03 12:06:14,810 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:06:14,811 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-08-03 12:06:14,811 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:06:14,812 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:06:14,821 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:06:14,821 - sqlalchemy.engine.Engine - INFO - [generated in 0.00021s] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:06:14,838 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainer_member_mapping JOIN trainers ON trainer_member_mapping.trainer_uid = trainers.uid 
+WHERE trainer_member_mapping.member_uid = $1::VARCHAR
+2024-08-03 12:06:14,839 - sqlalchemy.engine.Engine - INFO - [generated in 0.00037s] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:06:14,846 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:06:21,299 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:06:21,300 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:06:21,300 - sqlalchemy.engine.Engine - INFO - [cached since 6.479s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:06:21,301 - root - INFO - Attempting to create mapping: current_user=(<backend.user_service.models.Member object at 0x108750e90>, 'member'), other_email=trainer@example.com, is_trainer=False
+2024-08-03 12:06:21,301 - root - ERROR - Unexpected error in request_trainer_member_mapping: 'tuple' object has no attribute 'uid'
+Traceback (most recent call last):
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/backend/user_service/main.py", line 133, in request_trainer_member_mapping
+    current_user.uid,
+    ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'uid'
+2024-08-03 12:06:21,302 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:07:14,445 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-08-03 12:07:14,461 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-08-03 12:07:14,461 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:07:14,464 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-08-03 12:07:14,464 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:07:14,465 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-08-03 12:07:14,465 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:07:14,466 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:07:14,474 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:07:14,475 - sqlalchemy.engine.Engine - INFO - [generated in 0.00021s] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:07:14,490 - root - INFO - Attempting to create mapping: current_user=(<backend.user_service.models.Member object at 0x1090b2b10>, 'member'), other_email=trainer@example.com, is_trainer=False
+2024-08-03 12:07:14,490 - root - ERROR - Unexpected error in request_trainer_member_mapping: 'tuple' object has no attribute 'uid'
+Traceback (most recent call last):
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/backend/user_service/main.py", line 133, in request_trainer_member_mapping
+    current_user.uid,
+    ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'uid'
+2024-08-03 12:07:14,490 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:10:17,672 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-08-03 12:10:17,688 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-08-03 12:10:17,688 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:10:17,690 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-08-03 12:10:17,693 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:10:17,695 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-08-03 12:10:17,695 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:10:17,697 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:10:17,706 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:10:17,707 - sqlalchemy.engine.Engine - INFO - [generated in 0.00026s] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:10:17,748 - root - INFO - Attempting to create mapping: current_user=(<backend.user_service.models.Member object at 0x104d76b40>, 'member'), other_email=trainer@example.com, is_trainer=False
+2024-08-03 12:10:17,748 - root - ERROR - Unexpected error in request_trainer_member_mapping: 'tuple' object has no attribute 'uid'
+Traceback (most recent call last):
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/backend/user_service/main.py", line 133, in request_trainer_member_mapping
+    current_user.uid,
+    ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'uid'
+2024-08-03 12:10:17,750 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:11:55,876 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-08-03 12:11:55,889 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-08-03 12:11:55,889 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:11:55,891 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-08-03 12:11:55,891 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:11:55,892 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-08-03 12:11:55,892 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:11:55,893 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:11:55,901 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:11:55,901 - sqlalchemy.engine.Engine - INFO - [generated in 0.00018s] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:11:55,915 - root - INFO - Attempting to create mapping: current_user=(<backend.user_service.models.Member object at 0x118da2f30>, 'member'), other_email=trainer@example.com, is_trainer=False
+2024-08-03 12:11:55,915 - root - ERROR - Unexpected error in request_trainer_member_mapping: 'tuple' object has no attribute 'uid'
+Traceback (most recent call last):
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/backend/user_service/main.py", line 133, in request_trainer_member_mapping
+    current_user.uid,
+    ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'uid'
+2024-08-03 12:11:55,916 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:13:20,816 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-08-03 12:14:29,243 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-08-03 12:14:29,244 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722654137, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722654137, 'exp': 1722657737, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 12:14:29,244 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:14:29,244 - root - INFO - User type from token: member
+2024-08-03 12:14:29,277 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-08-03 12:14:29,278 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:14:29,279 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-08-03 12:14:29,279 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:14:29,281 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-08-03 12:14:29,282 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:14:29,283 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:14:29,293 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:14:29,294 - sqlalchemy.engine.Engine - INFO - [generated in 0.00032s] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:14:29,307 - root - INFO - User from database: <backend.user_service.models.Member object at 0x10883ef00>
+2024-08-03 12:14:29,307 - root - INFO - Attempting to create mapping: current_user=(<backend.user_service.models.Member object at 0x10883ef00>, 'member'), other_email=trainer@example.com, is_trainer=False
+2024-08-03 12:14:29,307 - root - ERROR - Unexpected error in request_trainer_member_mapping: 'tuple' object has no attribute 'uid'
+Traceback (most recent call last):
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/backend/user_service/main.py", line 133, in request_trainer_member_mapping
+    current_user.uid,
+    ^^^^^^^^^^^^^^^^
+AttributeError: 'tuple' object has no attribute 'uid'
+2024-08-03 12:14:29,308 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:15:30,076 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-08-03 12:15:30,077 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722654137, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722654137, 'exp': 1722657737, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 12:15:30,077 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:15:30,077 - root - INFO - User type from token: member
+2024-08-03 12:15:30,130 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-08-03 12:15:30,131 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:15:30,134 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-08-03 12:15:30,134 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:15:30,137 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-08-03 12:15:30,137 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:15:30,138 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:15:30,142 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:15:30,143 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:15:30,157 - root - INFO - User from database: <backend.user_service.models.Member object at 0x112da2fc0>
+2024-08-03 12:15:30,157 - root - INFO - User object: <backend.user_service.models.Member object at 0x112da2fc0>
+2024-08-03 12:15:30,157 - root - INFO - User type: member
+2024-08-03 12:15:30,157 - root - INFO - Is trainer: False
+2024-08-03 12:15:30,157 - root - INFO - Attempting to create mapping: current_user_uid=77kuSo73IJ6YQdLtvsNE9hcHs6LS, other_email=trainer@example.com, is_trainer=False
+2024-08-03 12:15:30,157 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:15:30,157 - sqlalchemy.engine.Engine - INFO - [cached since 0.01499s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:15:30,158 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.email = $1::VARCHAR
+2024-08-03 12:15:30,158 - sqlalchemy.engine.Engine - INFO - [generated in 0.00011s] ('trainer@example.com',)
+2024-08-03 12:15:30,160 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR AND trainer_member_mapping.member_uid = $2::VARCHAR
+2024-08-03 12:15:30,160 - sqlalchemy.engine.Engine - INFO - [generated in 0.00010s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', '77kuSo73IJ6YQdLtvsNE9hcHs6LS')
+2024-08-03 12:15:30,168 - sqlalchemy.engine.Engine - INFO - INSERT INTO trainer_member_mapping (trainer_uid, member_uid, status, requester_uid, remaining_sessions, acceptance_date) VALUES ($1::VARCHAR, $2::VARCHAR, $3::mappingstatus, $4::VARCHAR, $5::INTEGER, $6::TIMESTAMP WITHOUT TIME ZONE) RETURNING trainer_member_mapping.id
+2024-08-03 12:15:30,168 - sqlalchemy.engine.Engine - INFO - [generated in 0.00017s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'pending', '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 10, None)
+2024-08-03 12:15:30,175 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-08-03 12:15:30,177 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:15:30,177 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.id = $1::INTEGER
+2024-08-03 12:15:30,177 - sqlalchemy.engine.Engine - INFO - [generated in 0.00009s] (2,)
+2024-08-03 12:15:30,178 - root - INFO - Mapping created successfully: <backend.user_service.models.TrainerMemberMap object at 0x112d5c0b0>
+2024-08-03 12:15:30,178 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:15:30,195 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722654137, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722654137, 'exp': 1722657737, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 12:15:30,195 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:15:30,195 - root - INFO - User type from token: member
+2024-08-03 12:15:30,195 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:15:30,195 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:15:30,195 - sqlalchemy.engine.Engine - INFO - [cached since 0.05305s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:15:30,196 - root - INFO - User from database: <backend.user_service.models.Member object at 0x112dd6840>
+2024-08-03 12:15:30,198 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainer_member_mapping JOIN trainers ON trainer_member_mapping.trainer_uid = trainers.uid 
+WHERE trainer_member_mapping.member_uid = $1::VARCHAR
+2024-08-03 12:15:30,198 - sqlalchemy.engine.Engine - INFO - [generated in 0.00030s] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:15:30,201 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:15:30,220 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722654137, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722654137, 'exp': 1722657737, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 12:15:30,220 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:15:30,220 - root - INFO - User type from token: member
+2024-08-03 12:15:30,220 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:15:30,220 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:15:30,220 - sqlalchemy.engine.Engine - INFO - [cached since 0.07762s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:15:30,221 - root - INFO - User from database: <backend.user_service.models.Member object at 0x112dd75c0>
+2024-08-03 12:15:30,221 - root - INFO - Checking remaining sessions for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:15:30,221 - root - INFO - Querying remaining sessions for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:15:30,221 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR AND trainer_member_mapping.member_uid = $2::VARCHAR AND trainer_member_mapping.status = $3::mappingstatus
+2024-08-03 12:15:30,221 - sqlalchemy.engine.Engine - INFO - [generated in 0.00009s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'accepted')
+2024-08-03 12:15:30,223 - root - WARNING - No accepted mapping found for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:15:30,224 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:15:42,992 - root - INFO - Decoded token: {'name': 'trainer test', 'role': 'trainer', 'email': 'trainer@example.com', 'email_verified': False, 'auth_time': 1722654942, 'user_id': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'firebase': {'identities': {'email': ['trainer@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722654942, 'exp': 1722658542, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'uid': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV'}
+2024-08-03 12:15:42,992 - root - INFO - UID from token: zcBomtXd7uXfIj6SJRFFQI8AMRCV
+2024-08-03 12:15:42,992 - root - INFO - User type from token: trainer
+2024-08-03 12:15:42,993 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:15:42,993 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-08-03 12:15:42,993 - sqlalchemy.engine.Engine - INFO - [generated in 0.00010s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:15:42,994 - root - INFO - User from database: <backend.user_service.models.Trainer object at 0x112e08860>
+2024-08-03 12:15:42,995 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM trainer_member_mapping JOIN members ON trainer_member_mapping.member_uid = members.uid 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR
+2024-08-03 12:15:42,995 - sqlalchemy.engine.Engine - INFO - [generated in 0.00012s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:15:43,003 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:15:50,693 - root - INFO - Decoded token: {'name': 'trainer test', 'role': 'trainer', 'email': 'trainer@example.com', 'email_verified': False, 'auth_time': 1722654942, 'user_id': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'firebase': {'identities': {'email': ['trainer@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722654942, 'exp': 1722658542, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'uid': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV'}
+2024-08-03 12:15:50,693 - root - INFO - UID from token: zcBomtXd7uXfIj6SJRFFQI8AMRCV
+2024-08-03 12:15:50,693 - root - INFO - User type from token: trainer
+2024-08-03 12:15:50,693 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:15:50,693 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-08-03 12:15:50,694 - sqlalchemy.engine.Engine - INFO - [cached since 7.701s ago] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:15:50,694 - root - INFO - User from database: <backend.user_service.models.Trainer object at 0x112e09d00>
+2024-08-03 12:15:50,695 - sqlalchemy.engine.Engine - INFO - UPDATE trainer_member_mapping SET status=$1::mappingstatus WHERE trainer_member_mapping.id = $2::INTEGER
+2024-08-03 12:15:50,696 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ('accepted', 2)
+2024-08-03 12:15:50,697 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-08-03 12:15:50,698 - root - INFO - Updated status to MappingStatus.accepted for mapping 2

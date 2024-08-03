@@ -8,3 +8,4 @@ alembic_wo_test.ini
 alembic_wo.ini
 venv
 myenv
+app.log

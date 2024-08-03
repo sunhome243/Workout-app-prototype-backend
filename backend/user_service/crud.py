@@ -330,3 +330,4 @@ async def update_trainer_member_mapping_status(db: AsyncSession, mapping_id: int
         raise
     except Exception as e:
         await db.roll
+        

@@ -14,3 +14,5 @@ aiosqlite
 logger
 aiocache
 firebase_admin
+fastapi-utils
+typing-inspect

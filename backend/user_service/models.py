@@ -31,6 +31,7 @@ class Member(Base, AsyncAttrs):
     role = Column(SQLAlchemyEnum(UserRole), default=UserRole.member)
     trainer_mappings = relationship("TrainerMemberMap", back_populates="member")
     fcm_tokens = Column(ARRAY(String), nullable=True)
+    last_active = Column(DateTime, default=datetime.utcnow)
 
 class Trainer(Base, AsyncAttrs):
     __tablename__ = "trainers"
@@ -41,6 +42,7 @@ class Trainer(Base, AsyncAttrs):
     role = Column(SQLAlchemyEnum(UserRole), default=UserRole.trainer)
     member_mappings = relationship("TrainerMemberMap", back_populates="trainer")
     fcm_tokens = Column(ARRAY(String), nullable=True)
+    last_active = Column(DateTime, default=datetime.utcnow)
 
 class TrainerMemberMap(Base):
     __tablename__ = "trainer_member_mapping"
