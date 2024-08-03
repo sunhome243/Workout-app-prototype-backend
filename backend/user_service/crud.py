@@ -247,15 +247,44 @@ async def get_specific_connected_member_info(db: AsyncSession, trainer_uid: str,
         }
     return None
 
+async def update_trainer_member_mapping_status(db: AsyncSession, mapping_id: int, new_status: schemas.MappingStatus):
+    try:
+        stmt = (
+            update(models.TrainerMemberMap)
+            .where(models.TrainerMemberMap.id == mapping_id)
+            .values(status=new_status)
+            .returning(models.TrainerMemberMap)
+        )
+        result = await db.execute(stmt)
+        updated_mapping = result.scalar_one_or_none()
+        await db.commit()
+        return updated_mapping
+    except Exception as e:
+        await db.rollback()
+        logging.error(f"Error in update_trainer_member_mapping_status: {str(e)}")
+        raise
+
+async def get_trainer_member_mapping_by_id(db: AsyncSession, mapping_id: int):
+    try:
+        query = select(models.TrainerMemberMap).where(models.TrainerMemberMap.id == mapping_id)
+        result = await db.execute(query)
+        mapping = result.scalar_one_or_none()
+        return mapping
+    except Exception as e:
+        logging.error(f"Error in get_trainer_member_mapping_by_id: {str(e)}")
+        raise
+
 async def get_trainer_member_mapping(db: AsyncSession, trainer_uid: str, member_uid: str):
     try:
-        result = await db.execute(
-            select(models.TrainerMemberMap).filter(
+        query = select(models.TrainerMemberMap).where(
+            and_(
                 models.TrainerMemberMap.trainer_uid == trainer_uid,
                 models.TrainerMemberMap.member_uid == member_uid
             )
         )
-        return result.scalar_one_or_none()
+        result = await db.execute(query)
+        mapping = result.scalar_one_or_none()
+        return mapping
     except Exception as e:
         logging.error(f"Error in get_trainer_member_mapping: {str(e)}")
         raise
@@ -320,14 +349,14 @@ async def update_trainer_member_mapping_status(db: AsyncSession, mapping_id: int
             update(models.TrainerMemberMap)
             .where(models.TrainerMemberMap.id == mapping_id)
             .values(status=new_status)
+            .returning(models.TrainerMemberMap)
         )
-        await db.execute(stmt)
+        result = await db.execute(stmt)
+        updated_mapping = result.scalar_one_or_none()
         await db.commit()
-        logging.info(f"Updated status to {new_status} for mapping {mapping_id}")
-    except SQLAlchemyError as e:
-        await db.rollback()
-        logging.error(f"Database error occurred while updating status: {str(e)}")
-        raise
+        return updated_mapping
     except Exception as e:
-        await db.roll
+        await db.rollback()
+        logging.error(f"Error in update_trainer_member_mapping_status: {str(e)}")
+        raise
         

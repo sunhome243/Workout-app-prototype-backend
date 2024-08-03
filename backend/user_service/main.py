@@ -95,6 +95,20 @@ async def read_members_me(
         raise HTTPException(status_code=403, detail="Access denied")
     return user
 
+@router.get("/api/members/byuid/{uid}", response_model=schemas.Member)
+async def read_member_uid(uid: str, db: AsyncSession = Depends(get_db)):
+    db_member = await crud.get_member_by_uid(db, uid=uid)
+    if db_member is None:
+        raise HTTPException(status_code=404, detail="Member not found")
+    return db_member
+
+@router.get("/api/trainers/byuid/{uid}", response_model=schemas.Trainer)
+async def read_trainer_uid(uid: str, db: AsyncSession = Depends(get_db)):
+    db_trainer = await crud.get_trainer_by_uid(db, uid=uid)
+    if db_trainer is None:
+        raise HTTPException(status_code=404, detail="Trainer not found")
+    return db_trainer
+
 @router.get("/api/trainers/me/", response_model=schemas.Trainer)
 async def read_trainer_me(
     current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
@@ -128,7 +142,7 @@ async def request_trainer_member_mapping(
         user, user_type = current_user
         is_trainer = user_type == 'trainer'
         
-        logging.info(f"User object: {user}")
+        logging.info(f"Current user object: {user}")
         logging.info(f"User type: {user_type}")
         logging.info(f"Is trainer: {is_trainer}")
         
@@ -172,13 +186,29 @@ async def update_trainer_member_mapping_status(
     db: AsyncSession = Depends(get_db)
 ):
     user, user_type = current_user
+    
     try:
-        new_status = schemas.MappingStatus(status_update.new_status)
-        await crud.update_trainer_member_mapping_status(db, mapping_id, new_status)
+        # Get the mapping using mapping_id
+        mapping = await crud.get_trainer_member_mapping_by_id(db, mapping_id)
         
-        updated_mapping = await crud.get_trainer_member_mapping_by_id(db, mapping_id)
-        if not updated_mapping:
+        if not mapping:
             raise HTTPException(status_code=404, detail="Mapping not found")
+        
+        # Check if the current user is involved in this mapping
+        if user.uid not in [mapping.trainer_uid, mapping.member_uid]:
+            raise HTTPException(status_code=403, detail="You are not authorized to update this mapping")
+        
+        # Check if the current user is the requester
+        if mapping.requester_uid == user.uid:
+            raise HTTPException(status_code=403, detail="You cannot update the status of a mapping you requested")
+        
+        new_status = schemas.MappingStatus(status_update.new_status)
+        
+        # Update the status
+        updated_mapping = await crud.update_trainer_member_mapping_status(db, mapping_id, new_status)
+        
+        if not updated_mapping:
+            raise HTTPException(status_code=404, detail="Failed to update mapping")
         
         return schemas.TrainerMemberMappingResponse(
             id=updated_mapping.id,
@@ -189,10 +219,11 @@ async def update_trainer_member_mapping_status(
             acceptance_date=updated_mapping.acceptance_date
         )
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid status: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to update mapping status: {str(e)}")
-
+        logging.error(f"Error updating mapping status: {str(e)}")
+        raise HTTPException(status_code=500, detail="An error occurred while updating the mapping status")
+    
 @router.get("/api/my-mappings/", response_model=List[Union[schemas.MemberMappingInfoWithSessions, schemas.TrainerMappingInfo]])
 async def read_my_mappings(
     current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
@@ -242,9 +273,9 @@ async def read_trainer_me(
     return user
 
 
-@router.get("/api/trainer/connected-members/{member_email}", response_model=Optional[schemas.ConnectedMemberInfo])
+@router.get("/api/trainer/connected-members/{member_uid}", response_model=Optional[schemas.ConnectedMemberInfo])
 async def read_specific_connected_member_info(
-    member_email: str,
+    member_uid: str,
     current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
     db: AsyncSession = Depends(get_db)
 ):
@@ -252,7 +283,7 @@ async def read_specific_connected_member_info(
     if user_type != 'trainer':
         raise HTTPException(status_code=403, detail="Trainer access required")
     
-    member_info = await crud.get_specific_connected_member_info(db, user.uid, member_email)
+    member_info = await crud.get_specific_connected_member_info(db, user.uid, member_uid)
     if member_info is None:
         raise HTTPException(status_code=404, detail="Connected member not found")
     return member_info

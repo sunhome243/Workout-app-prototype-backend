@@ -1104,3 +1104,802 @@ WHERE trainers.uid = $1::VARCHAR
 2024-08-03 12:15:50,696 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ('accepted', 2)
 2024-08-03 12:15:50,697 - sqlalchemy.engine.Engine - INFO - COMMIT
 2024-08-03 12:15:50,698 - root - INFO - Updated status to MappingStatus.accepted for mapping 2
+2024-08-03 12:25:19,073 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-08-03 12:25:19,075 - root - INFO - Decoded token: {'name': 'trainer test', 'role': 'trainer', 'email': 'trainer@example.com', 'email_verified': False, 'auth_time': 1722655518, 'user_id': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'firebase': {'identities': {'email': ['trainer@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722655518, 'exp': 1722659118, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'uid': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV'}
+2024-08-03 12:25:19,075 - root - INFO - UID from token: zcBomtXd7uXfIj6SJRFFQI8AMRCV
+2024-08-03 12:25:19,075 - root - INFO - User type from token: trainer
+2024-08-03 12:25:19,099 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-08-03 12:25:19,099 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:25:19,100 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-08-03 12:25:19,100 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:25:19,101 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-08-03 12:25:19,102 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:25:19,103 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:25:19,109 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-08-03 12:25:19,109 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:25:19,121 - root - INFO - User from database: <backend.user_service.models.Trainer object at 0x10722e570>
+2024-08-03 12:25:19,123 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM trainer_member_mapping JOIN members ON trainer_member_mapping.member_uid = members.uid 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR
+2024-08-03 12:25:19,123 - sqlalchemy.engine.Engine - INFO - [generated in 0.00024s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:25:19,132 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:25:28,568 - root - INFO - Decoded token: {'name': 'trainer test', 'role': 'trainer', 'email': 'trainer@example.com', 'email_verified': False, 'auth_time': 1722655518, 'user_id': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'firebase': {'identities': {'email': ['trainer@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722655518, 'exp': 1722659118, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'uid': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV'}
+2024-08-03 12:25:28,569 - root - INFO - UID from token: zcBomtXd7uXfIj6SJRFFQI8AMRCV
+2024-08-03 12:25:28,569 - root - INFO - User type from token: trainer
+2024-08-03 12:25:28,569 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:25:28,570 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-08-03 12:25:28,570 - sqlalchemy.engine.Engine - INFO - [cached since 9.461s ago] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:25:28,570 - root - INFO - User from database: <backend.user_service.models.Trainer object at 0x10725d370>
+2024-08-03 12:25:28,572 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR AND trainer_member_mapping.member_uid = $2::VARCHAR
+2024-08-03 12:25:28,572 - sqlalchemy.engine.Engine - INFO - [generated in 0.00017s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'user@example.com')
+2024-08-03 12:25:28,572 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:31:33,920 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-08-03 12:31:33,920 - root - INFO - Decoded token: {'name': 'trainer test', 'role': 'trainer', 'email': 'trainer@example.com', 'email_verified': False, 'auth_time': 1722655518, 'user_id': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'firebase': {'identities': {'email': ['trainer@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722655518, 'exp': 1722659118, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'uid': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV'}
+2024-08-03 12:31:33,921 - root - INFO - UID from token: zcBomtXd7uXfIj6SJRFFQI8AMRCV
+2024-08-03 12:31:33,921 - root - INFO - User type from token: trainer
+2024-08-03 12:31:33,935 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-08-03 12:31:33,936 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:31:33,937 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-08-03 12:31:33,937 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:31:33,938 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-08-03 12:31:33,938 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:31:33,939 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:31:33,944 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-08-03 12:31:33,944 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:31:33,956 - root - INFO - User from database: <backend.user_service.models.Trainer object at 0x1117c4d70>
+2024-08-03 12:31:33,958 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR AND trainer_member_mapping.member_uid = $2::VARCHAR
+2024-08-03 12:31:33,958 - sqlalchemy.engine.Engine - INFO - [generated in 0.00011s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'user@example.com')
+2024-08-03 12:31:33,983 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:34:41,908 - root - INFO - Decoded token: {'name': 'trainer test', 'role': 'trainer', 'email': 'trainer@example.com', 'email_verified': False, 'auth_time': 1722655518, 'user_id': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'firebase': {'identities': {'email': ['trainer@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722655518, 'exp': 1722659118, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'uid': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV'}
+2024-08-03 12:34:41,909 - root - INFO - UID from token: zcBomtXd7uXfIj6SJRFFQI8AMRCV
+2024-08-03 12:34:41,909 - root - INFO - User type from token: trainer
+2024-08-03 12:34:41,912 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:34:41,912 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-08-03 12:34:41,913 - sqlalchemy.engine.Engine - INFO - [cached since 188s ago] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:34:41,926 - root - INFO - User from database: <backend.user_service.models.Trainer object at 0x1117c6330>
+2024-08-03 12:34:41,927 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR AND trainer_member_mapping.member_uid = $2::VARCHAR
+2024-08-03 12:34:41,928 - sqlalchemy.engine.Engine - INFO - [cached since 188s ago] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', '77kuSo73IJ6YQdLtvsNE9hcHs6LS')
+2024-08-03 12:34:41,931 - sqlalchemy.engine.Engine - INFO - DELETE FROM trainer_member_mapping WHERE trainer_member_mapping.id = $1::INTEGER
+2024-08-03 12:34:41,931 - sqlalchemy.engine.Engine - INFO - [generated in 0.00026s] (2,)
+2024-08-03 12:34:41,933 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-08-03 12:34:41,945 - root - INFO - Decoded token: {'name': 'trainer test', 'role': 'trainer', 'email': 'trainer@example.com', 'email_verified': False, 'auth_time': 1722655518, 'user_id': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'firebase': {'identities': {'email': ['trainer@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722655518, 'exp': 1722659118, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'uid': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV'}
+2024-08-03 12:34:41,945 - root - INFO - UID from token: zcBomtXd7uXfIj6SJRFFQI8AMRCV
+2024-08-03 12:34:41,945 - root - INFO - User type from token: trainer
+2024-08-03 12:34:41,946 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:34:41,946 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-08-03 12:34:41,946 - sqlalchemy.engine.Engine - INFO - [cached since 188s ago] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:34:41,947 - root - INFO - User from database: <backend.user_service.models.Trainer object at 0x1117c7320>
+2024-08-03 12:34:41,948 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM trainer_member_mapping JOIN members ON trainer_member_mapping.member_uid = members.uid 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR
+2024-08-03 12:34:41,948 - sqlalchemy.engine.Engine - INFO - [generated in 0.00020s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:34:41,953 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:34:57,114 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722656097, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722656097, 'exp': 1722659697, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 12:34:57,114 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:34:57,114 - root - INFO - User type from token: member
+2024-08-03 12:34:57,114 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:34:57,115 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:34:57,115 - sqlalchemy.engine.Engine - INFO - [generated in 0.00012s] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:34:57,116 - root - INFO - User from database: <backend.user_service.models.Member object at 0x1117e5520>
+2024-08-03 12:34:57,117 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:34:58,651 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722656097, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722656097, 'exp': 1722659697, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 12:34:58,651 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:34:58,651 - root - INFO - User type from token: member
+2024-08-03 12:34:58,651 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:34:58,651 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:34:58,651 - sqlalchemy.engine.Engine - INFO - [cached since 1.537s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:34:58,652 - root - INFO - User from database: <backend.user_service.models.Member object at 0x1117e56a0>
+2024-08-03 12:34:58,653 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainer_member_mapping JOIN trainers ON trainer_member_mapping.trainer_uid = trainers.uid 
+WHERE trainer_member_mapping.member_uid = $1::VARCHAR
+2024-08-03 12:34:58,653 - sqlalchemy.engine.Engine - INFO - [generated in 0.00009s] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:34:58,655 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:35:08,368 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722656097, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722656097, 'exp': 1722659697, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 12:35:08,368 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:35:08,368 - root - INFO - User type from token: member
+2024-08-03 12:35:08,368 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:35:08,368 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:35:08,368 - sqlalchemy.engine.Engine - INFO - [cached since 11.25s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:35:08,369 - root - INFO - User from database: <backend.user_service.models.Member object at 0x1117e6030>
+2024-08-03 12:35:08,370 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:35:55,856 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-08-03 12:35:55,858 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722656097, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722656097, 'exp': 1722659697, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 12:35:55,858 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:35:55,858 - root - INFO - User type from token: member
+2024-08-03 12:35:55,871 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-08-03 12:35:55,872 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:35:55,873 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-08-03 12:35:55,873 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:35:55,875 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-08-03 12:35:55,875 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:35:55,876 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:35:55,883 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:35:55,883 - sqlalchemy.engine.Engine - INFO - [generated in 0.00020s] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:35:55,896 - root - INFO - User from database: <backend.user_service.models.Member object at 0x1090e15e0>
+2024-08-03 12:35:55,897 - root - INFO - Current user object: <backend.user_service.models.Member object at 0x1090e15e0>
+2024-08-03 12:35:55,897 - root - INFO - User type: member
+2024-08-03 12:35:55,897 - root - INFO - Is trainer: False
+2024-08-03 12:35:55,897 - root - ERROR - Unexpected error in request_trainer_member_mapping: 'CreateTrainerMemberMapping' object has no attribute 'other_uid'
+Traceback (most recent call last):
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/backend/user_service/main.py", line 153, in request_trainer_member_mapping
+    logging.info(f"Attempting to create mapping: current_user_uid={user.uid}, other_uid={mapping.other_uid}, is_trainer={is_trainer}")
+                                                                                         ^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/pydantic/main.py", line 828, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'CreateTrainerMemberMapping' object has no attribute 'other_uid'
+2024-08-03 12:35:55,898 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:37:26,213 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-08-03 12:37:26,213 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722656097, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722656097, 'exp': 1722659697, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 12:37:26,213 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:37:26,213 - root - INFO - User type from token: member
+2024-08-03 12:37:26,233 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-08-03 12:37:26,233 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:37:26,234 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-08-03 12:37:26,234 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:37:26,235 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-08-03 12:37:26,235 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:37:26,236 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:37:26,244 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:37:26,244 - sqlalchemy.engine.Engine - INFO - [generated in 0.00028s] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:37:26,289 - root - INFO - User from database: <backend.user_service.models.Member object at 0x1127bd4c0>
+2024-08-03 12:37:26,290 - root - INFO - Current user object: <backend.user_service.models.Member object at 0x1127bd4c0>
+2024-08-03 12:37:26,290 - root - INFO - User type: member
+2024-08-03 12:37:26,290 - root - INFO - Is trainer: False
+2024-08-03 12:37:26,290 - root - ERROR - Unexpected error in request_trainer_member_mapping: 'CreateTrainerMemberMapping' object has no attribute 'other_uid'
+Traceback (most recent call last):
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/backend/user_service/main.py", line 153, in request_trainer_member_mapping
+    logging.info(f"Attempting to create mapping: current_user_uid={user.uid}, other_uid={mapping.other_uid}, is_trainer={is_trainer}")
+                                                                                         ^^^^^^^^^^^^^^^^^
+  File "/Users/sunhokim/Desktop/GitHub/Gym-app-prototype/myenv/lib/python3.12/site-packages/pydantic/main.py", line 828, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'CreateTrainerMemberMapping' object has no attribute 'other_uid'
+2024-08-03 12:37:26,297 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:38:16,522 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-08-03 12:38:16,522 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722656097, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722656097, 'exp': 1722659697, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 12:38:16,522 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:38:16,522 - root - INFO - User type from token: member
+2024-08-03 12:38:16,555 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-08-03 12:38:16,555 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:38:16,557 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-08-03 12:38:16,557 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:38:16,558 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-08-03 12:38:16,558 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:38:16,559 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:38:16,567 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:38:16,567 - sqlalchemy.engine.Engine - INFO - [generated in 0.00022s] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:38:16,582 - root - INFO - User from database: <backend.user_service.models.Member object at 0x1093bd040>
+2024-08-03 12:38:16,582 - root - INFO - Current user object: <backend.user_service.models.Member object at 0x1093bd040>
+2024-08-03 12:38:16,582 - root - INFO - User type: member
+2024-08-03 12:38:16,582 - root - INFO - Is trainer: False
+2024-08-03 12:38:16,582 - root - INFO - Attempting to create mapping: current_user_uid=77kuSo73IJ6YQdLtvsNE9hcHs6LS, other_email=trainer@example.com, is_trainer=False
+2024-08-03 12:38:16,582 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:38:16,582 - sqlalchemy.engine.Engine - INFO - [cached since 0.01553s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:38:16,583 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.email = $1::VARCHAR
+2024-08-03 12:38:16,584 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ('trainer@example.com',)
+2024-08-03 12:38:16,586 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR AND trainer_member_mapping.member_uid = $2::VARCHAR
+2024-08-03 12:38:16,586 - sqlalchemy.engine.Engine - INFO - [generated in 0.00028s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', '77kuSo73IJ6YQdLtvsNE9hcHs6LS')
+2024-08-03 12:38:16,594 - sqlalchemy.engine.Engine - INFO - INSERT INTO trainer_member_mapping (trainer_uid, member_uid, status, requester_uid, remaining_sessions, acceptance_date) VALUES ($1::VARCHAR, $2::VARCHAR, $3::mappingstatus, $4::VARCHAR, $5::INTEGER, $6::TIMESTAMP WITHOUT TIME ZONE) RETURNING trainer_member_mapping.id
+2024-08-03 12:38:16,594 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'pending', '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 10, None)
+2024-08-03 12:38:16,595 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-08-03 12:38:16,597 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:38:16,598 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.id = $1::INTEGER
+2024-08-03 12:38:16,598 - sqlalchemy.engine.Engine - INFO - [generated in 0.00007s] (3,)
+2024-08-03 12:38:16,598 - root - INFO - Mapping created successfully: <backend.user_service.models.TrainerMemberMap object at 0x108762ae0>
+2024-08-03 12:38:16,598 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:38:16,625 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722656097, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722656097, 'exp': 1722659697, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 12:38:16,625 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:38:16,625 - root - INFO - User type from token: member
+2024-08-03 12:38:16,626 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:38:16,626 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:38:16,626 - sqlalchemy.engine.Engine - INFO - [cached since 0.05921s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:38:16,627 - root - INFO - User from database: <backend.user_service.models.Member object at 0x1093f86b0>
+2024-08-03 12:38:16,628 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainer_member_mapping JOIN trainers ON trainer_member_mapping.trainer_uid = trainers.uid 
+WHERE trainer_member_mapping.member_uid = $1::VARCHAR
+2024-08-03 12:38:16,628 - sqlalchemy.engine.Engine - INFO - [generated in 0.00011s] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:38:16,630 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:38:16,645 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722656097, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722656097, 'exp': 1722659697, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 12:38:16,645 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:38:16,645 - root - INFO - User type from token: member
+2024-08-03 12:38:16,645 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:38:16,645 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:38:16,645 - sqlalchemy.engine.Engine - INFO - [cached since 0.07833s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:38:16,647 - root - INFO - User from database: <backend.user_service.models.Member object at 0x109358c20>
+2024-08-03 12:38:16,647 - root - INFO - Checking remaining sessions for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:38:16,647 - root - INFO - Querying remaining sessions for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:38:16,648 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR AND trainer_member_mapping.member_uid = $2::VARCHAR AND trainer_member_mapping.status = $3::mappingstatus
+2024-08-03 12:38:16,648 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'accepted')
+2024-08-03 12:38:16,649 - root - WARNING - No accepted mapping found for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:38:16,649 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:38:30,648 - root - INFO - Decoded token: {'name': 'trainer test', 'role': 'trainer', 'email': 'trainer@example.com', 'email_verified': False, 'auth_time': 1722656310, 'user_id': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'firebase': {'identities': {'email': ['trainer@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722656310, 'exp': 1722659910, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'uid': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV'}
+2024-08-03 12:38:30,649 - root - INFO - UID from token: zcBomtXd7uXfIj6SJRFFQI8AMRCV
+2024-08-03 12:38:30,649 - root - INFO - User type from token: trainer
+2024-08-03 12:38:30,650 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:38:30,650 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-08-03 12:38:30,650 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:38:30,652 - root - INFO - User from database: <backend.user_service.models.Trainer object at 0x1093fa4e0>
+2024-08-03 12:38:30,653 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM trainer_member_mapping JOIN members ON trainer_member_mapping.member_uid = members.uid 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR
+2024-08-03 12:38:30,653 - sqlalchemy.engine.Engine - INFO - [generated in 0.00025s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:38:30,656 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:38:33,029 - root - INFO - Decoded token: {'name': 'trainer test', 'role': 'trainer', 'email': 'trainer@example.com', 'email_verified': False, 'auth_time': 1722656310, 'user_id': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'firebase': {'identities': {'email': ['trainer@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722656310, 'exp': 1722659910, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'uid': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV'}
+2024-08-03 12:38:33,029 - root - INFO - UID from token: zcBomtXd7uXfIj6SJRFFQI8AMRCV
+2024-08-03 12:38:33,029 - root - INFO - User type from token: trainer
+2024-08-03 12:38:33,029 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:38:33,030 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-08-03 12:38:33,030 - sqlalchemy.engine.Engine - INFO - [cached since 2.38s ago] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:38:33,030 - root - INFO - User from database: <backend.user_service.models.Trainer object at 0x1093fbdd0>
+2024-08-03 12:38:33,031 - root - ERROR - Error updating mapping status: module 'backend.user_service.crud' has no attribute 'get_trainer_member_mapping'
+2024-08-03 12:38:33,031 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:42:07,540 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-08-03 12:42:07,541 - root - INFO - Decoded token: {'name': 'trainer test', 'role': 'trainer', 'email': 'trainer@example.com', 'email_verified': False, 'auth_time': 1722656527, 'user_id': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'firebase': {'identities': {'email': ['trainer@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722656527, 'exp': 1722660127, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'uid': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV'}
+2024-08-03 12:42:07,541 - root - INFO - UID from token: zcBomtXd7uXfIj6SJRFFQI8AMRCV
+2024-08-03 12:42:07,541 - root - INFO - User type from token: trainer
+2024-08-03 12:42:07,556 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-08-03 12:42:07,556 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:42:07,557 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-08-03 12:42:07,557 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:42:07,558 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-08-03 12:42:07,558 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:42:07,559 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:42:07,565 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-08-03 12:42:07,565 - sqlalchemy.engine.Engine - INFO - [generated in 0.00033s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:42:07,580 - root - INFO - User from database: <backend.user_service.models.Trainer object at 0x106424c80>
+2024-08-03 12:42:07,583 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM trainer_member_mapping JOIN members ON trainer_member_mapping.member_uid = members.uid 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR
+2024-08-03 12:42:07,583 - sqlalchemy.engine.Engine - INFO - [generated in 0.00026s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:42:07,604 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:42:09,376 - root - INFO - Decoded token: {'name': 'trainer test', 'role': 'trainer', 'email': 'trainer@example.com', 'email_verified': False, 'auth_time': 1722656527, 'user_id': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'firebase': {'identities': {'email': ['trainer@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722656527, 'exp': 1722660127, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'uid': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV'}
+2024-08-03 12:42:09,376 - root - INFO - UID from token: zcBomtXd7uXfIj6SJRFFQI8AMRCV
+2024-08-03 12:42:09,376 - root - INFO - User type from token: trainer
+2024-08-03 12:42:09,376 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:42:09,376 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-08-03 12:42:09,377 - sqlalchemy.engine.Engine - INFO - [cached since 1.812s ago] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:42:09,377 - root - INFO - User from database: <backend.user_service.models.Trainer object at 0x106427350>
+2024-08-03 12:42:09,378 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR AND trainer_member_mapping.member_uid = $2::VARCHAR
+2024-08-03 12:42:09,378 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', '3')
+2024-08-03 12:42:09,379 - root - ERROR - Error updating mapping status: 404: Mapping not found
+2024-08-03 12:42:09,379 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:43:10,709 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-08-03 12:43:10,710 - root - INFO - Decoded token: {'name': 'trainer test', 'role': 'trainer', 'email': 'trainer@example.com', 'email_verified': False, 'auth_time': 1722656590, 'user_id': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'firebase': {'identities': {'email': ['trainer@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722656590, 'exp': 1722660190, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'uid': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV'}
+2024-08-03 12:43:10,711 - root - INFO - UID from token: zcBomtXd7uXfIj6SJRFFQI8AMRCV
+2024-08-03 12:43:10,711 - root - INFO - User type from token: trainer
+2024-08-03 12:43:10,724 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-08-03 12:43:10,724 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:43:10,726 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-08-03 12:43:10,726 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:43:10,726 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-08-03 12:43:10,726 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:43:10,727 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:43:10,733 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-08-03 12:43:10,733 - sqlalchemy.engine.Engine - INFO - [generated in 0.00032s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:43:10,748 - root - INFO - User from database: <backend.user_service.models.Trainer object at 0x106bc4860>
+2024-08-03 12:43:10,750 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM trainer_member_mapping JOIN members ON trainer_member_mapping.member_uid = members.uid 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR
+2024-08-03 12:43:10,750 - sqlalchemy.engine.Engine - INFO - [generated in 0.00019s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:43:10,758 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:43:12,743 - root - INFO - Decoded token: {'name': 'trainer test', 'role': 'trainer', 'email': 'trainer@example.com', 'email_verified': False, 'auth_time': 1722656590, 'user_id': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'firebase': {'identities': {'email': ['trainer@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722656590, 'exp': 1722660190, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'uid': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV'}
+2024-08-03 12:43:12,743 - root - INFO - UID from token: zcBomtXd7uXfIj6SJRFFQI8AMRCV
+2024-08-03 12:43:12,743 - root - INFO - User type from token: trainer
+2024-08-03 12:43:12,743 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:43:12,743 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-08-03 12:43:12,743 - sqlalchemy.engine.Engine - INFO - [cached since 2.01s ago] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:43:12,744 - root - INFO - User from database: <backend.user_service.models.Trainer object at 0x106bc7740>
+2024-08-03 12:43:12,745 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR AND trainer_member_mapping.member_uid = $2::VARCHAR
+2024-08-03 12:43:12,746 - sqlalchemy.engine.Engine - INFO - [generated in 0.00034s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', '3')
+2024-08-03 12:43:12,747 - root - ERROR - Error updating mapping status: 404: Mapping not found
+2024-08-03 12:43:12,747 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:50:32,644 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-08-03 12:50:32,644 - root - INFO - Decoded token: {'name': 'trainer test', 'role': 'trainer', 'email': 'trainer@example.com', 'email_verified': False, 'auth_time': 1722657032, 'user_id': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'firebase': {'identities': {'email': ['trainer@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722657032, 'exp': 1722660632, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'uid': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV'}
+2024-08-03 12:50:32,644 - root - INFO - UID from token: zcBomtXd7uXfIj6SJRFFQI8AMRCV
+2024-08-03 12:50:32,644 - root - INFO - User type from token: trainer
+2024-08-03 12:50:32,654 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-08-03 12:50:32,654 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:50:32,656 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-08-03 12:50:32,656 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:50:32,657 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-08-03 12:50:32,657 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:50:32,658 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:50:32,668 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-08-03 12:50:32,669 - sqlalchemy.engine.Engine - INFO - [generated in 0.00020s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:50:32,687 - root - INFO - User from database: <backend.user_service.models.Trainer object at 0x1074e48c0>
+2024-08-03 12:50:32,689 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM trainer_member_mapping JOIN members ON trainer_member_mapping.member_uid = members.uid 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR
+2024-08-03 12:50:32,689 - sqlalchemy.engine.Engine - INFO - [generated in 0.00030s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:50:32,696 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:50:34,849 - root - INFO - Decoded token: {'name': 'trainer test', 'role': 'trainer', 'email': 'trainer@example.com', 'email_verified': False, 'auth_time': 1722657032, 'user_id': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'firebase': {'identities': {'email': ['trainer@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722657032, 'exp': 1722660632, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'uid': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV'}
+2024-08-03 12:50:34,849 - root - INFO - UID from token: zcBomtXd7uXfIj6SJRFFQI8AMRCV
+2024-08-03 12:50:34,849 - root - INFO - User type from token: trainer
+2024-08-03 12:50:34,849 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:50:34,850 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-08-03 12:50:34,850 - sqlalchemy.engine.Engine - INFO - [cached since 2.181s ago] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:50:34,851 - root - INFO - User from database: <backend.user_service.models.Trainer object at 0x1074e76e0>
+2024-08-03 12:50:34,852 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR AND trainer_member_mapping.member_uid = $2::VARCHAR
+2024-08-03 12:50:34,852 - sqlalchemy.engine.Engine - INFO - [generated in 0.00012s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', '3')
+2024-08-03 12:50:34,852 - root - ERROR - Error updating mapping status: 404: Mapping not found
+2024-08-03 12:50:34,852 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:54:49,448 - urllib3.util.retry - DEBUG - Converted retries value: 3 -> Retry(total=3, connect=None, read=None, redirect=None, status=None)
+2024-08-03 12:54:49,450 - root - INFO - Decoded token: {'name': 'trainer test', 'role': 'trainer', 'email': 'trainer@example.com', 'email_verified': False, 'auth_time': 1722657289, 'user_id': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'firebase': {'identities': {'email': ['trainer@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722657289, 'exp': 1722660889, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'uid': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV'}
+2024-08-03 12:54:49,450 - root - INFO - UID from token: zcBomtXd7uXfIj6SJRFFQI8AMRCV
+2024-08-03 12:54:49,450 - root - INFO - User type from token: trainer
+2024-08-03 12:54:49,478 - sqlalchemy.engine.Engine - INFO - select pg_catalog.version()
+2024-08-03 12:54:49,478 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:54:49,480 - sqlalchemy.engine.Engine - INFO - select current_schema()
+2024-08-03 12:54:49,480 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:54:49,481 - sqlalchemy.engine.Engine - INFO - show standard_conforming_strings
+2024-08-03 12:54:49,481 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2024-08-03 12:54:49,481 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:54:49,488 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-08-03 12:54:49,488 - sqlalchemy.engine.Engine - INFO - [generated in 0.00022s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:54:49,505 - root - INFO - User from database: <backend.user_service.models.Trainer object at 0x106cc8890>
+2024-08-03 12:54:49,506 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM trainer_member_mapping JOIN members ON trainer_member_mapping.member_uid = members.uid 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR
+2024-08-03 12:54:49,506 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:54:49,513 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:54:51,177 - root - INFO - Decoded token: {'name': 'trainer test', 'role': 'trainer', 'email': 'trainer@example.com', 'email_verified': False, 'auth_time': 1722657289, 'user_id': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'firebase': {'identities': {'email': ['trainer@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722657289, 'exp': 1722660889, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'uid': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV'}
+2024-08-03 12:54:51,177 - root - INFO - UID from token: zcBomtXd7uXfIj6SJRFFQI8AMRCV
+2024-08-03 12:54:51,177 - root - INFO - User type from token: trainer
+2024-08-03 12:54:51,178 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:54:51,178 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-08-03 12:54:51,178 - sqlalchemy.engine.Engine - INFO - [cached since 1.69s ago] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:54:51,179 - root - INFO - User from database: <backend.user_service.models.Trainer object at 0x106ccb6b0>
+2024-08-03 12:54:51,179 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.id = $1::INTEGER
+2024-08-03 12:54:51,179 - sqlalchemy.engine.Engine - INFO - [generated in 0.00011s] (3,)
+2024-08-03 12:54:51,182 - sqlalchemy.engine.Engine - INFO - UPDATE trainer_member_mapping SET status=$1::mappingstatus WHERE trainer_member_mapping.id = $2::INTEGER RETURNING trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date
+2024-08-03 12:54:51,182 - sqlalchemy.engine.Engine - INFO - [generated in 0.00022s] ('accepted', 3)
+2024-08-03 12:54:51,184 - sqlalchemy.engine.Engine - INFO - COMMIT
+2024-08-03 12:54:51,198 - root - INFO - Decoded token: {'name': 'trainer test', 'role': 'trainer', 'email': 'trainer@example.com', 'email_verified': False, 'auth_time': 1722657289, 'user_id': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'firebase': {'identities': {'email': ['trainer@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722657289, 'exp': 1722660889, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV', 'uid': 'zcBomtXd7uXfIj6SJRFFQI8AMRCV'}
+2024-08-03 12:54:51,198 - root - INFO - UID from token: zcBomtXd7uXfIj6SJRFFQI8AMRCV
+2024-08-03 12:54:51,198 - root - INFO - User type from token: trainer
+2024-08-03 12:54:51,199 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:54:51,199 - sqlalchemy.engine.Engine - INFO - SELECT trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainers 
+WHERE trainers.uid = $1::VARCHAR
+2024-08-03 12:54:51,199 - sqlalchemy.engine.Engine - INFO - [cached since 1.712s ago] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:54:51,201 - root - INFO - User from database: <backend.user_service.models.Trainer object at 0x106d002c0>
+2024-08-03 12:54:51,201 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM trainer_member_mapping JOIN members ON trainer_member_mapping.member_uid = members.uid 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR
+2024-08-03 12:54:51,201 - sqlalchemy.engine.Engine - INFO - [cached since 1.695s ago] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV',)
+2024-08-03 12:54:51,202 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:55:04,901 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722657304, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722657304, 'exp': 1722660904, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 12:55:04,902 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:55:04,902 - root - INFO - User type from token: member
+2024-08-03 12:55:04,902 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:55:04,903 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:55:04,903 - sqlalchemy.engine.Engine - INFO - [generated in 0.00014s] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:55:04,905 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d01490>
+2024-08-03 12:55:04,905 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:55:07,136 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722657304, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722657304, 'exp': 1722660904, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 12:55:07,137 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:55:07,137 - root - INFO - User type from token: member
+2024-08-03 12:55:07,137 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:55:07,137 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:55:07,137 - sqlalchemy.engine.Engine - INFO - [cached since 2.234s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:55:07,138 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d01640>
+2024-08-03 12:55:07,139 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainer_member_mapping JOIN trainers ON trainer_member_mapping.trainer_uid = trainers.uid 
+WHERE trainer_member_mapping.member_uid = $1::VARCHAR
+2024-08-03 12:55:07,139 - sqlalchemy.engine.Engine - INFO - [generated in 0.00011s] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:55:07,140 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:55:07,146 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722657304, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722657304, 'exp': 1722660904, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 12:55:07,146 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:55:07,146 - root - INFO - User type from token: member
+2024-08-03 12:55:07,147 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:55:07,147 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:55:07,147 - sqlalchemy.engine.Engine - INFO - [cached since 2.244s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:55:07,147 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d02210>
+2024-08-03 12:55:07,147 - root - INFO - Checking remaining sessions for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:55:07,147 - root - INFO - Querying remaining sessions for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:55:07,148 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR AND trainer_member_mapping.member_uid = $2::VARCHAR AND trainer_member_mapping.status = $3::mappingstatus
+2024-08-03 12:55:07,148 - sqlalchemy.engine.Engine - INFO - [generated in 0.00009s] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'accepted')
+2024-08-03 12:55:07,149 - root - INFO - Found mapping with remaining sessions: 10
+2024-08-03 12:55:07,150 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 12:55:21,443 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722657304, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722657304, 'exp': 1722660904, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 12:55:21,443 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 12:55:21,443 - root - INFO - User type from token: member
+2024-08-03 12:55:21,443 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 12:55:21,444 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 12:55:21,444 - sqlalchemy.engine.Engine - INFO - [cached since 16.54s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 12:55:21,445 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d02bd0>
+2024-08-03 12:55:21,445 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 13:58:17,547 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722661097, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722661097, 'exp': 1722664697, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 13:58:17,549 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 13:58:17,549 - root - INFO - User type from token: member
+2024-08-03 13:58:17,551 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 13:58:17,551 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 13:58:17,551 - sqlalchemy.engine.Engine - INFO - [cached since 2757s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 13:58:17,554 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d01cd0>
+2024-08-03 13:58:17,555 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 13:58:19,199 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722661097, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722661097, 'exp': 1722664697, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 13:58:19,199 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 13:58:19,199 - root - INFO - User type from token: member
+2024-08-03 13:58:19,199 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 13:58:19,200 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 13:58:19,200 - sqlalchemy.engine.Engine - INFO - [cached since 2758s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 13:58:19,200 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d026f0>
+2024-08-03 13:58:19,201 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainer_member_mapping JOIN trainers ON trainer_member_mapping.trainer_uid = trainers.uid 
+WHERE trainer_member_mapping.member_uid = $1::VARCHAR
+2024-08-03 13:58:19,201 - sqlalchemy.engine.Engine - INFO - [cached since 2756s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 13:58:19,202 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 13:58:19,223 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722661097, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722661097, 'exp': 1722664697, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 13:58:19,223 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 13:58:19,223 - root - INFO - User type from token: member
+2024-08-03 13:58:19,223 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 13:58:19,223 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 13:58:19,223 - sqlalchemy.engine.Engine - INFO - [cached since 2759s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 13:58:19,224 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d02b10>
+2024-08-03 13:58:19,224 - root - INFO - Checking remaining sessions for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 13:58:19,224 - root - INFO - Querying remaining sessions for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 13:58:19,225 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR AND trainer_member_mapping.member_uid = $2::VARCHAR AND trainer_member_mapping.status = $3::mappingstatus
+2024-08-03 13:58:19,225 - sqlalchemy.engine.Engine - INFO - [cached since 2756s ago] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'accepted')
+2024-08-03 13:58:19,225 - root - INFO - Found mapping with remaining sessions: 10
+2024-08-03 13:58:19,226 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 13:59:48,157 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722661188, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722661188, 'exp': 1722664788, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 13:59:48,158 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 13:59:48,158 - root - INFO - User type from token: member
+2024-08-03 13:59:48,160 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 13:59:48,161 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 13:59:48,161 - sqlalchemy.engine.Engine - INFO - [cached since 2847s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 13:59:48,174 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d02ab0>
+2024-08-03 13:59:48,175 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 13:59:49,268 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722661188, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722661188, 'exp': 1722664788, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 13:59:49,268 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 13:59:49,268 - root - INFO - User type from token: member
+2024-08-03 13:59:49,269 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 13:59:49,269 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 13:59:49,269 - sqlalchemy.engine.Engine - INFO - [cached since 2849s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 13:59:49,270 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d02e40>
+2024-08-03 13:59:49,270 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainer_member_mapping JOIN trainers ON trainer_member_mapping.trainer_uid = trainers.uid 
+WHERE trainer_member_mapping.member_uid = $1::VARCHAR
+2024-08-03 13:59:49,270 - sqlalchemy.engine.Engine - INFO - [cached since 2846s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 13:59:49,271 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 13:59:49,278 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722661188, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722661188, 'exp': 1722664788, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 13:59:49,278 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 13:59:49,278 - root - INFO - User type from token: member
+2024-08-03 13:59:49,278 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 13:59:49,279 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 13:59:49,279 - sqlalchemy.engine.Engine - INFO - [cached since 2849s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 13:59:49,279 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d02f00>
+2024-08-03 13:59:49,279 - root - INFO - Checking remaining sessions for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 13:59:49,279 - root - INFO - Querying remaining sessions for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 13:59:49,280 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR AND trainer_member_mapping.member_uid = $2::VARCHAR AND trainer_member_mapping.status = $3::mappingstatus
+2024-08-03 13:59:49,280 - sqlalchemy.engine.Engine - INFO - [cached since 2846s ago] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'accepted')
+2024-08-03 13:59:49,280 - root - INFO - Found mapping with remaining sessions: 10
+2024-08-03 13:59:49,280 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 14:00:13,958 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722661188, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722661188, 'exp': 1722664788, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 14:00:13,959 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:00:13,959 - root - INFO - User type from token: member
+2024-08-03 14:00:13,959 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 14:00:13,959 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 14:00:13,959 - sqlalchemy.engine.Engine - INFO - [cached since 2873s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:00:13,960 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d02f60>
+2024-08-03 14:00:13,960 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainer_member_mapping JOIN trainers ON trainer_member_mapping.trainer_uid = trainers.uid 
+WHERE trainer_member_mapping.member_uid = $1::VARCHAR
+2024-08-03 14:00:13,960 - sqlalchemy.engine.Engine - INFO - [cached since 2871s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:00:13,961 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 14:00:13,992 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722661188, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722661188, 'exp': 1722664788, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 14:00:13,992 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:00:13,992 - root - INFO - User type from token: member
+2024-08-03 14:00:13,992 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 14:00:13,992 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 14:00:13,992 - sqlalchemy.engine.Engine - INFO - [cached since 2873s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:00:13,995 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d02b40>
+2024-08-03 14:00:13,995 - root - INFO - Checking remaining sessions for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:00:13,995 - root - INFO - Querying remaining sessions for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:00:13,995 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR AND trainer_member_mapping.member_uid = $2::VARCHAR AND trainer_member_mapping.status = $3::mappingstatus
+2024-08-03 14:00:13,995 - sqlalchemy.engine.Engine - INFO - [cached since 2871s ago] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'accepted')
+2024-08-03 14:00:13,996 - root - INFO - Found mapping with remaining sessions: 10
+2024-08-03 14:00:13,997 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 14:00:51,788 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722661188, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722661188, 'exp': 1722664788, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 14:00:51,790 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:00:51,790 - root - INFO - User type from token: member
+2024-08-03 14:00:51,791 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 14:00:51,792 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 14:00:51,792 - sqlalchemy.engine.Engine - INFO - [cached since 2911s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:00:51,794 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d01b50>
+2024-08-03 14:00:51,794 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainer_member_mapping JOIN trainers ON trainer_member_mapping.trainer_uid = trainers.uid 
+WHERE trainer_member_mapping.member_uid = $1::VARCHAR
+2024-08-03 14:00:51,794 - sqlalchemy.engine.Engine - INFO - [cached since 2909s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:00:51,795 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 14:00:51,811 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722661188, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722661188, 'exp': 1722664788, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 14:00:51,812 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:00:51,812 - root - INFO - User type from token: member
+2024-08-03 14:00:51,812 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 14:00:51,812 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 14:00:51,812 - sqlalchemy.engine.Engine - INFO - [cached since 2911s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:00:51,813 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d03290>
+2024-08-03 14:00:51,813 - root - INFO - Checking remaining sessions for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:00:51,813 - root - INFO - Querying remaining sessions for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:00:51,814 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR AND trainer_member_mapping.member_uid = $2::VARCHAR AND trainer_member_mapping.status = $3::mappingstatus
+2024-08-03 14:00:51,814 - sqlalchemy.engine.Engine - INFO - [cached since 2909s ago] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'accepted')
+2024-08-03 14:00:51,814 - root - INFO - Found mapping with remaining sessions: 10
+2024-08-03 14:00:51,815 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 14:00:53,842 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722661188, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722661188, 'exp': 1722664788, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 14:00:53,842 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:00:53,842 - root - INFO - User type from token: member
+2024-08-03 14:00:53,842 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 14:00:53,843 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 14:00:53,843 - sqlalchemy.engine.Engine - INFO - [cached since 2913s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:00:53,844 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d03530>
+2024-08-03 14:00:53,845 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainer_member_mapping JOIN trainers ON trainer_member_mapping.trainer_uid = trainers.uid 
+WHERE trainer_member_mapping.member_uid = $1::VARCHAR
+2024-08-03 14:00:53,845 - sqlalchemy.engine.Engine - INFO - [cached since 2911s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:00:53,846 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 14:00:53,861 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722661188, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722661188, 'exp': 1722664788, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 14:00:53,861 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:00:53,861 - root - INFO - User type from token: member
+2024-08-03 14:00:53,862 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 14:00:53,862 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 14:00:53,862 - sqlalchemy.engine.Engine - INFO - [cached since 2913s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:00:53,863 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d032c0>
+2024-08-03 14:00:53,864 - root - INFO - Checking remaining sessions for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:00:53,864 - root - INFO - Querying remaining sessions for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:00:53,865 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR AND trainer_member_mapping.member_uid = $2::VARCHAR AND trainer_member_mapping.status = $3::mappingstatus
+2024-08-03 14:00:53,865 - sqlalchemy.engine.Engine - INFO - [cached since 2911s ago] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'accepted')
+2024-08-03 14:00:53,866 - root - INFO - Found mapping with remaining sessions: 10
+2024-08-03 14:00:53,867 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 14:13:46,426 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722662026, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722662026, 'exp': 1722665626, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 14:13:46,427 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:13:46,427 - root - INFO - User type from token: member
+2024-08-03 14:13:46,430 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 14:13:46,431 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 14:13:46,431 - sqlalchemy.engine.Engine - INFO - [cached since 3686s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:13:46,434 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d037d0>
+2024-08-03 14:13:46,437 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 14:13:48,762 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722662026, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722662026, 'exp': 1722665626, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 14:13:48,762 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:13:48,762 - root - INFO - User type from token: member
+2024-08-03 14:13:48,762 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 14:13:48,763 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 14:13:48,763 - sqlalchemy.engine.Engine - INFO - [cached since 3688s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:13:48,764 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d030e0>
+2024-08-03 14:13:48,764 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainer_member_mapping JOIN trainers ON trainer_member_mapping.trainer_uid = trainers.uid 
+WHERE trainer_member_mapping.member_uid = $1::VARCHAR
+2024-08-03 14:13:48,764 - sqlalchemy.engine.Engine - INFO - [cached since 3686s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:13:48,765 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 14:13:48,776 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722662026, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722662026, 'exp': 1722665626, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 14:13:48,776 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:13:48,776 - root - INFO - User type from token: member
+2024-08-03 14:13:48,776 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 14:13:48,776 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 14:13:48,776 - sqlalchemy.engine.Engine - INFO - [cached since 3688s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:13:48,777 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d023f0>
+2024-08-03 14:13:48,777 - root - INFO - Checking remaining sessions for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:13:48,777 - root - INFO - Querying remaining sessions for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:13:48,778 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR AND trainer_member_mapping.member_uid = $2::VARCHAR AND trainer_member_mapping.status = $3::mappingstatus
+2024-08-03 14:13:48,778 - sqlalchemy.engine.Engine - INFO - [cached since 3686s ago] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'accepted')
+2024-08-03 14:13:48,779 - root - INFO - Found mapping with remaining sessions: 10
+2024-08-03 14:13:48,779 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 14:14:37,236 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722662026, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722662026, 'exp': 1722665626, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 14:14:37,238 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:14:37,238 - root - INFO - User type from token: member
+2024-08-03 14:14:37,238 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 14:14:37,238 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 14:14:37,239 - sqlalchemy.engine.Engine - INFO - [cached since 3737s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:14:37,239 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d01a00>
+2024-08-03 14:14:37,240 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainer_member_mapping JOIN trainers ON trainer_member_mapping.trainer_uid = trainers.uid 
+WHERE trainer_member_mapping.member_uid = $1::VARCHAR
+2024-08-03 14:14:37,240 - sqlalchemy.engine.Engine - INFO - [cached since 3734s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:14:37,279 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 14:14:38,245 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722662026, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722662026, 'exp': 1722665626, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 14:14:38,245 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:14:38,245 - root - INFO - User type from token: member
+2024-08-03 14:14:38,246 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 14:14:38,246 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 14:14:38,246 - sqlalchemy.engine.Engine - INFO - [cached since 3738s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:14:38,247 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d036b0>
+2024-08-03 14:14:38,248 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 14:14:45,196 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722662026, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722662026, 'exp': 1722665626, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 14:14:45,196 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:14:45,197 - root - INFO - User type from token: member
+2024-08-03 14:14:45,197 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 14:14:45,197 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 14:14:45,197 - sqlalchemy.engine.Engine - INFO - [cached since 3745s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:14:45,198 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d032f0>
+2024-08-03 14:14:45,198 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainer_member_mapping JOIN trainers ON trainer_member_mapping.trainer_uid = trainers.uid 
+WHERE trainer_member_mapping.member_uid = $1::VARCHAR
+2024-08-03 14:14:45,198 - sqlalchemy.engine.Engine - INFO - [cached since 3742s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:14:45,199 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 14:15:24,155 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722662026, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722662026, 'exp': 1722665626, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 14:15:24,156 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:15:24,157 - root - INFO - User type from token: member
+2024-08-03 14:15:24,161 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 14:15:24,162 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 14:15:24,162 - sqlalchemy.engine.Engine - INFO - [cached since 3783s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:15:24,181 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d01a00>
+2024-08-03 14:15:24,182 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 14:15:55,757 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722662155, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722662155, 'exp': 1722665755, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 14:15:55,758 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:15:55,758 - root - INFO - User type from token: member
+2024-08-03 14:15:55,760 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 14:15:55,760 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 14:15:55,760 - sqlalchemy.engine.Engine - INFO - [cached since 3815s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:15:55,762 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d02990>
+2024-08-03 14:15:55,764 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 14:20:26,187 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722662426, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722662426, 'exp': 1722666026, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 14:20:26,188 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:20:26,188 - root - INFO - User type from token: member
+2024-08-03 14:20:26,190 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 14:20:26,191 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 14:20:26,191 - sqlalchemy.engine.Engine - INFO - [cached since 4086s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:20:26,193 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d033e0>
+2024-08-03 14:20:26,193 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 14:20:28,360 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722662426, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722662426, 'exp': 1722666026, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 14:20:28,360 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:20:28,360 - root - INFO - User type from token: member
+2024-08-03 14:20:28,361 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 14:20:28,361 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 14:20:28,361 - sqlalchemy.engine.Engine - INFO - [cached since 4088s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:20:28,361 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d02ae0>
+2024-08-03 14:20:28,362 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date, trainers.uid, trainers.email, trainers.first_name, trainers.last_name, trainers.role, trainers.fcm_tokens, trainers.last_active 
+FROM trainer_member_mapping JOIN trainers ON trainer_member_mapping.trainer_uid = trainers.uid 
+WHERE trainer_member_mapping.member_uid = $1::VARCHAR
+2024-08-03 14:20:28,362 - sqlalchemy.engine.Engine - INFO - [cached since 4085s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:20:28,363 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-08-03 14:20:28,386 - root - INFO - Decoded token: {'name': 'user test', 'role': 'member', 'email': 'user@example.com', 'email_verified': False, 'auth_time': 1722662426, 'user_id': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'firebase': {'identities': {'email': ['user@example.com']}, 'sign_in_provider': 'password'}, 'iat': 1722662426, 'exp': 1722666026, 'aud': 'fitsync-app-c93ad', 'iss': 'https://securetoken.google.com/fitsync-app-c93ad', 'sub': '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'uid': '77kuSo73IJ6YQdLtvsNE9hcHs6LS'}
+2024-08-03 14:20:28,386 - root - INFO - UID from token: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:20:28,386 - root - INFO - User type from token: member
+2024-08-03 14:20:28,387 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-08-03 14:20:28,387 - sqlalchemy.engine.Engine - INFO - SELECT members.uid, members.email, members.age, members.height, members.weight, members.workout_level, members.workout_frequency, members.workout_goal, members.first_name, members.last_name, members.role, members.fcm_tokens, members.last_active 
+FROM members 
+WHERE members.uid = $1::VARCHAR
+2024-08-03 14:20:28,387 - sqlalchemy.engine.Engine - INFO - [cached since 4088s ago] ('77kuSo73IJ6YQdLtvsNE9hcHs6LS',)
+2024-08-03 14:20:28,388 - root - INFO - User from database: <backend.user_service.models.Member object at 0x106d01b50>
+2024-08-03 14:20:28,388 - root - INFO - Checking remaining sessions for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:20:28,388 - root - INFO - Querying remaining sessions for trainer_uid: zcBomtXd7uXfIj6SJRFFQI8AMRCV, member_uid: 77kuSo73IJ6YQdLtvsNE9hcHs6LS
+2024-08-03 14:20:28,388 - sqlalchemy.engine.Engine - INFO - SELECT trainer_member_mapping.id, trainer_member_mapping.trainer_uid, trainer_member_mapping.member_uid, trainer_member_mapping.status, trainer_member_mapping.requester_uid, trainer_member_mapping.remaining_sessions, trainer_member_mapping.acceptance_date 
+FROM trainer_member_mapping 
+WHERE trainer_member_mapping.trainer_uid = $1::VARCHAR AND trainer_member_mapping.member_uid = $2::VARCHAR AND trainer_member_mapping.status = $3::mappingstatus
+2024-08-03 14:20:28,388 - sqlalchemy.engine.Engine - INFO - [cached since 4085s ago] ('zcBomtXd7uXfIj6SJRFFQI8AMRCV', '77kuSo73IJ6YQdLtvsNE9hcHs6LS', 'accepted')
+2024-08-03 14:20:28,389 - root - INFO - Found mapping with remaining sessions: 10
+2024-08-03 14:20:28,389 - sqlalchemy.engine.Engine - INFO - ROLLBACK

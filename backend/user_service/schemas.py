@@ -103,7 +103,7 @@ class TrainerMappingInfoWithSessions(TrainerMappingInfo):
     remaining_sessions: int
 
 class CreateTrainerMemberMapping(BaseModel):
-    other_email: str
+    other_email: str  
     initial_sessions: int
 
 class TrainerMemberMappingResponse(BaseModel):
