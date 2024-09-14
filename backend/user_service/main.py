@@ -456,25 +456,23 @@ async def request_more_sessions(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to request more sessions: {str(e)}")
 
-    @router.post("/api/add-fcm-token")
-    async def add_fcm_token(
-        token: str,
-        current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
-        db: AsyncSession = Depends(get_db)
-    ):
-        user, user_type = current_user
-        await crud.add_fcm_token(db, user.uid, token, user_type == 'trainer')
-        return {"message": "FCM token added successfully"}
-
-    @router.post("/api/remove-fcm-token")
-    async def remove_fcm_token(
-        token: str,
-        current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
-        db: AsyncSession = Depends(get_db)
-    ):
-        user, user_type = current_user
-        await crud.remove_fcm_token(db, user.uid, token, user_type == 'trainer')
-        return {"message": "FCM token removed successfully"}
+@router.patch("/api/members/me", response_model=schemas.Member)
+async def update_member_me(
+    member_update: schemas.MemberUpdate,
+    current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
+    db: AsyncSession = Depends(get_db)
+):
+    user, user_type = current_user
+    if user_type != 'member':
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    try:
+        updated_member = await crud.update_member(db, user, member_update)
+        return updated_member
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred while updating member: {str(e)}")
 
 @router.post("/api/fcm-token")
 async def add_fcm_token(
@@ -516,12 +514,28 @@ async def update_last_active(
     await fcm_token_management.update_user_last_active(db, user.uid, user_type == 'trainer')
     return {"message": "Last active timestamp updated successfully"}
 
+@router.get("/api/check-trainer-member-mapping/{trainer_uid}/{member_uid}")
+async def check_trainer_member_mapping(
+    trainer_uid: str,
+    member_uid: str,
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        mapping = await crud.get_trainer_member_mapping(db, trainer_uid, member_uid)
+        if mapping and mapping.status == schemas.MappingStatus.accepted:
+            return {"exists": True}
+        return {"exists": False}
+    except Exception as e:
+        logger.error(f"Error checking trainer-member mapping: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error checking trainer-member mapping")
+
 # 비활성 토큰 제거 작업 (백그라운드 태스크로 실행)
 @app.on_event("startup")
 @repeat_every(seconds=60*60*24)  # 매일 실행
 async def remove_inactive_tokens_task():
     async with AsyncSession(get_db()) as db:
         await fcm_token_management.remove_inactive_tokens(db)
+        
 
 app.include_router(router)
 

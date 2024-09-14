@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload, joinedload
-from sqlalchemy import update, delete, and_
+from sqlalchemy import update, delete, and_, func
 from backend.workout_service import models, schemas
 import logging
 import httpx
@@ -10,7 +10,8 @@ from aiocache import cached, caches
 from aiocache.serializers import JsonSerializer
 from collections import defaultdict
 from fastapi import HTTPException
-from typing import List
+from typing import Union, List, Dict, Optional
+from firebase_admin import auth
 
 logger = logging.getLogger(__name__)
 
@@ -25,14 +26,21 @@ caches.set_config({
     }
 })
 
-@cached(ttl=3000, key="trainer_member_mapping:{trainer_uid}:{member_uid}")
 async def check_trainer_member_mapping(trainer_uid: str, member_uid: str, token: str):
     async with httpx.AsyncClient() as client:
-        headers = {"Authorization": token}
+        headers = {"Authorization": f"Bearer {token}"}
         try:
             url = f"{USER_SERVICE_URL}/api/check-trainer-member-mapping/{trainer_uid}/{member_uid}"
+            logger.info(f"Checking trainer-member mapping: trainer_uid={trainer_uid}, member_uid={member_uid}")
             logger.debug(f"Sending request to: {url}")
             response = await client.get(url, headers=headers)
+            logger.debug(f"Response status: {response.status_code}")
+            logger.debug(f"Response content: {response.text}")
+            
+            if response.status_code == 404:
+                logger.warning(f"Mapping not found for trainer {trainer_uid} and member {member_uid}")
+                return False
+            
             response.raise_for_status()
             result = response.json()
             logger.debug(f"Trainer-member mapping check result: {result}")
@@ -41,8 +49,6 @@ async def check_trainer_member_mapping(trainer_uid: str, member_uid: str, token:
             return mapping_exists
         except httpx.HTTPStatusError as e:
             logger.error(f"HTTP error occurred while checking trainer-member mapping: {e.response.status_code} - {e.response.text}")
-            if e.response.status_code == 404:
-                return False
             raise HTTPException(status_code=e.response.status_code, detail=f"Error checking trainer-member mapping: {e.response.text}")
         except Exception as e:
             logger.error(f"Unexpected error occurred while checking trainer-member mapping: {str(e)}")
@@ -50,32 +56,32 @@ async def check_trainer_member_mapping(trainer_uid: str, member_uid: str, token:
 
 async def create_session(
     db: AsyncSession,
-    session_type_id: int | None,
-    quest_id: int | None,
-    member_uid: str | None,
+    session_type_id: Union[int, None],
+    quest_id: Union[int, None],
+    member_uid: Union[str, None],
     current_user: dict,
-    authorization: str
+    token: str,
 ):
     try:
-        if current_user['user_type'] == 'trainer':
+        if current_user['role'] == 'trainer':
             if not member_uid:
                 raise ValueError("member_uid is required for trainers")
             
-            mapping_exists = await check_trainer_member_mapping(current_user.get('uid'), member_uid, authorization)
+            mapping_exists = await check_trainer_member_mapping(current_user['uid'], member_uid, token)
             
             if not mapping_exists:
                 raise HTTPException(status_code=403, detail="Trainer is not associated with this member")
             is_pt = True
             session_type_id = 3  # Always set session_type_id to 3 for trainers
-            logger.info(f"Automatically set session_type_id to 3 for trainer {current_user.get('uid')}")
+            logger.info(f"Automatically set session_type_id to 3 for trainer {current_user['uid']}")
         else:  # member
-            if member_uid and member_uid != current_user.get('uid'):
+            if member_uid and member_uid != current_user['uid']:
                 raise HTTPException(status_code=403, detail="Member can only create sessions for themselves")
-            member_uid = current_user.get('uid')
+            member_uid = current_user['uid']
             is_pt = False
             if session_type_id is None:
-                session_type_id = 1  # Default to 1 for members if not specified
-                logger.info(f"Automatically set session_type_id to 1 for member {member_uid}")
+                session_type_id = 3  # Default to 3 for custom workouts
+                logger.info(f"Automatically set session_type_id to 3 for member {member_uid}")
         
         session_data = {
             "member_uid": member_uid,
@@ -387,7 +393,8 @@ async def get_workouts_by_part(db: AsyncSession, workout_part_id: int = None):
             workouts = [
                 {
                     "workout_key": key.workout_key_id,
-                    "workout_name": key.workout.workout_name
+                    "workout_name": key.workout.workout_name,
+                    "workout_part": part.workout_part_name  # Add this line
                 }
                 for key in part.workout_keys
             ]
@@ -429,8 +436,39 @@ async def get_session_counts(db: AsyncSession, member_uid: str, start_date: date
 
     return counts
 
-async def get_last_session_update(db: AsyncSession, user_id: str) -> datetime:
-    query = select(func.max(models.SessionIDMap.workout_date)).where(models.SessionIDMap.member_uid == user_id)
+async def get_last_session_update(db: AsyncSession, uie: str) -> datetime:
+    query = select(func.max(models.SessionIDMap.workout_date)).where(models.SessionIDMap.member_uid == uid)
     result = await db.execute(query)
     last_updated = result.scalar_one_or_none()
     return last_updated or datetime.min
+
+async def search_workouts(db: AsyncSession, workout_name: str):
+    try:
+        stmt = select(models.WorkoutKeyNameMap).options(
+            joinedload(models.WorkoutKeyNameMap.workout),
+            joinedload(models.WorkoutKeyNameMap.workout_part)
+        ).join(models.Workouts).where(
+            func.lower(models.Workouts.workout_name).contains(func.lower(workout_name.replace(' ', '%')))
+        )
+        
+        result = await db.execute(stmt)
+        workout_key_maps = result.unique().scalars().all()
+        
+        if not workout_key_maps:
+            logger.warning(f"No workouts found for search term: {workout_name}")
+            return []
+
+        workouts = [
+            {
+                "workout_key": wkm.workout_key_id,
+                "workout_name": wkm.workout.workout_name,
+                "workout_part": wkm.workout_part.workout_part_name
+            }
+            for wkm in workout_key_maps
+        ]
+        
+        logger.info(f"Found {len(workouts)} workouts for search term: {workout_name}")
+        return workouts
+    except Exception as e:
+        logger.error(f"Error searching workouts: {str(e)}", exc_info=True)
+        raise

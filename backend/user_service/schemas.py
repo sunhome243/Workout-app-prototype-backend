@@ -39,9 +39,11 @@ class MemberUpdate(BaseModel):
     age: Optional[int] = None
     height: Optional[float] = None
     weight: Optional[float] = None
-    workout_level: Optional[int] = None
-    workout_frequency: Optional[int] = None
-    workout_goal: Optional[int] = None
+    workout_level: Optional[int] = Field(None, ge=1, le=3)
+    workout_frequency: Optional[int] = Field(None, ge=1, le=7)
+    workout_goal: Optional[int] = Field(None, ge=1, le=3)
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
 
 class TrainerBase(BaseModel):
     email: str

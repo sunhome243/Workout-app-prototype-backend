@@ -16,3 +16,4 @@ aiocache
 firebase_admin
 fastapi-utils
 typing-inspect
+greenlet

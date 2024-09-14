@@ -17,7 +17,7 @@ class SessionIDMap(BaseModel):
     is_pt: bool
     session_type_id: int
     quest_id: Optional[int] = None
-
+    
 class SessionCreate(BaseModel):
     member_uid: str
     trainer_uid: Optional[str] = None
@@ -129,3 +129,8 @@ class SessionSaveResponse(BaseModel):
 
     class ConfigDict(ConfigDict):
         from_attributes = True
+        
+class WorkoutInfo(BaseModel):
+    workout_key: int
+    workout_name: str
+    workout_part: str

@@ -360,3 +360,10 @@ async def update_trainer_member_mapping_status(db: AsyncSession, mapping_id: int
         logging.error(f"Error in update_trainer_member_mapping_status: {str(e)}")
         raise
         
+async def update_member(db: AsyncSession, member: models.Member, member_update: schemas.MemberUpdate):
+    update_data = member_update.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(member, key, value)
+    await db.commit()
+    await db.refresh(member)
+    return member

@@ -4,23 +4,43 @@ from fastapi.openapi.utils import get_openapi
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.workout_service.database import get_db
 from backend.workout_service import crud, schemas, utils
-from unittest.mock import AsyncMock
+from firebase_admin_init import initialize_firebase
+from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict, Optional
 from datetime import datetime
 import logging
 import httpx
-import os
+from firebase_admin import auth, credentials
+import firebase_admin
 
+initialize_firebase()
+
+# 로깅 설정
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler()]
+    filename='app.log',  # 로그를 파일에 저장
+    filemode='a'  # 로그를 추가 모드로 저장
 )
 logger = logging.getLogger(__name__)
 
-app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+# 콘솔에도 로그 출력
+console = logging.StreamHandler()
+console.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+console.setFormatter(formatter)
+logging.getLogger('').addHandler(console)
 
-USER_SERVICE_URL = "http://127.0.0.1:8000"
+app = FastAPI()
+
+# CORS 설정
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 def custom_openapi():
     if app.openapi_schema:
@@ -33,10 +53,9 @@ def custom_openapi():
     )
     openapi_schema["components"]["securitySchemes"] = {
         "Bearer": {
-            "type": "apiKey",
-            "in": "header",
-            "name": "Authorization",
-            "description": "Enter your JWT token with the `Bearer ` prefix, e.g. `Bearer abcde12345`"
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
         }
     }
     openapi_schema["security"] = [{"Bearer": []}]
@@ -53,6 +72,17 @@ async def get_documentation():
 async def get_openapi_json():
     return app.openapi()
 
+async def get_current_user(authorization: str = Header(...)):
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Invalid authorization header")
+    token = authorization.split(" ")[1]
+    try:
+        decoded_token = auth.verify_id_token(token)
+        return decoded_token
+    except Exception as e:
+        logger.error(f"Error verifying token: {str(e)}")
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
 @app.post("/api/create_session", response_model=schemas.SessionIDMap)
 async def create_session_endpoint(
     request: Request,
@@ -60,38 +90,48 @@ async def create_session_endpoint(
     quest_id: Optional[int] = Query(None, description="Quest ID. Required for session_type_id 2."),
     member_uid: Optional[str] = Query(None, description="Member ID. Required for trainers."),
     db: AsyncSession = Depends(get_db),
-    authorization: str = Header(None)
+    current_user: dict = Depends(get_current_user)
 ):
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Authorization header is missing")
-    
     try:
-        current_user = await utils.get_current_user(authorization)
+        # Parse the request body as JSON
+        body = await request.json()
+        
+        # Override query parameters with values from the body if provided
+        if "session_type_id" in body and body["session_type_id"] is not None:
+            session_type_id = body["session_type_id"]
+        if "quest_id" in body and body["quest_id"] is not None:
+            quest_id = body["quest_id"]
+        if "member_uid" in body and body["member_uid"] is not None:
+            member_uid = body["member_uid"]
+
+        # Get the token from headers
+        token = request.headers.get('Authorization').split(" ")[1]
+        
+        if session_type_id is None:
+            session_type_id = 3  # Default to 3 for custom workouts
+        
+        # Call the CRUD function to create the session
         new_session = await crud.create_session(
             db, 
             session_type_id, 
             quest_id, 
             member_uid, 
             current_user, 
-            authorization
+            token
         )
         return new_session
     except HTTPException as he:
         raise he
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error creating session: {str(e)}")
-
+    
 @app.get("/api/get_oldest_not_started_quest", response_model=schemas.Quest)
 async def get_oldest_not_started_quest(
     db: AsyncSession = Depends(get_db),
-    authorization: str = Header(None)
+    current_user: dict = Depends(get_current_user)
 ):
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Authorization header is missing")
-    
     try:
-        current_member = await utils.get_current_user(authorization)
-        quest = await crud.get_oldest_not_started_quest(db, current_member['uid'])
+        quest = await crud.get_oldest_not_started_quest(db, current_user['uid'])
         if not quest:
             raise HTTPException(status_code=404, detail="No not started quests found")
         return quest
@@ -102,42 +142,37 @@ async def get_oldest_not_started_quest(
 
 @app.post("/api/save_session", response_model=schemas.SessionSaveResponse)
 async def save_session(
+    request: Request,
     session_data: schemas.SessionSave,
     db: AsyncSession = Depends(get_db),
-    authorization: str = Header(None)
+    current_user: dict = Depends(get_current_user)
 ):
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Authorization header is missing")
-    
     try:
-        current_member = await utils.get_current_user(authorization)
-        updated_session = await crud.save_session(db, session_data, current_member, authorization)
+        token = request.headers.get('Authorization').split(" ")[1]
+        updated_session = await crud.save_session(db, session_data, current_user, token)
         return updated_session
     except HTTPException as he:
         raise he
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error saving session: {str(e)}")
-    
 
-@app.get("/api/get_sessions/{member_uid}", response_model=list[schemas.SessionWithSets])
+@app.get("/api/get_sessions/{member_uid}", response_model=List[schemas.SessionWithSets])
 async def get_sessions(
+    request: Request,
     member_uid: str = Path(..., title="The ID of the member to get sessions for"),
     db: AsyncSession = Depends(get_db),
-    authorization: str = Header(None)
+    current_user: dict = Depends(get_current_user)
 ):
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Authorization header is missing")
     try:
-        current_member = await utils.get_current_user(authorization)
-        member_uid = current_member['uid']
-        user_type = current_member['user_type']
-        logger.debug(f"Fetching sessions for member ID: {member_uid}, current member ID: {member_uid}, member type: {user_type}")
+        user_type = current_user['role']
+        logger.debug(f"Fetching sessions for member ID: {member_uid}, current user ID: {current_user['uid']}, user type: {user_type}")
         
-        if member_uid != member_uid:
+        if member_uid != current_user['uid']:
             if user_type != 'trainer':
                 raise HTTPException(status_code=403, detail="You don't have permission to access this member's sessions")
             # Check if the trainer is mapped to the requested member
-            is_mapped = await crud.check_trainer_member_mapping(trainer_uid=member_uid, member_uid=member_uid, token=authorization)
+            token = request.headers.get('Authorization').split(" ")[1]
+            is_mapped = await crud.check_trainer_member_mapping(trainer_uid=current_user['uid'], member_uid=member_uid, token=token)
             if not is_mapped:
                 raise HTTPException(status_code=403, detail="You don't have permission to access this member's sessions")
         
@@ -168,26 +203,23 @@ async def get_sessions(
         logger.error(f"Error fetching sessions: {str(e)}")
         raise HTTPException(status_code=500, detail="Error fetching sessions")
 
-
 @app.post("/api/create_quest", response_model=schemas.Quest)
 async def create_quest_endpoint(
+    request: Request,
     quest_data: schemas.QuestCreate,
     db: AsyncSession = Depends(get_db),
-    authorization: str = Header(None)
+    current_user: dict = Depends(get_current_user)
 ):
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Authorization header is missing")
-    
     try:
-        current_member = await utils.get_current_user(authorization)
-        if current_member['user_type'] != 'trainer':
+        if current_user['role'] != 'trainer':
             raise HTTPException(status_code=403, detail="Only trainers can create quests")
         
-        mapping_exists = await crud.check_trainer_member_mapping(current_member['uid'], quest_data.member_uid, authorization)
+        token = request.headers.get('Authorization').split(" ")[1]
+        mapping_exists = await crud.check_trainer_member_mapping(current_user['uid'], quest_data.member_uid, token)
         if not mapping_exists:
             raise HTTPException(status_code=403, detail="Trainer is not associated with this member")
         
-        new_quest = await crud.create_quest(db, quest_data, current_member['uid'])
+        new_quest = await crud.create_quest(db, quest_data, current_user['uid'])
         return new_quest
     except ValueError as ve:
         raise HTTPException(status_code=422, detail=str(ve))
@@ -196,24 +228,19 @@ async def create_quest_endpoint(
     except Exception as e:
         logger.error(f"Unexpected error in create_quest: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
-    
-    
+
 @app.get("/api/quests", response_model=List[schemas.Quest])
 async def read_quests(
     db: AsyncSession = Depends(get_db),
-    authorization: str = Header(None)
+    current_user: dict = Depends(get_current_user)
 ):
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Authorization header is missing")
-    
     try:
-        current_member = await utils.get_current_user(authorization)
-        logger.debug(f"Current member: {current_member}")
+        logger.debug(f"Current user: {current_user}")
 
-        if current_member['user_type'] == 'trainer':
-            quests = await crud.get_quests_by_trainer(db, current_member['uid'])
+        if current_user['role'] == 'trainer':
+            quests = await crud.get_quests_by_trainer(db, current_user['uid'])
         else:  # member
-            quests = await crud.get_quests_by_member(db, current_member['uid'])
+            quests = await crud.get_quests_by_member(db, current_user['uid'])
         
         return quests
     except Exception as e:
@@ -222,26 +249,24 @@ async def read_quests(
 
 @app.get("/api/quests/{member_uid}", response_model=List[schemas.Quest])
 async def read_quests_for_member(
+    request: Request,
     member_uid: str,
     db: AsyncSession = Depends(get_db),
-    authorization: str = Header(None)
+    current_user: dict = Depends(get_current_user)
 ):
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Authorization header is missing")
-    
     try:
-        current_member = await utils.get_current_user(authorization)
-        logger.debug(f"Current member: {current_member}")
+        logger.debug(f"Current user: {current_user}")
 
-        if current_member['user_type'] != 'trainer':
+        if current_user['role'] != 'trainer':
             raise HTTPException(status_code=403, detail="Only trainers can access this endpoint")
 
         # Check trainer-member mapping
-        mapping_exists = await crud.check_trainer_member_mapping(current_member['uid'], member_uid, authorization)
+        token = request.headers.get('Authorization').split(" ")[1]
+        mapping_exists = await crud.check_trainer_member_mapping(current_user['uid'], member_uid, token)
         if not mapping_exists:
             raise HTTPException(status_code=403, detail="Trainer is not associated with this member")
 
-        quests = await crud.get_quests_by_trainer_and_member(db, current_member['uid'], member_uid)
+        quests = await crud.get_quests_by_trainer_and_member(db, current_user['uid'], member_uid)
         
         return quests
     except HTTPException as he:
@@ -254,23 +279,18 @@ async def read_quests_for_member(
 async def delete_quest(
     quest_id: int = Path(..., title="The ID of the quest to delete"),
     db: AsyncSession = Depends(get_db),
-    authorization: str = Header(None)
+    current_user: dict = Depends(get_current_user)
 ):
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Authorization header is missing")
-    
     try:
-        current_member = await utils.get_current_user(authorization)
-        
         # Fetch the quest to check permissions
         quest = await crud.get_quest_by_id(db, quest_id)
         if not quest:
             raise HTTPException(status_code=404, detail="Quest not found")
         
-        # Check if the member has permission to delete this quest
-        if current_member['user_type'] == 'trainer' and quest.trainer_uid != current_member['uid']:
+        # Check if the user has permission to delete this quest
+        if current_user['role'] == 'trainer' and quest.trainer_uid != current_user['uid']:
             raise HTTPException(status_code=403, detail="Not authorized to delete this quest")
-        elif current_member['user_type'] == 'member' and quest.member_uid != current_member['uid']:
+        elif current_user['role'] == 'member' and quest.member_uid != current_user['uid']:
             raise HTTPException(status_code=403, detail="Members are not allowed to delete quests")
         
         # Delete the quest
@@ -284,21 +304,15 @@ async def delete_quest(
     except Exception as e:
         logger.error(f"Error deleting quest: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error deleting quest: {str(e)}")
-    
+
 @app.get("/api/workout-records/{workout_key}", response_model=Dict[int, schemas.QuestWorkoutRecord])
 async def get_workout_records(
     workout_key: int = Path(..., title="The workout key of the workout"),
     db: AsyncSession = Depends(get_db),
-    authorization: str = Header(None)
+    current_user: dict = Depends(get_current_user)
 ):
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Authorization header is missing")
-    
     try:
-        current_member = await utils.get_current_user(authorization)
-        
-        records = await crud.get_workout_records(db, current_member['uid'], workout_key)
-        
+        records = await crud.get_workout_records(db, current_user['uid'], workout_key)
         return records
     except HTTPException as he:
         raise he
@@ -310,14 +324,9 @@ async def get_workout_records(
 async def get_workout_name(
     workout_key: int = Path(..., title="The workout key"),
     db: AsyncSession = Depends(get_db),
-    authorization: str = Header(None)
+    current_user: dict = Depends(get_current_user)
 ):
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Authorization header is missing")
-    
     try:
-        await utils.get_current_user(authorization)  # Just to verify the member is authenticated
-        
         workout_name = await crud.get_workout_name(db, workout_key)
         if workout_name is None:
             raise HTTPException(status_code=404, detail="Workout not found")
@@ -328,20 +337,32 @@ async def get_workout_name(
     except Exception as e:
         logger.error(f"Error retrieving workout name: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error retrieving workout name: {str(e)}")
-    
-    
+
+@app.get("/api/search-workouts", response_model=List[schemas.WorkoutInfo])
+async def search_workouts(
+    workout_name: str = Query(..., description="The name of the workout to search for"),
+    db: AsyncSession = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    try:
+        workouts = await crud.search_workouts(db, workout_name)
+        if not workouts:
+            raise HTTPException(status_code=404, detail="No workouts found")
+        
+        return workouts
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logger.error(f"Error searching workouts: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error searching workouts: {str(e)}")
+
 @app.get("/api/workouts-by-part", response_model=Dict[str, List[schemas.WorkoutInfo]])
 async def get_workouts_by_part(
     workout_part_id: int = Query(None, description="Optional: Filter by specific workout part ID"),
     db: AsyncSession = Depends(get_db),
-    authorization: str = Header(None)
+    current_user: dict = Depends(get_current_user)
 ):
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Authorization header is missing")
-    
     try:
-        await utils.get_current_user(authorization)  # Just to verify the member is authenticated
-        
         workouts_by_part = await crud.get_workouts_by_part(db, workout_part_id)
         return workouts_by_part
     except HTTPException as he:
@@ -352,25 +373,22 @@ async def get_workouts_by_part(
 
 @app.get("/api/session_counts/{member_uid}", response_model=Dict[str, int])
 async def get_session_counts(
+    request: Request,
     member_uid: str,
     start_date: datetime,
     end_date: datetime,
     db: AsyncSession = Depends(get_db),
-    authorization: str = Header(None)
+    current_user: dict = Depends(get_current_user)
 ):
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Authorization header is missing")
-    
     try:
-        current_member = await utils.get_current_user(authorization)
-        
-        # Check if the current member is requesting their own data or if they're a trainer
-        if current_member['uid'] != member_uid and current_member['user_type'] != 'trainer':
+        # Check if the current user is requesting their own data or if they're a trainer
+        if current_user['uid'] != member_uid and current_user['role'] != 'trainer':
             raise HTTPException(status_code=403, detail="Not authorized to access this data")
         
         # If it's a trainer, check if they're mapped to the member
-        if current_member['user_type'] == 'trainer':
-            is_mapped = await crud.check_trainer_member_mapping(current_member['uid'], member_uid, authorization)
+        if current_user['role'] == 'trainer':
+            token = request.headers.get('Authorization').split(" ")[1]
+            is_mapped = await crud.check_trainer_member_mapping(current_user['uid'], member_uid, token)
             if not is_mapped:
                 raise HTTPException(status_code=403, detail="Not authorized to access this member's data")
 
@@ -378,22 +396,22 @@ async def get_session_counts(
         return session_counts
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
-@app.get("/api/last-session-update/{user_id}")
+
+@app.get("/api/last-session-update/{uid}")
 async def get_last_session_update(
-    user_id: str,
+    uid: str,
     db: AsyncSession = Depends(get_db),
-    authorization: str = Header(None)
+    current_user: dict = Depends(get_current_user)
 ):
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Authorization header is missing")
-    
     try:
-        current_member = await utils.get_current_user(authorization)
-        if current_member['uid'] != user_id and current_member['user_type'] != 'trainer':
+        if current_user['uid'] != uid and current_user['role'] != 'trainer':
             raise HTTPException(status_code=403, detail="Not authorized to access this data")
         
-        last_updated = await crud.get_last_session_update(db, user_id)
+        last_updated = await crud.get_last_session_update(db, uid)
         return {"last_updated": last_updated.isoformat()}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8001)
