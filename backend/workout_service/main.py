@@ -6,14 +6,16 @@ from backend.workout_service.database import get_db
 from backend.workout_service import crud, schemas, utils
 from firebase_admin_init import initialize_firebase
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Dict, Optional
+from typing import List, Union, Optional, Tuple, Annotated, Dict
 from datetime import datetime
 import logging
 import httpx
 from firebase_admin import auth, credentials
 import firebase_admin
+from backend.workout_service import models 
 
 initialize_firebase()
+USER_SERVICE_URL = "http://localhost:8000"
 
 # 로깅 설정
 logging.basicConfig(
@@ -156,53 +158,36 @@ async def save_session(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error saving session: {str(e)}")
 
-@app.get("/api/get_sessions/{member_uid}", response_model=List[schemas.SessionWithSets])
-async def get_sessions(
+@app.get("/api/session/{session_id}", response_model=schemas.SessionDetail)
+async def get_session_detail(
+    session_id: int,
     request: Request,
-    member_uid: str = Path(..., title="The ID of the member to get sessions for"),
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
     try:
-        user_type = current_user['role']
-        logger.debug(f"Fetching sessions for member ID: {member_uid}, current user ID: {current_user['uid']}, user type: {user_type}")
-        
-        if member_uid != current_user['uid']:
-            if user_type != 'trainer':
-                raise HTTPException(status_code=403, detail="You don't have permission to access this member's sessions")
-            # Check if the trainer is mapped to the requested member
-            token = request.headers.get('Authorization').split(" ")[1]
-            is_mapped = await crud.check_trainer_member_mapping(trainer_uid=current_user['uid'], member_uid=member_uid, token=token)
-            if not is_mapped:
-                raise HTTPException(status_code=403, detail="You don't have permission to access this member's sessions")
-        
-        # Fetch sessions for the requested member_uid
-        sessions = await crud.get_sessions_by_member(db, member_uid)
-        if not sessions:
-            logger.info(f"No sessions found for member ID: {member_uid}")
-            return []
-        
-        result = []
-        for session in sessions:
-            sets = await crud.get_sets_by_session(db, session.session_id)
-            result.append(schemas.SessionWithSets(
-                session_id=session.session_id,
-                workout_date=session.workout_date,
-                member_uid=session.member_uid,
-                trainer_uid=session.trainer_uid,
-                is_pt=session.is_pt,
-                session_type_id=session.session_type_id,
-                sets=[schemas.SetResponse(**set.__dict__) for set in sets]
-            ))
-        logger.info(f"Successfully fetched {len(result)} sessions for member ID: {member_uid}")
-        return result
+        token = request.headers.get('Authorization').split(" ")[1]
+        session_detail = await crud.get_session_detail(db, session_id, token)
+        if not session_detail:
+            raise HTTPException(status_code=404, detail="Session not found")
+
+        # Check authorization
+        if current_user['uid'] != session_detail.member_uid:
+            if current_user['role'] != 'trainer':
+                raise HTTPException(status_code=403, detail="Not authorized to access this session")
+            
+            # If it's a trainer, check if they're assigned to this member
+            is_assigned = await crud.check_trainer_member_mapping(current_user['uid'], session_detail.member_uid, token)
+            if not is_assigned:
+                raise HTTPException(status_code=403, detail="Not authorized to access this member's session")
+
+        return session_detail
     except HTTPException as he:
-        logger.error(f"HTTP error in get_sessions: {he.detail}")
         raise he
     except Exception as e:
-        logger.error(f"Error fetching sessions: {str(e)}")
-        raise HTTPException(status_code=500, detail="Error fetching sessions")
-
+        logging.error(f"Error retrieving session detail: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error retrieving session detail: {str(e)}")
+    
 @app.post("/api/create_quest", response_model=schemas.Quest)
 async def create_quest_endpoint(
     request: Request,
@@ -411,6 +396,95 @@ async def get_last_session_update(
         return {"last_updated": last_updated.isoformat()}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/trainer/assigned-members-sessions", response_model=List[schemas.SessionWithSets])
+async def get_trainer_assigned_members_sessions(
+    request: Request,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        if current_user['role'] != 'trainer':
+            raise HTTPException(status_code=403, detail="Only trainers can access this endpoint")
+
+        token = request.headers.get('Authorization').split(" ")[1]
+        
+        # User Service에서 할당된 멤버 목록 가져오기
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{USER_SERVICE_URL}/api/trainer/{current_user['uid']}/assigned-members",
+                headers={"Authorization": f"Bearer {token}"}
+            )
+            response.raise_for_status()
+            assigned_members = response.json()
+
+        all_sessions = []
+        for member in assigned_members:
+            member_sessions = await crud.get_sessions_by_member(db, member['uid'])
+            for session in member_sessions:
+                sets = await crud.get_sets_by_session(db, session.session_id)
+                all_sessions.append(schemas.SessionWithSets(
+                    session_id=session.session_id,
+                    workout_date=session.workout_date,
+                    member_uid=session.member_uid,
+                    trainer_uid=session.trainer_uid,
+                    is_pt=session.is_pt,
+                    session_type_id=session.session_type_id,
+                    sets=[schemas.SetResponse(**set.__dict__) for set in sets]
+                ))
+
+        return all_sessions
+    except httpx.HTTPStatusError as e:
+        logger.error(f"HTTP error occurred while fetching assigned members: {e}")
+        raise HTTPException(status_code=e.response.status_code, detail=f"Error fetching assigned members: {e.response.text}")
+    except Exception as e:
+        logger.error(f"Error fetching assigned members' sessions: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching assigned members' sessions: {str(e)}")
+
+@app.get("/api/session/{session_id}", response_model=schemas.SessionDetail)
+async def get_session_detail(
+    session_id: int,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    try:
+        session_detail = await crud.get_session_detail(db, session_id)
+        if not session_detail:
+            raise HTTPException(status_code=404, detail="Session not found")
+
+        # Check authorization
+        if current_user['uid'] != session_detail.member_uid:
+            if current_user['role'] != 'trainer':
+                raise HTTPException(status_code=403, detail="Not authorized to access this session")
+            
+            # If it's a trainer, check if they're assigned to this member
+            token = request.headers.get('Authorization').split(" ")[1]
+            is_assigned = await crud.check_trainer_member_mapping(current_user['uid'], session_detail.member_uid, token)
+            if not is_assigned:
+                raise HTTPException(status_code=403, detail="Not authorized to access this member's session")
+
+        return session_detail
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logging.error(f"Error retrieving session detail: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error retrieving session detail: {str(e)}")
+
+@app.get("/api/sessions", response_model=List[schemas.SessionWithSets])
+async def get_sessions(
+    db: AsyncSession = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    try:
+        if current_user['role'] == 'trainer':
+            sessions = await crud.get_trainer_sessions(db, current_user['uid'])
+        else:  # member
+            sessions = await crud.get_sessions_by_member(db, current_user['uid'])
+        return sessions
+    except Exception as e:
+        logger.error(f"Error fetching sessions: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error fetching sessions")
 
 if __name__ == "__main__":
     import uvicorn

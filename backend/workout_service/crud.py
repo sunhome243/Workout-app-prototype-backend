@@ -10,7 +10,7 @@ from aiocache import cached, caches
 from aiocache.serializers import JsonSerializer
 from collections import defaultdict
 from fastapi import HTTPException
-from typing import Union, List, Dict, Optional
+from typing import Union, List, Dict, Optional, Tuple
 from firebase_admin import auth
 
 logger = logging.getLogger(__name__)
@@ -85,6 +85,7 @@ async def create_session(
         
         session_data = {
             "member_uid": member_uid,
+            "trainer_uid": current_user['uid'] if current_user['role'] == 'trainer' else None,  
             "is_pt": is_pt,
             "session_type_id": session_type_id,
         }
@@ -113,70 +114,65 @@ async def create_session(
         await db.rollback()
         raise HTTPException(status_code=500, detail=f"Error creating session: {str(e)}")
 
-async def get_oldest_not_started_quest(db: AsyncSession, member_uid: str):
-    try:
-        stmt = select(models.Quest).options(
-            selectinload(models.Quest.workouts).selectinload(models.QuestWorkout.sets)
-        ).filter(
-            models.Quest.member_uid == member_uid,
-            models.Quest.status == schemas.QuestStatus.NOT_STARTED
-        ).order_by(models.Quest.workout_date)
-        result = await db.execute(stmt)
-        return result.scalar_one_or_none()
-    except Exception as e:
-        logger.error(f"Error fetching oldest not started quest: {str(e)}")
-        raise
-
 async def save_session(db: AsyncSession, session_data: schemas.SessionSave, current_member: dict, authorization: str):
-    try:
-        session = await db.get(models.SessionIDMap, session_data.session_id)
-        if not session:
-            raise HTTPException(status_code=404, detail="Session not found")
+    logger.info(f"Starting save_session for session_id: {session_data.session_id}")
+    
+    async with db.begin() as transaction:
+        try:
+            session = await db.get(models.SessionIDMap, session_data.session_id)
+            if not session:
+                logger.error(f"Session not found: {session_data.session_id}")
+                raise HTTPException(status_code=404, detail="Session not found")
+            
+            if session.member_uid != current_member['uid'] and current_member['role'] != 'trainer':
+                logger.error(f"Unauthorized save attempt for session: {session_data.session_id}")
+                raise HTTPException(status_code=403, detail="Not authorized to save this session")
+            
+            # Check if session has already been saved
+            existing_sets = await db.execute(select(func.count()).select_from(models.Session).where(models.Session.session_id == session_data.session_id))
+            existing_sets_count = existing_sets.scalar()
+            
+            if existing_sets_count > 0:
+                logger.warning(f"Session {session_data.session_id} already has {existing_sets_count} sets. Deleting existing sets.")
+                await db.execute(delete(models.Session).where(models.Session.session_id == session_data.session_id))
+            
+            # Add new exercises and sets
+            for exercise in session_data.exercises:
+                for set_data in exercise.sets:
+                    new_set = models.Session(
+                        session_id=session_data.session_id,
+                        workout_key=exercise.workout_key,
+                        set_num=set_data.set_num,
+                        weight=set_data.weight,
+                        reps=set_data.reps,
+                        rest_time=set_data.rest_time
+                    )
+                    db.add(new_set)
+            
+            logger.info(f"Added {sum(len(exercise.sets) for exercise in session_data.exercises)} new sets for session {session_data.session_id}")
+            
+            if session.session_type_id == 2:  # Quest session
+                quest = await db.get(models.Quest, session.quest_id)
+                if quest:
+                    quest.status = schemas.QuestStatus.COMPLETED
+                    logger.info(f"Updated quest status to COMPLETED for quest_id: {session.quest_id}")
+            
+            if session.is_pt:
+                await update_remaining_sessions(session.member_uid, session.trainer_uid, authorization)
+                logger.info(f"Updated remaining sessions for PT session: {session_data.session_id}")
+            
+            await db.flush()
+            await db.refresh(session)
+            
+            logger.info(f"Session {session_data.session_id} saved successfully")
+            
+            # Convert to Pydantic model for safe serialization
+            response = schemas.SessionSaveResponse.from_orm(session)
+            return response
         
-        if session.member_uid != current_member['uid'] and current_member['user_type'] != 'trainer':
-            raise HTTPException(status_code=403, detail="Not authorized to save this session")
-        
-        # Delete existing exercises for this session
-        await db.execute(delete(models.Session).where(models.Session.session_id == session_data.session_id))
-        
-        # Add new exercises and sets
-        for exercise in session_data.exercises:
-            for set_data in exercise.sets:
-                new_set = models.Session(
-                    session_id=session_data.session_id,
-                    workout_key=exercise.workout_key,
-                    set_num=set_data.set_num,
-                    weight=set_data.weight,
-                    reps=set_data.reps,
-                    rest_time=set_data.rest_time
-                )
-                db.add(new_set)
-        
-        if session.session_type_id == 2:  # Quest session
-            quest = await db.get(models.Quest, session.quest_id)
-            if quest:
-                quest.status = schemas.QuestStatus.COMPLETED
-        
-        if session.is_pt:
-            await update_remaining_sessions(session.member_uid, session.trainer_uid, authorization)
-        
-        await db.commit()
-        await db.refresh(session)
-
-        # Convert to Pydantic model for safe serialization
-        return schemas.SessionSaveResponse(
-            session_id=session.session_id,
-            workout_date=session.workout_date,
-            member_uid=session.member_uid,
-            trainer_uid=session.trainer_uid,
-            is_pt=session.is_pt,
-            session_type_id=session.session_type_id,
-            quest_id=session.quest_id
-        )
-    except Exception as e:
-        logger.error(f"Error saving session: {str(e)}")
-        await db.rollback()
-        raise
+        except Exception as e:
+            logger.error(f"Error saving session {session_data.session_id}: {str(e)}")
+            raise
 
 async def update_remaining_sessions(member_uid: str, trainer_uid: str, token: str):
     async with httpx.AsyncClient() as client:
@@ -196,11 +192,54 @@ async def update_remaining_sessions(member_uid: str, trainer_uid: str, token: st
             raise HTTPException(status_code=500, detail="Unexpected error occurred")
 
     
-async def get_sessions_by_member(db: AsyncSession, member_uid: str):
-    query = select(models.SessionIDMap).filter_by(member_uid=member_uid)
+async def get_trainer_sessions(db: AsyncSession, trainer_uid: str):
+    query = select(models.SessionIDMap).options(
+        joinedload(models.SessionIDMap.sessions)
+    ).filter_by(trainer_uid=trainer_uid)
     result = await db.execute(query)
-    return result.scalars().all()
+    sessions = result.unique().scalars().all()
+    
+    return [schemas.SessionWithSets(
+        session_id=session.session_id,
+        workout_date=session.workout_date,
+        member_uid=session.member_uid,
+        trainer_uid=session.trainer_uid,
+        is_pt=session.is_pt,
+        session_type_id=session.session_type_id,
+        sets=[schemas.SetResponse(
+            session_id=set.session_id,
+            workout_key=set.workout_key,
+            set_num=set.set_num,
+            weight=set.weight,
+            reps=set.reps,
+            rest_time=set.rest_time
+        ) for set in session.sessions]
+    ) for session in sessions]
 
+async def get_sessions_by_member(db: AsyncSession, member_uid: str):
+    query = select(models.SessionIDMap).options(
+        joinedload(models.SessionIDMap.sessions)
+    ).filter_by(member_uid=member_uid)
+    result = await db.execute(query)
+    sessions = result.unique().scalars().all()
+    
+    return [schemas.SessionWithSets(
+        session_id=session.session_id,
+        workout_date=session.workout_date,
+        member_uid=session.member_uid,
+        trainer_uid=session.trainer_uid,
+        is_pt=session.is_pt,
+        session_type_id=session.session_type_id,
+        sets=[schemas.SetResponse(
+            session_id=set.session_id,
+            workout_key=set.workout_key,
+            set_num=set.set_num,
+            weight=set.weight,
+            reps=set.reps,
+            rest_time=set.rest_time
+        ) for set in session.sessions]
+    ) for session in sessions]
+    
 async def get_sets_by_session(db: AsyncSession, session_id: int):
     query = select(models.Session).filter_by(session_id=session_id)
     result = await db.execute(query)
@@ -295,6 +334,26 @@ async def update_quests_status(db: AsyncSession, member_uid: str):
         logger.error(f"Error updating quests status: {str(e)}")
         await db.rollback()
         raise
+
+async def get_sessions_by_member(db: AsyncSession, member_uid: str):
+    query = select(models.SessionIDMap).filter_by(member_uid=member_uid)
+    result = await db.execute(query)
+    sessions = result.scalars().all()
+    
+    session_with_sets = []
+    for session in sessions:
+        sets = await get_sets_by_session(db, session.session_id)
+        session_with_sets.append(schemas.SessionWithSets(
+            session_id=session.session_id,
+            workout_date=session.workout_date,
+            member_uid=session.member_uid,
+            trainer_uid=session.trainer_uid,
+            is_pt=session.is_pt,
+            session_type_id=session.session_type_id,
+            sets=[schemas.SetResponse(**set.__dict__) for set in sets]
+        ))
+    
+    return session_with_sets
 
 async def delete_quest(db: AsyncSession, quest_id: int):
     try:
@@ -471,4 +530,72 @@ async def search_workouts(db: AsyncSession, workout_name: str):
         return workouts
     except Exception as e:
         logger.error(f"Error searching workouts: {str(e)}", exc_info=True)
+        raise
+    
+async def get_trainer_name(token: str, trainer_uid: str):
+    async with httpx.AsyncClient() as client:
+        headers = {"Authorization": f"Bearer {token}"}
+        try:
+            url = f"{USER_SERVICE_URL}/api/trainers/byuid/{trainer_uid}"
+            response = await client.get(url, headers=headers)
+            response.raise_for_status()
+            trainer_data = response.json()
+            return f"{trainer_data['first_name']} {trainer_data['last_name']}"
+        except httpx.HTTPStatusError as e:
+            logger.error(f"HTTP error occurred while fetching trainer name: {e.response.status_code} - {e.response.text}")
+            return None
+        except Exception as e:
+            logger.error(f"Unexpected error occurred while fetching trainer name: {str(e)}")
+            return None
+
+async def get_session_detail(db: AsyncSession, session_id: int, token: str):
+    try:
+        stmt = select(models.SessionIDMap).options(
+            joinedload(models.SessionIDMap.sessions).joinedload(models.Session.workout_key_name_map).joinedload(models.WorkoutKeyNameMap.workout),
+            joinedload(models.SessionIDMap.sessions).joinedload(models.Session.workout_key_name_map).joinedload(models.WorkoutKeyNameMap.workout_part)
+        ).where(models.SessionIDMap.session_id == session_id)
+
+        result = await db.execute(stmt)
+        session = result.unique().scalar_one_or_none()
+
+        if not session:
+            return None
+
+        workouts = {}
+        for set_data in session.sessions:
+            workout_key = set_data.workout_key
+            if workout_key not in workouts:
+                workouts[workout_key] = {
+                    "workout_key": workout_key,
+                    "workout_name": set_data.workout_key_name_map.workout.workout_name,
+                    "workout_part": set_data.workout_key_name_map.workout_part.workout_part_name,
+                    "sets": []
+                }
+            workouts[workout_key]["sets"].append({
+                "set_num": set_data.set_num,
+                "weight": set_data.weight,
+                "reps": set_data.reps,
+                "rest_time": set_data.rest_time
+            })
+
+        session_type = await db.execute(select(models.SessionTypeMap).where(models.SessionTypeMap.session_type_id == session.session_type_id))
+        session_type = session_type.scalar_one_or_none()
+
+        trainer_name = None
+        if session.trainer_uid:
+            trainer_name = await get_trainer_name(token, session.trainer_uid)
+
+        return schemas.SessionDetail(
+            session_id=session.session_id,
+            workout_date=session.workout_date,
+            member_uid=session.member_uid,
+            trainer_uid=session.trainer_uid,
+            trainer_name=trainer_name,
+            is_pt=session.is_pt,
+            session_type_id=session.session_type_id,
+            session_type=session_type.session_type if session_type else "Unknown",
+            workouts=[schemas.WorkoutDetail(**workout) for workout in workouts.values()]
+        )
+    except Exception as e:
+        logging.error(f"Error getting session detail: {str(e)}", exc_info=True)
         raise

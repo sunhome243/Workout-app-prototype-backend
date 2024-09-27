@@ -399,20 +399,19 @@ async def get_remaining_sessions(
 async def update_sessions(
     other_uid: str,
     request: schemas.UpdateSessionsRequest,
-    current_user: Union[models.Member, models.Trainer] = Depends(utils.get_current_user),
+    current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        current_user_role = get_current_user_role(current_user)
-        if current_user_role != 'trainer':
+        user, user_type = current_user
+        if user_type != 'trainer':
             raise HTTPException(status_code=403, detail="Only trainers can update sessions")
 
-        new_remaining_sessions = await crud.update_sessions(db, current_user.uid, other_uid, request.sessions_to_add)
+        new_remaining_sessions = await crud.update_sessions(db, user.uid, other_uid, request.sessions_to_add)
         return {"remaining_sessions": new_remaining_sessions}
     except Exception as e:
         logging.error(f"Error updating sessions: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to update sessions: {str(e)}")
-
 
 @router.post("/api/request-more-sessions/{trainer_uid}")
 async def request_more_sessions(
@@ -518,8 +517,13 @@ async def update_last_active(
 async def check_trainer_member_mapping(
     trainer_uid: str,
     member_uid: str,
+    current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
     db: AsyncSession = Depends(get_db)
 ):
+    user, user_type = current_user
+    if user_type != 'trainer' or user.uid != trainer_uid:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
     try:
         mapping = await crud.get_trainer_member_mapping(db, trainer_uid, member_uid)
         if mapping and mapping.status == schemas.MappingStatus.accepted:
@@ -529,6 +533,23 @@ async def check_trainer_member_mapping(
         logger.error(f"Error checking trainer-member mapping: {str(e)}")
         raise HTTPException(status_code=500, detail="Error checking trainer-member mapping")
 
+@router.get("/api/trainer/{trainer_uid}/assigned-members", response_model=List[schemas.MemberBasicInfo])
+async def get_trainer_assigned_members(
+    trainer_uid: str,
+    current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
+    db: AsyncSession = Depends(get_db)
+):
+    user, user_type = current_user
+    if user_type != 'trainer' or user.uid != trainer_uid:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    try:
+        assigned_members = await crud.get_trainer_assigned_members(db, trainer_uid)
+        return assigned_members
+    except Exception as e:
+        logger.error(f"Error fetching assigned members: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching assigned members: {str(e)}")
+    
 # 비활성 토큰 제거 작업 (백그라운드 태스크로 실행)
 @app.on_event("startup")
 @repeat_every(seconds=60*60*24)  # 매일 실행

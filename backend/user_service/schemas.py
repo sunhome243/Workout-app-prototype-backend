@@ -142,3 +142,12 @@ class RequestMoreSessionsSchema(BaseModel):
 
 class SessionRequestResponse(BaseModel):
     status: str  # 'approved' or 'rejected'
+    
+class MemberBasicInfo(BaseModel):
+    uid: str
+    email: str
+    first_name: str
+    last_name: str
+
+    class Config:
+        orm_mode = True

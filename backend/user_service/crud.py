@@ -7,6 +7,10 @@ from . import models, schemas
 import logging
 from firebase_admin import auth
 import asyncio
+from sqlalchemy.orm import joinedload
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 async def get_member_by_uid(db: AsyncSession, uid: str):
     result = await db.execute(select(models.Member).filter(models.Member.uid == uid))
@@ -367,3 +371,23 @@ async def update_member(db: AsyncSession, member: models.Member, member_update: 
     await db.commit()
     await db.refresh(member)
     return member
+
+async def get_trainer_assigned_members(db: AsyncSession, trainer_uid: str):
+    try:
+        query = select(models.TrainerMemberMap).filter(
+            models.TrainerMemberMap.trainer_uid == trainer_uid,
+            models.TrainerMemberMap.status == 'accepted'
+        ).options(joinedload(models.TrainerMemberMap.member))
+        
+        result = await db.execute(query)
+        mappings = result.unique().scalars().all()
+        
+        return [schemas.MemberBasicInfo(
+            uid=mapping.member.uid,
+            email=mapping.member.email,
+            first_name=mapping.member.first_name,
+            last_name=mapping.member.last_name
+        ) for mapping in mappings]
+    except Exception as e:
+        logger.error(f"Error in get_trainer_assigned_members: {str(e)}")
+        raise

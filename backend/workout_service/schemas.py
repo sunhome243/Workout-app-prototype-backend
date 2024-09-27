@@ -46,8 +46,19 @@ class SetResponse(SetCreate):
 class SessionResponse(SessionCreate):
     session_id: int
 
-class SessionWithSets(SessionResponse):
-    sets: list[SetResponse]
+class SessionWithSets(BaseModel):
+    session_id: int
+    workout_date: datetime
+    member_uid: str
+    trainer_uid: str | None
+    is_pt: bool
+    session_type_id: int
+    sets: List[SetResponse]
+
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }
     
 class QuestWorkoutSetCreate(BaseModel):
     set_number: int
@@ -127,10 +138,38 @@ class SessionSaveResponse(BaseModel):
     session_type_id: int
     quest_id: Optional[int] = None
 
-    class ConfigDict(ConfigDict):
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
         
 class WorkoutInfo(BaseModel):
     workout_key: int
     workout_name: str
     workout_part: str
+    
+class UserBasic(BaseModel):
+    uid: str
+    role: str
+    
+class SetDetail(BaseModel):
+    set_num: int
+    weight: float
+    reps: int
+    rest_time: int
+
+class WorkoutDetail(BaseModel):
+    workout_key: int
+    workout_name: str
+    workout_part: str
+    sets: List[SetDetail]
+
+class SessionDetail(BaseModel):
+    session_id: int
+    workout_date: datetime
+    member_uid: str
+    trainer_uid: Optional[str]
+    trainer_name: Optional[str]
+    is_pt: bool
+    session_type_id: int
+    session_type: str
+    workouts: List[WorkoutDetail]
+
+    model_config = ConfigDict(from_attributes=True)
