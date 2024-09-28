@@ -204,6 +204,6 @@ For detailed information about request and response data models, please refer to
 
 ## Contact
 
-If you have any questions, issues, or need further clarification about the API, please don't hesitate to contact our development team at dev@workoutapp.com.
+If you have any questions, issues, or need further clarification about the API, please don't hesitate to contact our development team at kim_s4@denison.edu
 
 We're here to help you integrate our API successfully into your applications!
