@@ -1,0 +1,10 @@
+{
+  "projects": {
+    "default": "fitsync-app-c93ad"
+  },
+  "dataconnectEmulatorConfig": {
+    "postgres": {
+      "localConnectionString": "database"
+    }
+  }
+}

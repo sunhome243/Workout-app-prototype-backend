@@ -6,3 +6,6 @@ alembic_user.ini
 alembic_user_test.ini
 alembic_wo_test.ini
 alembic_wo.ini
+venv
+myenv
+app.log

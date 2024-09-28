@@ -7,11 +7,12 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import text
-from backend.user_service.database import Base as UserBase, get_db as get_user_db
-from backend.user_service.main import app as user_app
+from backend.user_service.database import Base as MemberBase, get_db as get_member_db
+from backend.user_service.main import app as member_app
 from backend.workout_service.database import Base as WorkoutBase, get_db as get_workout_db
 from backend.workout_service.main import app as workout_app
 from backend.user_service import models, utils
+from unittest.mock import patch
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -20,15 +21,14 @@ logger = logging.getLogger(__name__)
 # Use in-memory SQLite for testing
 DB_URL = os.getenv('TEST_DATABASE_URL', 'sqlite+aiosqlite:///:memory:')
 
-
 @pytest_asyncio.fixture(scope="session")
 async def engine():
     logger.info("Creating database engine")
     engine = create_async_engine(DB_URL, poolclass=NullPool, echo=True)
     
     async with engine.begin() as conn:
-        logger.info("Creating tables for UserBase")
-        await conn.run_sync(UserBase.metadata.create_all)
+        logger.info("Creating tables for MemberBase")
+        await conn.run_sync(MemberBase.metadata.create_all)
         logger.info("Creating tables for WorkoutBase")
         await conn.run_sync(WorkoutBase.metadata.create_all)
     
@@ -39,7 +39,7 @@ async def engine():
 async def clear_data(session: AsyncSession):
     logger.info("Clearing data from all tables")
     async with session.begin():
-        for table in reversed(UserBase.metadata.sorted_tables):
+        for table in reversed(MemberBase.metadata.sorted_tables):
             await session.execute(table.delete())
         for table in reversed(WorkoutBase.metadata.sorted_tables):
             await session.execute(table.delete())
@@ -57,10 +57,10 @@ async def db_session(engine):
 async def user_client(db_session):
     async def override_get_db():
         yield db_session
-    user_app.dependency_overrides[get_user_db] = override_get_db
-    async with AsyncClient(transport=ASGITransport(app=user_app), base_url="http://test") as client:
+    member_app.dependency_overrides[get_member_db] = override_get_db
+    async with AsyncClient(transport=ASGITransport(app=member_app), base_url="http://test") as client:
         yield client
-    user_app.dependency_overrides.clear()
+    member_app.dependency_overrides.clear()
 
 @pytest_asyncio.fixture
 async def workout_client(db_session):
@@ -72,17 +72,17 @@ async def workout_client(db_session):
     workout_app.dependency_overrides.clear()
 
 @pytest.fixture
-def mock_current_user():
-    return models.User(
-        user_id=1,
+def mock_current_member():
+    return models.Member(
+        member_uid= "AAAAA",
         email="test@example.com",
         first_name="Test",
-        last_name="User",
-        role="user",
+        last_name="Member",
+        role="member",
         age=30,
         height=180.5,
         weight=75.0,
-        workout_duration=60,
+        workout_level=60,
         workout_frequency=3,
         workout_goal=1
     )
@@ -92,18 +92,18 @@ def mock_auth_token():
     return "test_token"
 
 @pytest_asyncio.fixture
-async def authenticated_user_client(user_client, mock_current_user, mock_auth_token):
-    async def mock_get_current_member():
-        return mock_current_user
+async def authenticated_user_client(user_client, mock_current_member, mock_auth_token):
+    async def mock_get_current_user():
+        return mock_current_member
     
-    user_app.dependency_overrides[utils.get_current_member] = mock_get_current_member
+    member_app.dependency_overrides[utils.get_current_user] = mock_get_current_user
     headers = user_client.headers.copy()
     headers["Authorization"] = f"Bearer {mock_auth_token}"
     
-    async with AsyncClient(transport=ASGITransport(app=user_app), base_url="http://test", headers=headers) as client:
+    async with AsyncClient(transport=ASGITransport(app=member_app), base_url="http://test", headers=headers) as client:
         yield client
     
-    user_app.dependency_overrides.clear()
+    member_app.dependency_overrides.clear()
 
 async def print_schema(engine):
     logger.info("Printing database schema")
@@ -126,7 +126,7 @@ async def print_schema(engine):
 @pytest.fixture
 def mock_current_trainer():
     return models.Trainer(
-        trainer_id=1,
+        trainer_uid="AAAAA",
         email="trainer@example.com",
         first_name="John",
         last_name="Doe",
@@ -136,14 +136,20 @@ def mock_current_trainer():
 
 @pytest_asyncio.fixture
 async def authenticated_trainer_client(user_client, mock_current_trainer, mock_auth_token):
-    async def mock_get_current_member():
+    async def mock_get_current_user():
         return mock_current_trainer
     
-    user_app.dependency_overrides[utils.get_current_member] = mock_get_current_member
+    member_app.dependency_overrides[utils.get_current_user] = mock_get_current_user
     headers = user_client.headers.copy()
     headers["Authorization"] = f"Bearer {mock_auth_token}"
     
-    async with AsyncClient(transport=ASGITransport(app=user_app), base_url="http://test", headers=headers) as client:
+    async with AsyncClient(transport=ASGITransport(app=member_app), base_url="http://test", headers=headers) as client:
         yield client
     
-    user_app.dependency_overrides.clear()
+    member_app.dependency_overrides.clear()
+    
+@pytest.fixture
+def mock_auth():
+    with patch("backend.workout_service.utils.get_current_user") as mock:
+        mock.return_value = {"id": "member1", "user_type": "member"}
+        yield mock
