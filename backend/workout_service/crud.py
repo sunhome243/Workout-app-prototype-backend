@@ -12,10 +12,13 @@ from collections import defaultdict
 from fastapi import HTTPException
 from typing import Union, List, Dict, Optional, Tuple
 from firebase_admin import auth
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 logger = logging.getLogger(__name__)
 
-USER_SERVICE_URL = "http://127.0.0.1:8000"
+USER_SERVICE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
 
 caches.set_config({
     'default': {
@@ -177,7 +180,7 @@ async def save_session(db: AsyncSession, session_data: schemas.SessionSave, curr
 async def update_remaining_sessions(member_uid: str, trainer_uid: str, token: str):
     async with httpx.AsyncClient() as client:
         try:
-            url = f"{USER_SERVICE_URL}/api/trainer-member-mapping/{member_uid}/update-sessions"
+            url = f"{USER_SERVICE_URL}/user-service/trainer-member-mapping/{member_uid}/update-sessions"
             data = {"sessions_to_add": -1}  # Decrease by 1
             headers = {"Authorization": f"Bearer {token}"}
             response = await client.patch(url, json=data, headers=headers)
@@ -536,7 +539,7 @@ async def get_trainer_name(token: str, trainer_uid: str):
     async with httpx.AsyncClient() as client:
         headers = {"Authorization": f"Bearer {token}"}
         try:
-            url = f"{USER_SERVICE_URL}/api/trainers/byuid/{trainer_uid}"
+            url = f"{USER_SERVICE_URL}/user-service/trainers/byuid/{trainer_uid}"
             response = await client.get(url, headers=headers)
             response.raise_for_status()
             trainer_data = response.json()

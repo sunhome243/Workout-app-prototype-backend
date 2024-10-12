@@ -3,11 +3,12 @@ from sqlalchemy import select, delete, or_, and_, update
 from sqlalchemy.exc import SQLAlchemyError
 from fastapi import HTTPException
 from datetime import datetime, timedelta 
-from . import models, schemas
+from backend.user_service import models, schemas
 import logging
 from firebase_admin import auth
 import asyncio
 from sqlalchemy.orm import joinedload
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

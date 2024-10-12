@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, delete, func
-from . import models
+from backend.user_service import models
 from datetime import datetime, timedelta
 import logging
 

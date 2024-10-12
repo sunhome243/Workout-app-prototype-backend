@@ -2,9 +2,9 @@ import logging
 from fastapi import FastAPI, APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Annotated, Union, Optional, Tuple
-from . import crud, models, schemas, utils
-from .database import get_db
-from . import fcm_token_management
+from backend.user_service import crud, models, schemas, utils
+from backend.user_service.database import get_db
+from backend.user_service import fcm_token_management
 from fastapi.middleware.cors import CORSMiddleware
 from firebase_admin import auth, db, messaging
 from firebase_admin_init import initialize_firebase
@@ -12,6 +12,7 @@ from fastapi_utils.tasks import repeat_every
 import uuid
 import time
 import asyncio
+
 
 initialize_firebase()
 
@@ -44,7 +45,11 @@ app.add_middleware(
 
 router = APIRouter()
 
-@router.post("/api/users/", response_model=schemas.UserCreate)
+@router.get("/user-service/health")
+def health_check():
+    return {"status": "healthy"}
+
+@router.post("/user-service/users/", response_model=schemas.UserCreate)
 async def create_user(user: schemas.UserCreate, db: AsyncSession = Depends(get_db)):
     logger.info(f"Received request to create user: {user}")
     try:
@@ -86,7 +91,7 @@ async def create_user(user: schemas.UserCreate, db: AsyncSession = Depends(get_d
         logger.exception(f"Unexpected error in create_user: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to create user: {str(e)}")
 
-@router.get("/api/members/me/", response_model=schemas.Member)
+@router.get("/user-service/members/me/", response_model=schemas.Member)
 async def read_members_me(
     current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
 ):
@@ -95,21 +100,21 @@ async def read_members_me(
         raise HTTPException(status_code=403, detail="Access denied")
     return user
 
-@router.get("/api/members/byuid/{uid}", response_model=schemas.Member)
+@router.get("/user-service/members/byuid/{uid}", response_model=schemas.Member)
 async def read_member_uid(uid: str, db: AsyncSession = Depends(get_db)):
     db_member = await crud.get_member_by_uid(db, uid=uid)
     if db_member is None:
         raise HTTPException(status_code=404, detail="Member not found")
     return db_member
 
-@router.get("/api/trainers/byuid/{uid}", response_model=schemas.Trainer)
+@router.get("/user-service/trainers/byuid/{uid}", response_model=schemas.Trainer)
 async def read_trainer_uid(uid: str, db: AsyncSession = Depends(get_db)):
     db_trainer = await crud.get_trainer_by_uid(db, uid=uid)
     if db_trainer is None:
         raise HTTPException(status_code=404, detail="Trainer not found")
     return db_trainer
 
-@router.get("/api/trainers/me/", response_model=schemas.Trainer)
+@router.get("/user-service/trainers/me/", response_model=schemas.Trainer)
 async def read_trainer_me(
     current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
 ):
@@ -118,21 +123,21 @@ async def read_trainer_me(
         raise HTTPException(status_code=403, detail="Access denied")
     return user
 
-@router.get("/api/members/byemail/{email}", response_model=schemas.Member)
+@router.get("/user-service/members/byemail/{email}", response_model=schemas.Member)
 async def read_member_email(email: str, db: AsyncSession = Depends(get_db)):
     db_member = await crud.get_member_by_email(db, email=email)
     if db_member is None:
         raise HTTPException(status_code=404, detail="Member not found")
     return db_member
 
-@router.get("/api/trainers/byemail/{email}", response_model=schemas.Trainer)
+@router.get("/user-service/trainers/byemail/{email}", response_model=schemas.Trainer)
 async def read_trainer_email(email: str, db: AsyncSession = Depends(get_db)):
     db_trainer = await crud.get_trainer_by_email(db, email=email)
     if db_trainer is None:
         raise HTTPException(status_code=404, detail="Trainer not found")
     return db_trainer
 
-@router.post("/api/trainer-member-mapping/request", response_model=schemas.TrainerMemberMappingResponse)
+@router.post("/user-service/trainer-member-mapping/request", response_model=schemas.TrainerMemberMappingResponse)
 async def request_trainer_member_mapping(
     mapping: schemas.CreateTrainerMemberMapping,
     current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
@@ -178,7 +183,7 @@ async def request_trainer_member_mapping(
         logging.error(f"Unexpected error in request_trainer_member_mapping: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="An unexpected error occurred. Please try again later.")
     
-@router.patch("/api/trainer-member-mapping/{mapping_id}/status", response_model=schemas.TrainerMemberMappingResponse)
+@router.patch("/user-service/trainer-member-mapping/{mapping_id}/status", response_model=schemas.TrainerMemberMappingResponse)
 async def update_trainer_member_mapping_status(
     mapping_id: int,
     status_update: schemas.TrainerMemberMappingUpdate,
@@ -224,7 +229,7 @@ async def update_trainer_member_mapping_status(
         logging.error(f"Error updating mapping status: {str(e)}")
         raise HTTPException(status_code=500, detail="An error occurred while updating the mapping status")
     
-@router.get("/api/my-mappings/", response_model=List[Union[schemas.MemberMappingInfoWithSessions, schemas.TrainerMappingInfo]])
+@router.get("/user-service/my-mappings/", response_model=List[Union[schemas.MemberMappingInfoWithSessions, schemas.TrainerMappingInfo]])
 async def read_my_mappings(
     current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
     db: AsyncSession = Depends(get_db)
@@ -234,7 +239,7 @@ async def read_my_mappings(
     mappings = await crud.get_member_mappings(db, user.uid, is_trainer)
     return mappings
 
-@router.delete("/api/trainer-member-mapping/{other_uid}", response_model=schemas.Message)
+@router.delete("/user-service/trainer-member-mapping/{other_uid}", response_model=schemas.Message)
 async def remove_specific_mapping(
     other_uid: str,
     current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
@@ -254,7 +259,7 @@ async def remove_specific_mapping(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error occurred: {str(e)}")
 
-@router.get("/api/members/me/", response_model=schemas.Member)
+@router.get("/user-service/members/me/", response_model=schemas.Member)
 async def read_members_me(
     current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
 ):
@@ -263,7 +268,7 @@ async def read_members_me(
         raise HTTPException(status_code=403, detail="Access denied")
     return user
 
-@router.get("/api/trainers/me/", response_model=schemas.Trainer)
+@router.get("/user-service/trainers/me/", response_model=schemas.Trainer)
 async def read_trainer_me(
     current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
 ):
@@ -273,7 +278,7 @@ async def read_trainer_me(
     return user
 
 
-@router.get("/api/trainer/connected-members/{member_uid}", response_model=Optional[schemas.ConnectedMemberInfo])
+@router.get("/user-service/trainer/connected-members/{member_uid}", response_model=Optional[schemas.ConnectedMemberInfo])
 async def read_specific_connected_member_info(
     member_uid: str,
     current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
@@ -288,7 +293,7 @@ async def read_specific_connected_member_info(
         raise HTTPException(status_code=404, detail="Connected member not found")
     return member_info
 
-@router.delete("/api/members/me/", response_model=schemas.Member)
+@router.delete("/user-service/members/me/", response_model=schemas.Member)
 async def delete_members_me(
     current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
     db: AsyncSession = Depends(get_db)
@@ -306,7 +311,7 @@ async def delete_members_me(
         logging.error(f"Error deleting member: {str(e)}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to delete member: {str(e)}")
 
-@router.delete("/api/trainers/me/", response_model=schemas.Trainer)
+@router.delete("/user-service/trainers/me/", response_model=schemas.Trainer)
 async def delete_trainers_me(
     current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
     db: AsyncSession = Depends(get_db)
@@ -324,7 +329,7 @@ async def delete_trainers_me(
         logging.error(f"Error deleting trainer: {str(e)}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to delete trainer: {str(e)}")
 
-@router.post("/api/trainer-member-mapping/request", response_model=schemas.TrainerMemberMappingResponse)
+@router.post("/user-service/trainer-member-mapping/request", response_model=schemas.TrainerMemberMappingResponse)
 async def request_trainer_member_mapping(
     mapping: schemas.CreateTrainerMemberMapping,
     current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
@@ -370,7 +375,7 @@ async def request_trainer_member_mapping(
         logging.error(f"Unexpected error in request_trainer_member_mapping: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="An unexpected error occurred. Please try again later.")
     
-@router.get("/api/trainer-member-mapping/{other_uid}/sessions", response_model=schemas.RemainingSessionsResponse)
+@router.get("/user-service/trainer-member-mapping/{other_uid}/sessions", response_model=schemas.RemainingSessionsResponse)
 async def get_remaining_sessions(
     other_uid: str,
     current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
@@ -395,7 +400,7 @@ async def get_remaining_sessions(
         logging.error(f"Error getting remaining sessions: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to get remaining sessions: {str(e)}")
     
-@router.patch("/api/trainer-member-mapping/{other_uid}/update-sessions", response_model=schemas.RemainingSessionsResponse)
+@router.patch("/user-service/trainer-member-mapping/{other_uid}/update-sessions", response_model=schemas.RemainingSessionsResponse)
 async def update_sessions(
     other_uid: str,
     request: schemas.UpdateSessionsRequest,
@@ -413,7 +418,7 @@ async def update_sessions(
         logging.error(f"Error updating sessions: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Failed to update sessions: {str(e)}")
 
-@router.post("/api/request-more-sessions/{trainer_uid}")
+@router.post("/user-service/request-more-sessions/{trainer_uid}")
 async def request_more_sessions(
     trainer_uid: str,
     request: schemas.RequestMoreSessionsSchema,
@@ -455,7 +460,7 @@ async def request_more_sessions(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to request more sessions: {str(e)}")
 
-@router.patch("/api/members/me", response_model=schemas.Member)
+@router.patch("/user-service/members/me", response_model=schemas.Member)
 async def update_member_me(
     member_update: schemas.MemberUpdate,
     current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
@@ -473,7 +478,7 @@ async def update_member_me(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred while updating member: {str(e)}")
 
-@router.post("/api/fcm-token")
+@router.post("/user-service/fcm-token")
 async def add_fcm_token(
     token: str,
     current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
@@ -483,7 +488,7 @@ async def add_fcm_token(
     updated_tokens = await fcm_token_management.add_fcm_token(db, user.uid, token, user_type == 'trainer')
     return {"message": "FCM token added successfully", "tokens": updated_tokens}
 
-@router.delete("/api/fcm-token")
+@router.delete("/user-service/fcm-token")
 async def remove_fcm_token(
     token: str,
     current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
@@ -493,7 +498,7 @@ async def remove_fcm_token(
     updated_tokens = await fcm_token_management.remove_fcm_token(db, user.uid, token, user_type == 'trainer')
     return {"message": "FCM token removed successfully", "tokens": updated_tokens}
 
-@router.put("/api/fcm-token")
+@router.put("/user-service/fcm-token")
 async def refresh_fcm_token(
     old_token: str,
     new_token: str,
@@ -504,7 +509,7 @@ async def refresh_fcm_token(
     updated_tokens = await fcm_token_management.refresh_fcm_token(db, user.uid, old_token, new_token, user_type == 'trainer')
     return {"message": "FCM token refreshed successfully", "tokens": updated_tokens}
 
-@router.post("/api/update-last-active")
+@router.post("/user-service/update-last-active")
 async def update_last_active(
     current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],
     db: AsyncSession = Depends(get_db)
@@ -513,7 +518,7 @@ async def update_last_active(
     await fcm_token_management.update_user_last_active(db, user.uid, user_type == 'trainer')
     return {"message": "Last active timestamp updated successfully"}
 
-@router.get("/api/check-trainer-member-mapping/{trainer_uid}/{member_uid}")
+@router.get("/user-service/check-trainer-member-mapping/{trainer_uid}/{member_uid}")
 async def check_trainer_member_mapping(
     trainer_uid: str,
     member_uid: str,
@@ -533,7 +538,7 @@ async def check_trainer_member_mapping(
         logger.error(f"Error checking trainer-member mapping: {str(e)}")
         raise HTTPException(status_code=500, detail="Error checking trainer-member mapping")
 
-@router.get("/api/trainer/{trainer_uid}/assigned-members", response_model=List[schemas.MemberBasicInfo])
+@router.get("/user-service/trainer/{trainer_uid}/assigned-members", response_model=List[schemas.MemberBasicInfo])
 async def get_trainer_assigned_members(
     trainer_uid: str,
     current_user: Annotated[Tuple[Union[models.Member, models.Trainer], str], Depends(utils.get_current_user)],

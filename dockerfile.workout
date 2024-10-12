@@ -1,0 +1,34 @@
+# Use the specified python:3.12.7-bookworm base image
+FROM python:3.12.7-bookworm
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Upgrade pip
+RUN pip install --upgrade pip
+
+# Copy the requirements file into the container
+COPY requirements.txt .
+
+# Install the dependencies from requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install Uvicorn and Gunicorn for running FastAPI
+RUN pip install "uvicorn[standard]" gunicorn
+
+# Copy only the service-specific backend directory (user_service or workout_service)
+# For user-service, replace "workout_service" with "user_service" when needed
+COPY ./backend/workout_service /app/backend/workout_service
+COPY ./backend/__init__.py /app/backend/
+
+# Copy the main application files
+COPY ./backend/workout_service/main.py ./backend/workout_service/crud.py ./backend/workout_service/models.py ./backend/workout_service/utils.py ./backend/workout_service/schemas.py ./
+    # Expose the port FastAPI will run on
+EXPOSE 8000
+
+COPY firebase_admin_init.py firebase.json ./
+
+COPY .env .env
+
+# Set the command to run the app using Gunicorn with Uvicorn workers
+CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:80"]

@@ -7,9 +7,12 @@ from .database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 import logging
 import httpx
+from dotenv import load_dotenv
+import os 
 
+load_dotenv()
 # User Service URL
-USER_SERVICE_URL = "http://localhost:8000"  # User Service의 URL로 변경하세요
+USER_SERVICE_URL = os.getenv("SQLALCHEMY_DATABASE_URL") 
 
 # 토큰 검증 결과를 캐시하기 위한 TTLCache 설정
 token_cache = TTLCache(maxsize=1000, ttl=timedelta(minutes=5).total_seconds())

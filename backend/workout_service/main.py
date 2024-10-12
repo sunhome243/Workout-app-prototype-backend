@@ -13,9 +13,12 @@ import httpx
 from firebase_admin import auth, credentials
 import firebase_admin
 from backend.workout_service import models 
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 initialize_firebase()
-USER_SERVICE_URL = "http://localhost:8000"
+USER_SERVICE_URL = os.getenv("SQLALCHEMY_DATABASE_URL")
 
 # 로깅 설정
 logging.basicConfig(
@@ -66,11 +69,15 @@ def custom_openapi():
 
 app.openapi = custom_openapi
 
-@app.get("/docs", include_in_schema=False)
+@app.get("/workout-service/health")
+def health_check():
+    return {"status": "healthy"}
+
+@app.get("/workout-service/docs", include_in_schema=False)
 async def get_documentation():
     return get_swagger_ui_html(openapi_url="/openapi.json", title="docs")
 
-@app.get("/openapi.json", include_in_schema=False)
+@app.get("/workout-service/openapi.json", include_in_schema=False)
 async def get_openapi_json():
     return app.openapi()
 
@@ -85,7 +92,7 @@ async def get_current_user(authorization: str = Header(...)):
         logger.error(f"Error verifying token: {str(e)}")
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
-@app.post("/api/create_session", response_model=schemas.SessionIDMap)
+@app.post("/workout-service/create_session", response_model=schemas.SessionIDMap)
 async def create_session_endpoint(
     request: Request,
     session_type_id: Optional[int] = Query(None, description="Session type ID. If not provided, it will be automatically set based on user type."),
@@ -127,7 +134,7 @@ async def create_session_endpoint(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error creating session: {str(e)}")
     
-@app.get("/api/get_oldest_not_started_quest", response_model=schemas.Quest)
+@app.get("/workout-service/get_oldest_not_started_quest", response_model=schemas.Quest)
 async def get_oldest_not_started_quest(
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)
@@ -142,7 +149,7 @@ async def get_oldest_not_started_quest(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching oldest not started quest: {str(e)}")
 
-@app.post("/api/save_session", response_model=schemas.SessionSaveResponse)
+@app.post("/workout-service/save_session", response_model=schemas.SessionSaveResponse)
 async def save_session(
     request: Request,
     session_data: schemas.SessionSave,
@@ -158,7 +165,7 @@ async def save_session(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error saving session: {str(e)}")
 
-@app.get("/api/session/{session_id}", response_model=schemas.SessionDetail)
+@app.get("/workout-service/session/{session_id}", response_model=schemas.SessionDetail)
 async def get_session_detail(
     session_id: int,
     request: Request,
@@ -188,7 +195,7 @@ async def get_session_detail(
         logging.error(f"Error retrieving session detail: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error retrieving session detail: {str(e)}")
     
-@app.post("/api/create_quest", response_model=schemas.Quest)
+@app.post("/workout-service/create_quest", response_model=schemas.Quest)
 async def create_quest_endpoint(
     request: Request,
     quest_data: schemas.QuestCreate,
@@ -214,7 +221,7 @@ async def create_quest_endpoint(
         logger.error(f"Unexpected error in create_quest: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
-@app.get("/api/quests", response_model=List[schemas.Quest])
+@app.get("/workout-service/quests", response_model=List[schemas.Quest])
 async def read_quests(
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)
@@ -232,7 +239,7 @@ async def read_quests(
         logger.error(f"Error reading quests: {str(e)}")
         raise HTTPException(status_code=500, detail="Error reading quests")
 
-@app.get("/api/quests/{member_uid}", response_model=List[schemas.Quest])
+@app.get("/workout-service/quests/{member_uid}", response_model=List[schemas.Quest])
 async def read_quests_for_member(
     request: Request,
     member_uid: str,
@@ -260,7 +267,7 @@ async def read_quests_for_member(
         logger.error(f"Error reading quests for member: {str(e)}")
         raise HTTPException(status_code=500, detail="Error reading quests for member")
 
-@app.delete("/api/quests/{quest_id}", status_code=204)
+@app.delete("/workout-service/quests/{quest_id}", status_code=204)
 async def delete_quest(
     quest_id: int = Path(..., title="The ID of the quest to delete"),
     db: AsyncSession = Depends(get_db),
@@ -290,7 +297,7 @@ async def delete_quest(
         logger.error(f"Error deleting quest: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error deleting quest: {str(e)}")
 
-@app.get("/api/workout-records/{workout_key}", response_model=Dict[int, schemas.QuestWorkoutRecord])
+@app.get("/workout-service/workout-records/{workout_key}", response_model=Dict[int, schemas.QuestWorkoutRecord])
 async def get_workout_records(
     workout_key: int = Path(..., title="The workout key of the workout"),
     db: AsyncSession = Depends(get_db),
@@ -305,7 +312,7 @@ async def get_workout_records(
         logger.error(f"Error retrieving workout records: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error retrieving workout records: {str(e)}")
 
-@app.get("/api/workout-name/{workout_key}", response_model=schemas.WorkoutName)
+@app.get("/workout-service/workout-name/{workout_key}", response_model=schemas.WorkoutName)
 async def get_workout_name(
     workout_key: int = Path(..., title="The workout key"),
     db: AsyncSession = Depends(get_db),
@@ -323,7 +330,7 @@ async def get_workout_name(
         logger.error(f"Error retrieving workout name: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error retrieving workout name: {str(e)}")
 
-@app.get("/api/search-workouts", response_model=List[schemas.WorkoutInfo])
+@app.get("/workout-service/search-workouts", response_model=List[schemas.WorkoutInfo])
 async def search_workouts(
     workout_name: str = Query(..., description="The name of the workout to search for"),
     db: AsyncSession = Depends(get_db),
@@ -341,7 +348,7 @@ async def search_workouts(
         logger.error(f"Error searching workouts: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error searching workouts: {str(e)}")
 
-@app.get("/api/workouts-by-part", response_model=Dict[str, List[schemas.WorkoutInfo]])
+@app.get("/workout-service/workouts-by-part", response_model=Dict[str, List[schemas.WorkoutInfo]])
 async def get_workouts_by_part(
     workout_part_id: int = Query(None, description="Optional: Filter by specific workout part ID"),
     db: AsyncSession = Depends(get_db),
@@ -356,7 +363,7 @@ async def get_workouts_by_part(
         logger.error(f"Error retrieving workouts by part: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error retrieving workouts by part: {str(e)}")
 
-@app.get("/api/session_counts/{member_uid}", response_model=Dict[str, int])
+@app.get("/workout-service/session_counts/{member_uid}", response_model=Dict[str, int])
 async def get_session_counts(
     request: Request,
     member_uid: str,
@@ -382,7 +389,7 @@ async def get_session_counts(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/last-session-update/{uid}")
+@app.get("/workout-service/last-session-update/{uid}")
 async def get_last_session_update(
     uid: str,
     db: AsyncSession = Depends(get_db),
@@ -397,7 +404,7 @@ async def get_last_session_update(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/trainer/assigned-members-sessions", response_model=List[schemas.SessionWithSets])
+@app.get("/workout-service/trainer/assigned-members-sessions", response_model=List[schemas.SessionWithSets])
 async def get_trainer_assigned_members_sessions(
     request: Request,
     current_user: dict = Depends(get_current_user),
@@ -412,7 +419,7 @@ async def get_trainer_assigned_members_sessions(
         # User Service에서 할당된 멤버 목록 가져오기
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                f"{USER_SERVICE_URL}/api/trainer/{current_user['uid']}/assigned-members",
+                f"{USER_SERVICE_URL}/user-service/trainer/{current_user['uid']}/assigned-members",
                 headers={"Authorization": f"Bearer {token}"}
             )
             response.raise_for_status()
@@ -441,7 +448,7 @@ async def get_trainer_assigned_members_sessions(
         logger.error(f"Error fetching assigned members' sessions: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error fetching assigned members' sessions: {str(e)}")
 
-@app.get("/api/session/{session_id}", response_model=schemas.SessionDetail)
+@app.get("/workout-service/session/{session_id}", response_model=schemas.SessionDetail)
 async def get_session_detail(
     session_id: int,
     request: Request,
@@ -471,7 +478,7 @@ async def get_session_detail(
         logging.error(f"Error retrieving session detail: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error retrieving session detail: {str(e)}")
 
-@app.get("/api/sessions", response_model=List[schemas.SessionWithSets])
+@app.get("/workout-service/sessions", response_model=List[schemas.SessionWithSets])
 async def get_sessions(
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)

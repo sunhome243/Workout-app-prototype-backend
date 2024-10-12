@@ -10,7 +10,7 @@ import httpx
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
-USER_SERVICE_URL = "http://localhost:8000"
+USER_SERVICE_URL = os.SQLALCHEMY_DATABASE_URL
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
